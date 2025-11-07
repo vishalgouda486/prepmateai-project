@@ -247,7 +247,7 @@ function initializeApp() {
       }
 
       try {
-        const response = await fetch("http://localhost:8000/hr-conversation", {
+        const response = await fetch("https://prepmateai-project.vercel.app/hr-conversation", {
           method: "POST",
           body: formData, 
         });

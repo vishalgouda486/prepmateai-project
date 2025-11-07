@@ -78,7 +78,7 @@ function initializeApp() {
     speechPlayButton.style.display = "none";
 
     try {
-      const response = await fetch("http://localhost:8000/generate-question", {
+      const response = await fetch("https://prepmateai-project.vercel.app/generate-question", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ "topic": topic }),
@@ -253,7 +253,7 @@ function initializeApp() {
     // --- ⭐️ END NEW CODE ---
 
     try {
-      const response = await fetch("http://localhost:8000/interview", {
+      const response = await fetch("https://prepmateai-project.vercel.app/interview", {
         method: "POST",
         body: formData, 
       });

@@ -78,7 +78,7 @@ function initializeApp() {
       isFetching = true;
       
       try {
-          const response = await fetch("http://localhost:8000/communication-topic");
+          const response = await fetch("https://prepmateai-project.vercel.app/communication-topic");
           const data = await response.json();
           isFetching = false;
           
@@ -238,7 +238,7 @@ function initializeApp() {
     formData.append("expressions", JSON.stringify(expressionData));
 
     try {
-      const response = await fetch("http://localhost:8000/communication-feedback", {
+      const response = await fetch("https://prepmateai-project.vercel.app/communication-feedback", {
         method: "POST",
         body: formData, 
       });

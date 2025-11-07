@@ -110,7 +110,7 @@ function initializeApp() {
       formData.append("resume_file", file);
 
       try {
-          const response = await fetch("http://localhost:8000/upload-practice-resume", {
+          const response = await fetch("https://prepmateai-project.vercel.app/upload-practice-resume", {
               method: "POST",
               body: formData,
           });
@@ -272,7 +272,7 @@ function initializeApp() {
       }
 
       try {
-        const response = await fetch("http://localhost:8000/resume-conversation", {
+        const response = await fetch("https://prepmateai-project.vercel.app/resume-conversation", {
           method: "POST",
           body: formData, 
         });

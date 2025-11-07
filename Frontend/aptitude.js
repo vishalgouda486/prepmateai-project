@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isFetching = true;
         
         try {
-            const response = await fetch("http://localhost:8000/aptitude-question", {
+            const response = await fetch("https://prepmateai-project.vercel.app/aptitude-question", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ topic: selectedTopic }),
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch("http://localhost:8000/aptitude-feedback", {
+            const response = await fetch("https://prepmateai-project.vercel.app/aptitude-feedback", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ results: practiceResults }),

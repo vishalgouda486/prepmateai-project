@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             // Call the /api/signup route we created in app.py
-            const response = await fetch("http://127.0.0.1:8000/api/signup", {
+            const response = await fetch("https://prepmateai-project.vercel.app/api/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

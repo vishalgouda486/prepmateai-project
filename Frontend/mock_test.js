@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const formData = new FormData();
         formData.append("resume_file", file);
         try {
-            const response = await fetch("http://localhost:8000/upload-practice-resume", {
+            const response = await fetch("https://prepmateai-project.vercel.app/upload-practice-resume", {
                 method: "POST",
                 body: formData,
             });
@@ -273,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Final results payload:", testState.allRoundResults);
 
         try {
-            const response = await fetch("http://localhost:8000/generate-final-report", {
+            const response = await fetch("https://prepmateai-project.vercel.app/generate-final-report", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ all_round_results: testState.allRoundResults })
@@ -330,7 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (testState.aptitude.isFetching) return null;
         testState.aptitude.isFetching = true;
         try {
-            const response = await fetch("http://localhost:8000/aptitude-question", {
+            const response = await fetch("https://prepmateai-project.vercel.app/aptitude-question", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ topic: "Mix" }),
@@ -524,7 +524,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loadCommunicationUI();
         testState.communication.isSubmitting = false;
         try {
-            const response = await fetch("http://localhost:8000/communication-topic");
+            const response = await fetch("https://prepmateai-project.vercel.app/communication-topic");
             const data = await response.json();
             if (data.error) throw new Error(data.error);
             testState.communication.currentTopic = data.topic;
@@ -644,7 +644,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("question", currentTopic); 
         formData.append("expressions", JSON.stringify(expressionData));
         try {
-            const response = await fetch("http://localhost:8000/communication-feedback", {
+            const response = await fetch("https://prepmateai-project.vercel.app/communication-feedback", {
                 method: "POST",
                 body: formData, 
             });
@@ -733,7 +733,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (testState.coding.isFetching) return null;
         testState.coding.isFetching = true;
         try {
-            const response = await fetch("http://localhost:8000/technical-question", {
+            const response = await fetch("https://prepmateai-project.vercel.app/technical-question", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -803,7 +803,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ui.outputBox.innerHTML = "Compiling & Running...";
 
             try {
-                const response = await fetch("http://localhost:8000/run-code", {
+                const response = await fetch("https://prepmateai-project.vercel.app/run-code", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1186,7 +1186,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8000${endpoint}`, {
+            const response = await fetch(`https://prepmateai-project.vercel.app${endpoint}`, {
                 method: "POST",
                 body: formData, 
             });

@@ -151,7 +151,7 @@ function initializeApp() {
         }
         
         try {
-            const response = await fetch("http://localhost:8000/technical-question", {
+            const response = await fetch("https://prepmateai-project.vercel.app/technical-question", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -229,7 +229,7 @@ function initializeApp() {
         const userCode = codeEditor.getValue();
         
         try {
-            const response = await fetch("http://localhost:8000/run-code", {
+            const response = await fetch("https://prepmateai-project.vercel.app/run-code", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

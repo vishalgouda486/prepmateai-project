@@ -30,7 +30,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 # --- App & DB Configuration ---
 app = Flask(__name__) 
 # We must list the exact origins. 'localhost' and '127.0.0.1' are seen as different!
-CORS(app, supports_credentials=True, origins=["http://localhost:8000"], allow_headers=["Content-Type", "Authorization"], expose_headers=["Content-Type"])
+CORS(app, supports_credentials=True, origins=["http://localhost:8000", "https://prepmateai-project.vercel.app"], allow_headers=["Content-Type", "Authorization"], expose_headers=["Content-Type"])
 
 # ⭐️ --- DATABASE CONFIGURATION UPDATE --- ⭐️
 # Get the database URL from an environment variable

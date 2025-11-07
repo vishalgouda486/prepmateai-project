@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const handleLogout = async () => {
         try {
             // Use the full URL
-            const response = await fetch("http://localhost:8000/api/logout", {
+            const response = await fetch("https://prepmateai-project.vercel.app/api/logout", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: 'include',
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkUserSession = async () => {
         try {
             // Use the full URL
-            const response = await fetch("http://localhost:8000/api/check_session", {
+            const response = await fetch("https://prepmateai-project.vercel.app/api/check_session", {
                 method: "GET",
                 credentials: 'include',
             });
