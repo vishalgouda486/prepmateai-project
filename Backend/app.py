@@ -105,13 +105,10 @@ def serve_frontend(path):
 
 
 
-# ⭐️ --- NEW AUTHENTICATION ROUTES (WITH 'OPTIONS' ADDED) --- ⭐️
+# ⭐️ --- NEW AUTHENTICATION ROUTES (CLEANED) --- ⭐️
 
-@app.route('/api/signup', methods=['POST', 'OPTIONS']) 
+@app.route('/api/signup', methods=['POST']) 
 def signup():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    
     data = request.get_json()
     username = data.get('username')
     email = data.get('email')
@@ -132,11 +129,8 @@ def signup():
 
     return jsonify({"message": "User created successfully"}), 201
 
-@app.route('/api/login', methods=['POST', 'OPTIONS'])
+@app.route('/api/login', methods=['POST'])
 def login():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
@@ -160,19 +154,14 @@ def login():
 
     return jsonify({"error": "Invalid email or password"}), 401
 
-@app.route('/api/logout', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/api/logout', methods=['POST'])
 @login_required 
 def logout():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
     logout_user()
     return jsonify({"message": "Logout successful"}), 200
 
-@app.route('/api/check_session', methods=['GET', 'OPTIONS'])
+@app.route('/api/check_session', methods=['GET'])
 def check_session():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-
     if current_user.is_authenticated:
         response = jsonify({"is_logged_in": True, "username": current_user.username})
     else:
@@ -182,12 +171,9 @@ def check_session():
     response.headers.add("Access-Control-Allow-Credentials", "true")
     return response, 200
         
-@app.route('/api/save_report', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/api/save_report', methods=['POST'])
 @login_required 
 def save_report():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-        
     user_id = current_user.id
     data = request.get_json()
     report_content = data.get('report_markdown')
@@ -200,32 +186,17 @@ def save_report():
     
     return jsonify({"message": "Report saved successfully (simulated)"}), 201
 
-# ⭐️ --- NEW HELPER FUNCTION FOR 'OPTIONS' --- ⭐️
-def _build_cors_preflight_response():
-    response = jsonify(success=True)
-    response.headers.add("Access-Control-Allow-Origin", "http://localhost:8000")
-    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-    response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
-    response.headers.add("Access-Control-Allow-Credentials", "true")
-    return response
-# ----------------------------------------------
+# ❌ --- REMOVED _build_cors_preflight_response FUNCTION --- ❌
 
 
 # --- ⭐️ OLD Frontend Routes (REMOVED) ⭐️ ---
-# We are no longer serving HTML from Flask.
-# @app.route('/')
-# ...
-# @app.route('/<path:path>')
 # ...
 
-# --- API Routes ---
-@app.route('/technical-question', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+# --- API Routes (CLEANED) ---
+@app.route('/technical-question', methods=['POST'])
 def technical_question():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
     data = request.get_json()
     topic = data.get("topic")
-    # ... (rest of the function is the same)
     language = data.get("language")
     if not topic or not language:
         return jsonify({"error": "Missing 'topic' or 'language' field"}), 400
@@ -234,13 +205,10 @@ def technical_question():
         return jsonify(question_data), 500
     return jsonify(question_data)
 
-@app.route('/run-code', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/run-code', methods=['POST'])
 def run_code():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
     data = request.get_json()
     user_code = data.get("user_code")
-    # ... (rest of the function is the same)
     language = data.get("language")
     test_cases = data.get("test_cases")
     if not all([user_code, language, test_cases]):
@@ -248,13 +216,10 @@ def run_code():
     results = run_code_with_judge0(user_code, language, test_cases)
     return jsonify(results)
 
-@app.route('/aptitude-question', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/aptitude-question', methods=['POST'])
 def aptitude_question():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
     data = request.get_json()
     topic = data.get("topic")
-    # ... (rest of the function is the same)
     if not topic:
         return jsonify({"error": "Missing 'topic' field"}), 400
     question_data = get_aptitude_question(topic)
@@ -262,13 +227,10 @@ def aptitude_question():
         return jsonify(question_data), 500
     return jsonify(question_data)
 
-@app.route('/aptitude-feedback', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/aptitude-feedback', methods=['POST'])
 def aptitude_feedback():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
     data = request.get_json()
     results = data.get("results")
-    # ... (rest of the function is the same)
     if not results:
         return jsonify({"error": "Missing 'results' data"}), 400
     feedback_text = get_aptitude_feedback(results)
@@ -276,12 +238,9 @@ def aptitude_feedback():
         return jsonify({"error": feedback_text}), 500
     return jsonify({"feedback": feedback_text})
 
-@app.route('/upload-resume', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/upload-resume', methods=['POST'])
 def upload_resume():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
     global current_resume_text
-    # ... (rest of the function is the same)
     if 'resume_file' not in request.files:
         return jsonify({"error": "No resume file part"}), 400
     resume_file = request.files['resume_file']
@@ -299,12 +258,9 @@ def upload_resume():
             return jsonify({"error": "Could not extract text from PDF."}), 500
     return jsonify({"error": "Invalid file type. Please upload a PDF."}), 400
 
-@app.route('/generate-question', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/generate-question', methods=['POST'])
 def generate_question():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
     global current_resume_text
-    # ... (rest of the function is the same)
     data = request.get_json()
     topic = data.get("topic")
     if not topic:
@@ -314,11 +270,8 @@ def generate_question():
     ai_question = generate_ai_question(topic, current_resume_text)
     return jsonify({"question": ai_question})
 
-@app.route('/interview', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/interview', methods=['POST'])
 def interview():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    # ... (rest of the function is the same)
     if 'audio_file' not in request.files:
         return jsonify({"error": "No audio file part"}), 400
     audio_file = request.files['audio_file']
@@ -345,11 +298,8 @@ def interview():
         return jsonify({"feedback": ai_feedback})
     return jsonify({"error": "Unknown error"}), 500
 
-@app.route('/communication-feedback', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/communication-feedback', methods=['POST'])
 def communication_feedback():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    # ... (rest of the function is the same)
     if 'audio_file' not in request.files:
         return jsonify({"error": "No audio file part"}), 400
     
@@ -382,21 +332,15 @@ def communication_feedback():
     
     return jsonify({"error": "Unknown error"}), 500
 
-@app.route('/communication-topic', methods=['GET', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/communication-topic', methods=['GET'])
 def communication_topic():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    # ... (rest of the function is the same)
     topic_data = generate_communication_topic()
     if "error" in topic_data:
         return jsonify(topic_data), 500
     return jsonify(topic_data)
 
-@app.route('/managerial-conversation', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/managerial-conversation', methods=['POST'])
 def managerial_conversation():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    # ... (rest of the function is the same)
     conversation_history = request.form.get('conversation_history')
     audio_file = request.files.get('audio_file')
     expression_data_json = request.form.get('expressions')
@@ -435,11 +379,8 @@ def managerial_conversation():
         
     return jsonify(response_data)
 
-@app.route('/hr-conversation', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/hr-conversation', methods=['POST'])
 def hr_conversation():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    # ... (rest of the function is the same)
     conversation_history = request.form.get('conversation_history')
     audio_file = request.files.get('audio_file')
     expression_data_json = request.form.get('expressions')
@@ -478,11 +419,8 @@ def hr_conversation():
         
     return jsonify(response_data)
 
-@app.route('/upload-practice-resume', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/upload-practice-resume', methods=['POST'])
 def upload_practice_resume():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    # ... (rest of the function is the same)
     if 'resume_file' not in request.files:
         return jsonify({"error": "No resume file part"}), 400
     resume_file = request.files['resume_file']
@@ -503,11 +441,8 @@ def upload_practice_resume():
             return jsonify({"error": "Could not extract text from PDF."}), 500
     return jsonify({"error": "Invalid file type. Please upload a PDF."}), 400
 
-@app.route('/resume-conversation', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/resume-conversation', methods=['POST'])
 def resume_conversation():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    # ... (rest of the function is the same)
     resume_text = request.form.get('resume_text')
     conversation_history = request.form.get('conversation_history')
     audio_file = request.files.get('audio_file')
@@ -550,11 +485,8 @@ def resume_conversation():
         
     return jsonify(response_data)
 
-@app.route('/generate-final-report', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/generate-final-report', methods=['POST'])
 def generate_final_report():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    # ... (rest of the function is the same)
     data = request.get_json()
     all_round_results = data.get("all_round_results")
 
