@@ -9,4 +9,4 @@ Flask-SQLAlchemy
 Flask-Bcrypt
 Flask-Login
 psycopg2-binary
-gladia
+gladia-sdk
