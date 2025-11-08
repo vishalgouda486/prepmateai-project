@@ -2,7 +2,7 @@ Flask
 Flask-Cors
 google-generativeai
 python-dotenv
-whisper
+openai-whisper
 pdfplumber
 requests
 gunicorn
