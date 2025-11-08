@@ -2,7 +2,6 @@ Flask
 Flask-Cors
 google-generativeai
 python-dotenv
-openai-whisper
 pdfplumber
 requests
 gunicorn
@@ -10,3 +9,4 @@ Flask-SQLAlchemy
 Flask-Bcrypt
 Flask-Login
 psycopg2-binary
+gladia-python

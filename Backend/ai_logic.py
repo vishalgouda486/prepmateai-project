@@ -1,8 +1,9 @@
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
-import whisper
 import json
+import io
+from gladia import Gladia # ⭐️ --- NEW IMPORT ---
 from collections import Counter
 import pdfplumber
 import re 
@@ -10,22 +11,30 @@ import requests
 import time
 from functools import wraps
 
-# --- Whisper lazy-load setup (add this just below the imports) ---
-whisper_model = None  # model holder
-
-def load_whisper_model():
-    """Load Whisper tiny only once, on first use."""
-    global whisper_model
-    if whisper_model is None:
-        print("Loading Whisper tiny model (lazy load)...")
-        whisper_model = whisper.load_model("tiny")
+# --- ❌ REMOVED WHISPER LAZY-LOAD SETUP ---
 
 # --- Load API Keys ---
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY") 
+JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY")
+# ⭐️ --- NEW: LOAD GLADIA KEY --- ⭐️
+GLADIA_API_KEY = os.getenv("GLADIA_API_KEY")
 
 genai.configure(api_key=GEMINI_API_KEY)
+
+# ⭐️ --- NEW: CONFIGURE GLADIA CLIENT --- ⭐️
+try:
+    if not GLADIA_API_KEY:
+        print("⚠️ WARNING: GLADIA_API_KEY not set. Transcription will fail.")
+        gladia_client = None
+    else:
+        gladia_client = Gladia(GLADIA_API_KEY)
+        print("✅ Gladia client configured.")
+except Exception as e:
+    print(f"❌ ERROR: Failed to initialize Gladia client: {e}")
+    gladia_client = None
+# ⭐️ --- END NEW GLADIA CLIENT --- ⭐️
+
 
 # ⭐️ --- ERROR HANDLING WRAPPER --- ⭐️
 def handle_gemini_errors(func):
@@ -70,23 +79,29 @@ def extract_text_from_pdf(pdf_file_path):
         print(f"Error extracting PDF text: {e}")
         return None
 
+# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (USING GLADIA API) --- ⭐️
 def transcribe_audio_to_text(audio_file_path):
     try:
-        # ensure model is loaded only once
-        load_whisper_model()
+        if not gladia_client:
+            return "Error: Gladia transcription service is not configured.", 0
+            
+        print(f"Transcribing audio from: {audio_file_path} using Gladia API")
+        
+        # 1. Send the request to Gladia
+        response = gladia_client.audio.transcription.sync_request(
+            file_path=audio_file_path,
+            language_behaviour="automatic single language",
+            language="english", # Be specific for better accuracy
+            output_format="json"
+        )
+        
+        # 2. Process the result
+        if not response or not response.prediction:
+            print("Transcription failed: No speech detected or error from GladIA.")
+            return "Error: No speech was detected in the audio.", 0
 
-        print(f"Transcribing audio from: {audio_file_path}")
-        result = whisper_model.transcribe(audio_file_path)
-
-        # text
-        transcript = result["text"]
-
-        # duration: take the end time of the last segment (more reliable than 'duration' key)
-        if "segments" in result and result["segments"]:
-            duration_seconds = result["segments"][-1].get("end", 0)
-        else:
-            # fallback if segments missing
-            duration_seconds = 0
+        transcript = response.prediction_full
+        duration_seconds = response.duration_seconds
 
         print(f"Transcribed text: {transcript}")
         print(f"Duration: {duration_seconds} seconds")
@@ -94,8 +109,10 @@ def transcribe_audio_to_text(audio_file_path):
         return transcript, duration_seconds
 
     except Exception as e:
-        print(f"Error during transcription: {e}")
+        print(f"Error during Gladia API transcription: {e}")
         return f"Error: {str(e)}", 0
+# ⭐️ --- END REBUILT TRANSCRIBE FUNCTION --- ⭐️
+
 
 @handle_gemini_errors
 def generate_ai_question(topic, resume_text=None):
