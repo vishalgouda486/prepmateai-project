@@ -8,7 +8,17 @@ import pdfplumber
 import re 
 import requests 
 import time
-from functools import wraps 
+from functools import wraps
+
+# --- Whisper lazy-load setup (add this just below the imports) ---
+whisper_model = None  # model holder
+
+def load_whisper_model():
+    """Load Whisper tiny only once, on first use."""
+    global whisper_model
+    if whisper_model is None:
+        print("Loading Whisper tiny model (lazy load)...")
+        whisper_model = whisper.load_model("tiny")
 
 # --- Load API Keys ---
 load_dotenv()
@@ -62,15 +72,21 @@ def extract_text_from_pdf(pdf_file_path):
 
 def transcribe_audio_to_text(audio_file_path):
     try:
+        # ensure model is loaded only once
+        load_whisper_model()
+
         print(f"Transcribing audio from: {audio_file_path}")
-
-        import whisper
-        whisper_model = whisper.load_model("tiny")  # ✅ load only when needed
-
         result = whisper_model.transcribe(audio_file_path)
 
+        # text
         transcript = result["text"]
-        duration_seconds = result["duration"]  # ✅ Whisper already gives audio duration
+
+        # duration: take the end time of the last segment (more reliable than 'duration' key)
+        if "segments" in result and result["segments"]:
+            duration_seconds = result["segments"][-1].get("end", 0)
+        else:
+            # fallback if segments missing
+            duration_seconds = 0
 
         print(f"Transcribed text: {transcript}")
         print(f"Duration: {duration_seconds} seconds")
