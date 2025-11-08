@@ -107,7 +107,7 @@ def serve_frontend(path):
 
 # ⭐️ --- NEW AUTHENTICATION ROUTES (WITH 'OPTIONS' ADDED) --- ⭐️
 
-@app.route('/api/signup', methods=['POST', 'OPTIONS']) # ⭐️ --- ADDED 'OPTIONS'
+@app.route('/api/signup', methods=['POST', 'OPTIONS']) 
 def signup():
     if request.method == 'OPTIONS':
         return _build_cors_preflight_response()
@@ -569,11 +569,8 @@ def generate_final_report():
     return jsonify({"report": report_text})
 
 
-import os   # ✅ ensure this is at the top of file
+# ✅ Always initialize DB when app starts (Gunicorn or localhost)
+with app.app_context():
+    db.create_all()
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-
-    port = int(os.environ.get("PORT", 8000))  # ✅ Render will override
-    app.run(debug=False, host='0.0.0.0', port=port)
+# ❌ Do NOT run app here. Gunicorn will handle starting the server.
