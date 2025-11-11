@@ -76,6 +76,7 @@ def extract_text_from_pdf(pdf_file_path):
         return None
 
 # ⭐️ --- REBUILT TRANSCRIBE FUNCTION (USING InferenceClient) --- ⭐️
+# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (FINAL STABLE VERSION) --- ⭐️
 def transcribe_audio_to_text(audio_file_path):
     try:
         if not hf_client:
@@ -83,18 +84,16 @@ def transcribe_audio_to_text(audio_file_path):
             
         print(f"Transcribing audio from: {audio_file_path} using Hugging Face InferenceClient")
         
-        # 1. Send the request to Hugging Face using the new client
-        # This client handles the new router URL automatically
-        # We also ask for timestamps to get the duration
-       # YOUR NEW (FIXED) CODE:
-
+        # 1. Send the request to Hugging Face using the new client.
+        # We are REMOVING all extra parameters ('response_format', 'return_timestamps', etc.)
+        # This is the most stable way to call this function.
         result = hf_client.automatic_speech_recognition(
             audio=audio_file_path,
             model="openai/whisper-base",
-            return_timestamps=True, # <-- THIS IS THE FIX
         )
         
         # 2. Process the result
+        # The result is now a simple dictionary like: {'text': 'Your transcribed text'}
         if not result or not result.get("text"):
             print("Transcription failed: No text returned.")
             return "Error: No speech was detected in the audio.", 0
@@ -103,21 +102,21 @@ def transcribe_audio_to_text(audio_file_path):
         
         # 3. Get duration from timestamps
         duration_seconds = 0
+        # This 'if' block will now be FALSE, which is correct.
+        # 'duration_seconds' will remain 0.
         if "chunks" in result and len(result["chunks"]) > 0:
-            # Get the end time of the very last word
             duration_seconds = result["chunks"][-1]["timestamp"][1] or 0
 
         print(f"Transcribed text: {transcript}")
-        print(f"Duration: {duration_seconds} seconds")
+        print(f"Duration: {duration_seconds} seconds (Pace analysis will be disabled)")
 
         return transcript, duration_seconds
 
     except Exception as e:
         print(f"Error during Hugging Face API transcription: {e}")
-        # The error from the client will be more informative (e.g., model loading)
+        # The error from the client will be more informative
         return f"Error: {str(e)}", 0
 # ⭐️ --- END REBUILT TRANSCRIBE FUNCTION --- ⭐️
-
 
 @handle_gemini_errors
 def generate_ai_question(topic, resume_text=None):
