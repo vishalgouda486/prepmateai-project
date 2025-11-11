@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             // Call the /api/signup route we created in app.py
-            const response = await fetch("https://prepmate-backend-bpfn.onrender.com/api/signup", {
+            const response = await fetch("https://prepmate-backend-x77z.onrender.com/api/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
