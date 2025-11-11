@@ -76,29 +76,40 @@ def extract_text_from_pdf(pdf_file_path):
         print(f"Error extracting PDF text: {e}")
         return None
 
-# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (NEW MODEL + BETTER LOGGING) --- ⭐️
+# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (READING BYTES MANUALLY) --- ⭐️
 def transcribe_audio_to_text(audio_file_path):
     try:
         if not hf_client:
             return "Error: Hugging Face client is not configured.", 0
-            
-        print(f"Transcribing audio from: {audio_file_path} using 'facebook/wav2vec2-base-960h'")
+
+        # 1. ⭐️ --- THE FIX: READ THE FILE INTO MEMORY FIRST --- ⭐️
+        # The StopIteration error suggests a problem with streaming the file.
+        # We will read the file into raw bytes ourselves and pass the bytes,
+        # which is a more robust and direct method.
+        print(f"Opening and reading audio file: {audio_file_path}")
+        with open(audio_file_path, "rb") as f:
+            audio_bytes = f.read()
         
-        # 1. ⭐️ --- THE FIX --- ⭐️
-        # We are trying a more standard, public ASR model instead of Whisper.
+        if not audio_bytes:
+            print("Error: Audio file is 0 bytes.")
+            return "Error: The recorded audio file was empty.", 0
+        
+        print(f"Transcribing {len(audio_bytes)} bytes using 'facebook/wav2vec2-base-960h'")
+        
+        # 2. Pass the raw bytes (audio=audio_bytes) instead of the path
         result = hf_client.automatic_speech_recognition(
-            audio=audio_file_path,
+            audio=audio_bytes, # <-- Passing bytes, not the file path string
             model="facebook/wav2vec2-base-960h",
         )
         
-        # 2. Process the result
+        # 3. Process the result
         if not result or not result.get("text"):
             print(f"Transcription failed: No text returned. Full result: {result}")
             return "Error: No speech was detected in the audio.", 0
 
         transcript = result["text"].strip()
         
-        # 3. Get duration (will likely be 0 with this model, which is fine)
+        # 4. Get duration
         duration_seconds = 0
         if "chunks" in result and len(result["chunks"]) > 0:
             duration_seconds = result["chunks"][-1]["timestamp"][1] or 0
@@ -109,15 +120,13 @@ def transcribe_audio_to_text(audio_file_path):
         return transcript, duration_seconds
 
     except Exception as e:
-        # 3. ⭐️ --- BETTER LOGGING --- ⭐️
-        # If it still fails, this will give us the *exact* error.
+        # 5. Keep the enhanced logging
         print("!!!!!!!!!!!!!! TRANSCRIPTION FAILED (FULL TRACEBACK) !!!!!!!!!!!!!!")
         traceback.print_exc()
         print(f"Exception Type: {type(e)}")
         print(f"Exception Repr: {repr(e)}")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         
-        # Return a more useful error to the frontend
         return f"Error: ASR failed. Type: {type(e).__name__}. Check server logs.", 0
 # ⭐️ --- END REBUILT TRANSCRIBE FUNCTION --- ⭐️
 
