@@ -56,7 +56,13 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Make sure to change this secret key before deployment!
-app.config['SECRET_KEY'] = 'your-super-secret-key-change-this' 
+# Load the secret key from environment variables
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    print("WARNING: SECRET_KEY not set. Using insecure default for local dev.")
+    # This fallback key is ONLY for running on your local computer
+    SECRET_KEY = 'a-fallback-key-for-local-dev-only-not-production'
+app.config['SECRET_KEY'] = SECRET_KEY
 
 # ⭐️ --- ADD THESE 3 LINES FOR CROSS-DOMAIN LOGIN --- ⭐️
 app.config['SESSION_COOKIE_HTTPONLY'] = True
