@@ -9,17 +9,17 @@ import pdfplumber
 import re 
 import time
 from functools import wraps
-from huggingface_hub import InferenceClient # ⭐️ --- NEW, ROBUST IMPORT --- ⭐️
+from huggingface_hub import InferenceClient
 
 # --- Load API Keys ---
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY")
-HF_API_KEY = os.getenv("HF_API_KEY") # ⭐️ --- NEW: LOAD HUGGING FACE KEY --- ⭐️
+HF_API_KEY = os.getenv("HF_API_KEY")
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-# ⭐️ --- NEW: HUGGING FACE API CLIENT --- ⭐️
+# --- HUGGING FACE API CLIENT ---
 try:
     if not HF_API_KEY:
         print("⚠️ WARNING: HF_API_KEY not set. Transcription will fail.")
@@ -30,10 +30,9 @@ try:
 except Exception as e:
     print(f"❌ ERROR: Failed to initialize Hugging Face client: {e}")
     hf_client = None
-# ⭐️ --- END NEW HUGGING FACE CONFIG --- ⭐️
 
 
-# ⭐️ --- ERROR HANDLING WRAPPER --- ⭐️
+# --- ERROR HANDLING WRAPPER ---
 def handle_gemini_errors(func):
     """
     A decorator to catch all exceptions from AI functions, 
@@ -90,7 +89,7 @@ def transcribe_audio_to_text(audio_file_path):
         result = hf_client.automatic_speech_recognition(
             audio=audio_file_path,
             model="openai/whisper-base",
-            response_format="json",
+            # ⭐️ --- FIX: REMOVED THE 'response_format="json"' LINE --- ⭐️
             chunk_level_timestamp=True,
         )
         
@@ -648,7 +647,7 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
     elif question_count == 2:
         prompt = "You are Prepmate, an AI interview architect. Ask your *second* main HR question (e.g., 'Why do you want to work for this company?' or 'Where do you see yourself in 5 years?')."
     elif question_count == 3:
-        prompt = "You are Prepmate, an AI interview architect. Ask one, smart, relevant follow-up question based *only* on the user's last answer."
+        prompt = "You are Prepmate, an AI interview architect. Ask one, smart, relevant follow-up question based *only* on the user's. last answer."
     else:
         session_complete = True
         ai_response = "This concludes the HR interview. Generating your final debrief..."
@@ -821,3 +820,5 @@ def get_final_report(all_round_results):
         print("Error: Gemini returned an empty response for get_final_report.")
         return "Error: The AI failed to generate your final report."
     return response.text
+
+# ⭐️ --- FIX: REMOVED THE STRAY '}' SYNTAX ERROR --- ⭐️
