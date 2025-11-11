@@ -64,7 +64,6 @@ def handle_gemini_errors(func):
             return {"error": f"An unexpected error occurred in the AI logic: {str(e)}"}
     return wrapper
 
-
 # --- (Other functions are unchanged) ---
 
 def extract_text_from_pdf(pdf_file_path):
@@ -88,45 +87,53 @@ def transcribe_audio_to_text(audio_file_path):
 
         import subprocess
         import tempfile
+        import requests
 
         print("⚙️ Converting WEBM → WAV using ffmpeg...")
 
         # Create temporary wav output file
         wav_path = tempfile.mktemp(suffix=".wav")
 
-        # Convert to 16k Hz mono WAV
+        # Convert to 16k Hz mono WAV (Whisper requirement)
         subprocess.run([
             "ffmpeg", "-i", audio_file_path,
             "-ac", "1", "-ar", "16000",
             wav_path
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        # ✅ NOW WE READ THE CONVERTED FILE (THIS DEFINES audio_bytes)
+        # Read converted WAV
         with open(wav_path, "rb") as f:
             audio_bytes = f.read()
 
         if not audio_bytes:
-            print("Error: WAV conversion resulted in empty audio.")
+            print("❌ Error: WAV conversion resulted in empty audio.")
             return "Error: The recorded audio file was empty.", 0
 
-        print("🎙️ Transcribing audio via HF API (manual call)...")
+        print("🎙️ Transcribing using HuggingFace REST API...")
 
-        # ✅ Directly POST to whisper model endpoint
-        result = hf_client.post(
-            "/models/openai/whisper-tiny",
-            data=audio_bytes,
-            headers={"Content-Type": "audio/wav"}
+        HF_URL = "https://api-inference.huggingface.co/models/openai/whisper-tiny"
+        HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
+
+        response = requests.post(
+            HF_URL,
+            headers=HEADERS,
+            data=audio_bytes
         )
 
-        # Result format: {"text": "..."}
-        if not result or "text" not in result:
-            print(f"Transcription failed, HF response: {result}")
+        if response.status_code != 200:
+            print("❌ HF API Error:", response.text)
+            return f"Error: ASR failed. HF returned: {response.text}", 0
+
+        result = response.json()
+
+        if "text" not in result:
+            print("❌ Transcription failed. HF response:", result)
             return "Error: No speech was detected in the audio.", 0
 
         transcript = result["text"].strip()
         print(f"✅ Transcribed text: {transcript}")
 
-        return transcript, 0  # duration_seconds not required
+        return transcript, 0
 
     except Exception as e:
         print("!!!!!!!!!!!!!! TRANSCRIPTION FAILED (FULL TRACEBACK) !!!!!!!!!!!!!!")
