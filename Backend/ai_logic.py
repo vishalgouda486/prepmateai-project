@@ -5,6 +5,7 @@ import json
 import io
 import requests
 from collections import Counter
+import traceback
 import pdfplumber
 import re 
 import time
@@ -75,47 +76,49 @@ def extract_text_from_pdf(pdf_file_path):
         print(f"Error extracting PDF text: {e}")
         return None
 
-# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (USING InferenceClient) --- ⭐️
-# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (FINAL STABLE VERSION) --- ⭐️
+# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (NEW MODEL + BETTER LOGGING) --- ⭐️
 def transcribe_audio_to_text(audio_file_path):
     try:
         if not hf_client:
             return "Error: Hugging Face client is not configured.", 0
             
-        print(f"Transcribing audio from: {audio_file_path} using Hugging Face InferenceClient")
+        print(f"Transcribing audio from: {audio_file_path} using 'facebook/wav2vec2-base-960h'")
         
-        # 1. Send the request to Hugging Face using the new client.
-        # We are REMOVING all extra parameters ('response_format', 'return_timestamps', etc.)
-        # This is the most stable way to call this function.
+        # 1. ⭐️ --- THE FIX --- ⭐️
+        # We are trying a more standard, public ASR model instead of Whisper.
         result = hf_client.automatic_speech_recognition(
             audio=audio_file_path,
-            model="openai/whisper-base",
+            model="facebook/wav2vec2-base-960h",
         )
         
         # 2. Process the result
-        # The result is now a simple dictionary like: {'text': 'Your transcribed text'}
         if not result or not result.get("text"):
-            print("Transcription failed: No text returned.")
+            print(f"Transcription failed: No text returned. Full result: {result}")
             return "Error: No speech was detected in the audio.", 0
 
         transcript = result["text"].strip()
         
-        # 3. Get duration from timestamps
+        # 3. Get duration (will likely be 0 with this model, which is fine)
         duration_seconds = 0
-        # This 'if' block will now be FALSE, which is correct.
-        # 'duration_seconds' will remain 0.
         if "chunks" in result and len(result["chunks"]) > 0:
             duration_seconds = result["chunks"][-1]["timestamp"][1] or 0
 
         print(f"Transcribed text: {transcript}")
-        print(f"Duration: {duration_seconds} seconds (Pace analysis will be disabled)")
+        print(f"Duration: {duration_seconds} seconds")
 
         return transcript, duration_seconds
 
     except Exception as e:
-        print(f"Error during Hugging Face API transcription: {e}")
-        # The error from the client will be more informative
-        return f"Error: {str(e)}", 0
+        # 3. ⭐️ --- BETTER LOGGING --- ⭐️
+        # If it still fails, this will give us the *exact* error.
+        print("!!!!!!!!!!!!!! TRANSCRIPTION FAILED (FULL TRACEBACK) !!!!!!!!!!!!!!")
+        traceback.print_exc()
+        print(f"Exception Type: {type(e)}")
+        print(f"Exception Repr: {repr(e)}")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        
+        # Return a more useful error to the frontend
+        return f"Error: ASR failed. Type: {type(e).__name__}. Check server logs.", 0
 # ⭐️ --- END REBUILT TRANSCRIBE FUNCTION --- ⭐️
 
 @handle_gemini_errors
