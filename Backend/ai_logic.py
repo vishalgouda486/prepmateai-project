@@ -110,10 +110,10 @@ def transcribe_audio_to_text(audio_file_path):
             return "Error: The recorded audio file was empty.", 0
 
         print("🎙️ Transcribing (Whisper model: openai/whisper-tiny)...")
-        result = hf_client.automatic_speech_recognition(
-            audio=audio_bytes,
-            model="openai/whisper-tiny"
-        )
+        result = hf_client.audio_to_text(
+    model="openai/whisper-tiny",
+    audio=audio_bytes
+)
 
         if not result or not result.get("text"):
             print(f"Transcription failed: 'text' key not in result. Full result: {result}")
