@@ -94,40 +94,39 @@ def transcribe_audio_to_text(audio_file_path):
         # Create temporary wav output file
         wav_path = tempfile.mktemp(suffix=".wav")
 
-        # Convert to 16k Hz mono WAV (Whisper-compatible)
+        # Convert to 16k Hz mono WAV
         subprocess.run([
             "ffmpeg", "-i", audio_file_path,
             "-ac", "1", "-ar", "16000",
             wav_path
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        # Read converted wav file
+        # ✅ NOW WE READ THE CONVERTED FILE (THIS DEFINES audio_bytes)
         with open(wav_path, "rb") as f:
             audio_bytes = f.read()
 
         if not audio_bytes:
-            print("Error: Converted WAV file is 0 bytes.")
+            print("Error: WAV conversion resulted in empty audio.")
             return "Error: The recorded audio file was empty.", 0
 
         print("🎙️ Transcribing audio via HF API (manual call)...")
 
-result = hf_client.post(
-    "/models/openai/whisper-tiny",
-    data=audio_bytes,
-    headers={"Content-Type": "audio/wav"}
-)
+        # ✅ Directly POST to whisper model endpoint
+        result = hf_client.post(
+            "/models/openai/whisper-tiny",
+            data=audio_bytes,
+            headers={"Content-Type": "audio/wav"}
+        )
 
-# result comes as {'text': '...'}
-if not result or "text" not in result:
-    print(f"Transcription failed, HF response: {result}")
-    return "Error: No speech was detected in the audio.", 0
+        # Result format: {"text": "..."}
+        if not result or "text" not in result:
+            print(f"Transcription failed, HF response: {result}")
+            return "Error: No speech was detected in the audio.", 0
 
-transcript = result["text"].strip()
-
-        duration_seconds = 0
-
+        transcript = result["text"].strip()
         print(f"✅ Transcribed text: {transcript}")
-        return transcript, duration_seconds
+
+        return transcript, 0  # duration_seconds not required
 
     except Exception as e:
         print("!!!!!!!!!!!!!! TRANSCRIPTION FAILED (FULL TRACEBACK) !!!!!!!!!!!!!!")
@@ -138,6 +137,7 @@ transcript = result["text"].strip()
 
         return f"Error: ASR failed. Type: {type(e).__name__}. Check server logs.", 0
 # ⭐️ --- END FINAL TRANSCRIBE FUNCTION --- ⭐️
+
 
 @handle_gemini_errors
 def generate_ai_question(topic, resume_text=None):
