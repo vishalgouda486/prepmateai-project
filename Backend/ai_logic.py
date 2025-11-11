@@ -4,13 +4,13 @@ from dotenv import load_dotenv
 import json
 import io
 import requests
-import traceback
+import traceback  # Make sure this is imported
 from collections import Counter
 import pdfplumber
 import re 
 import time
 from functools import wraps
-from huggingface_hub import InferenceClient
+from huggingface_hub import InferenceClient # Make sure this is imported
 
 # --- Load API Keys ---
 load_dotenv()
@@ -18,9 +18,8 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY")
 HF_API_KEY = os.getenv("HF_API_KEY")
 
-# ⭐️ --- NEW: DIRECT HUGGING FACE API ENDPOINT --- ⭐️
-HF_ASR_API_URL = "https://api-inference.huggingface.co/models/facebook/wav2vec2-base-960h"
-# ⭐️ --- END NEW --- ⭐️
+# ⭐️ --- REMOVED THE OLD/DEAD API URL --- ⭐️
+# The new InferenceClient handles routing automatically.
 
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -80,18 +79,15 @@ def extract_text_from_pdf(pdf_file_path):
         print(f"Error extracting PDF text: {e}")
         return None
 
-# ⭐️ --- FINAL, ROBUST TRANSCRIBE FUNCTION (DIRECT API CALL) --- ⭐️
+# ⭐️ --- FINAL, CORRECT TRANSCRIBE FUNCTION --- ⭐️
 def transcribe_audio_to_text(audio_file_path):
     try:
-        # 1. Check for the API key directly
-        if not HF_API_KEY:
-            print("Error: Hugging Face API key (HF_API_KEY) is not configured.")
-            return "Error: Hugging Face API key (HF_API_KEY) is not configured.", 0
-        
-        # 2. Prepare Headers for direct API call
-        headers = {"Authorization": f"Bearer {HF_API_KEY}"}
-
-        # 3. Read the file into raw bytes (this was the correct fix)
+        if not hf_client:
+            print("Error: Hugging Face client (hf_client) is not configured.")
+            return "Error: Hugging Face client is not configured.", 0
+            
+        # 1. Read the file into raw bytes
+        # This prevents any file streaming errors like StopIteration.
         print(f"Opening and reading audio file: {audio_file_path}")
         with open(audio_file_path, "rb") as f:
             audio_bytes = f.read()
@@ -100,41 +96,32 @@ def transcribe_audio_to_text(audio_file_path):
             print("Error: Audio file is 0 bytes.")
             return "Error: The recorded audio file was empty.", 0
         
-        print(f"Transcribing {len(audio_bytes)} bytes via direct API call to {HF_ASR_API_URL}")
-
-        # 4. ⭐️ --- THE FINAL FIX: MAKE A DIRECT API CALL --- ⭐️
-        # We are bypassing the InferenceClient, which was the source of the StopIteration error.
-        response = requests.post(HF_ASR_API_URL, headers=headers, data=audio_bytes)
+        # 2. Call the updated InferenceClient
+        # We will use a small, fast, and standard model.
+        # The new, updated hf_client (thanks to requirements.txt)
+        # will correctly route this to the new Hugging Face router.
+        print("Transcribing... (using InferenceClient and openai/whisper-tiny)")
+        result = hf_client.automatic_speech_recognition(
+            audio=audio_bytes,
+            model="openai/whisper-tiny"
+        )
         
-        # 5. Process the response
-        if response.status_code != 200:
-            print(f"Error from HF API: {response.status_code}")
-            print(f"Response Body: {response.text}")
-            return f"Error: Transcription API failed with status {response.status_code}. Details: {response.text}", 0
-        
-        result = response.json()
-        
-        # Check for the expected "text" key
-        if "text" not in result:
-            # Check for an "error" key
-            if "error" in result:
-                print(f"Transcription API returned an error: {result['error']}")
-                return f"Error: {result['error']}", 0
-            
-            print(f"Transcription failed: 'text' key not in response. Full result: {result}")
+        # 3. Process the result
+        if not result or not result.get("text"):
+            print(f"Transcription failed: 'text' key not in result. Full result: {result}")
             return "Error: No speech was detected in the audio.", 0
 
         transcript = result["text"].strip()
         
-        # This model does not return timestamps, so duration will be 0.
-        # Your other code already handles this gracefully.
+        # This simple client call does not return timestamps.
+        # Your app's downstream code already handles duration_seconds=0 gracefully.
         duration_seconds = 0
         
         print(f"Transcribed text: {transcript}")
         return transcript, duration_seconds
 
     except Exception as e:
-        # 6. Keep the enhanced logging just in case
+        # 4. Keep the enhanced logging
         print("!!!!!!!!!!!!!! TRANSCRIPTION FAILED (FULL TRACEBACK) !!!!!!!!!!!!!!")
         traceback.print_exc()
         print(f"Exception Type: {type(e)}")
