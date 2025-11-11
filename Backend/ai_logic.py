@@ -109,17 +109,21 @@ def transcribe_audio_to_text(audio_file_path):
             print("Error: Converted WAV file is 0 bytes.")
             return "Error: The recorded audio file was empty.", 0
 
-        print("🎙️ Transcribing (Whisper model: openai/whisper-tiny)...")
-        result = hf_client.audio_to_text(
-    model="openai/whisper-tiny",
-    audio=audio_bytes
+        print("🎙️ Transcribing audio via HF API (manual call)...")
+
+result = hf_client.post(
+    "/models/openai/whisper-tiny",
+    data=audio_bytes,
+    headers={"Content-Type": "audio/wav"}
 )
 
-        if not result or not result.get("text"):
-            print(f"Transcription failed: 'text' key not in result. Full result: {result}")
-            return "Error: No speech was detected in the audio.", 0
+# result comes as {'text': '...'}
+if not result or "text" not in result:
+    print(f"Transcription failed, HF response: {result}")
+    return "Error: No speech was detected in the audio.", 0
 
-        transcript = result["text"].strip()
+transcript = result["text"].strip()
+
         duration_seconds = 0
 
         print(f"✅ Transcribed text: {transcript}")
