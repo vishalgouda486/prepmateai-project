@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 import json
 import io
 import requests
-from collections import Counter
 import traceback
+from collections import Counter
 import pdfplumber
 import re 
 import time
@@ -17,6 +17,10 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY")
 HF_API_KEY = os.getenv("HF_API_KEY")
+
+# ⭐️ --- NEW: DIRECT HUGGING FACE API ENDPOINT --- ⭐️
+HF_ASR_API_URL = "https://api-inference.huggingface.co/models/facebook/wav2vec2-base-960h"
+# ⭐️ --- END NEW --- ⭐️
 
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -76,16 +80,18 @@ def extract_text_from_pdf(pdf_file_path):
         print(f"Error extracting PDF text: {e}")
         return None
 
-# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (READING BYTES MANUALLY) --- ⭐️
+# ⭐️ --- FINAL, ROBUST TRANSCRIBE FUNCTION (DIRECT API CALL) --- ⭐️
 def transcribe_audio_to_text(audio_file_path):
     try:
-        if not hf_client:
-            return "Error: Hugging Face client is not configured.", 0
+        # 1. Check for the API key directly
+        if not HF_API_KEY:
+            print("Error: Hugging Face API key (HF_API_KEY) is not configured.")
+            return "Error: Hugging Face API key (HF_API_KEY) is not configured.", 0
+        
+        # 2. Prepare Headers for direct API call
+        headers = {"Authorization": f"Bearer {HF_API_KEY}"}
 
-        # 1. ⭐️ --- THE FIX: READ THE FILE INTO MEMORY FIRST --- ⭐️
-        # The StopIteration error suggests a problem with streaming the file.
-        # We will read the file into raw bytes ourselves and pass the bytes,
-        # which is a more robust and direct method.
+        # 3. Read the file into raw bytes (this was the correct fix)
         print(f"Opening and reading audio file: {audio_file_path}")
         with open(audio_file_path, "rb") as f:
             audio_bytes = f.read()
@@ -94,33 +100,41 @@ def transcribe_audio_to_text(audio_file_path):
             print("Error: Audio file is 0 bytes.")
             return "Error: The recorded audio file was empty.", 0
         
-        print(f"Transcribing {len(audio_bytes)} bytes using 'facebook/wav2vec2-base-960h'")
+        print(f"Transcribing {len(audio_bytes)} bytes via direct API call to {HF_ASR_API_URL}")
+
+        # 4. ⭐️ --- THE FINAL FIX: MAKE A DIRECT API CALL --- ⭐️
+        # We are bypassing the InferenceClient, which was the source of the StopIteration error.
+        response = requests.post(HF_ASR_API_URL, headers=headers, data=audio_bytes)
         
-        # 2. Pass the raw bytes (audio=audio_bytes) instead of the path
-        result = hf_client.automatic_speech_recognition(
-            audio=audio_bytes, # <-- Passing bytes, not the file path string
-            model="facebook/wav2vec2-base-960h",
-        )
+        # 5. Process the response
+        if response.status_code != 200:
+            print(f"Error from HF API: {response.status_code}")
+            print(f"Response Body: {response.text}")
+            return f"Error: Transcription API failed with status {response.status_code}. Details: {response.text}", 0
         
-        # 3. Process the result
-        if not result or not result.get("text"):
-            print(f"Transcription failed: No text returned. Full result: {result}")
+        result = response.json()
+        
+        # Check for the expected "text" key
+        if "text" not in result:
+            # Check for an "error" key
+            if "error" in result:
+                print(f"Transcription API returned an error: {result['error']}")
+                return f"Error: {result['error']}", 0
+            
+            print(f"Transcription failed: 'text' key not in response. Full result: {result}")
             return "Error: No speech was detected in the audio.", 0
 
         transcript = result["text"].strip()
         
-        # 4. Get duration
+        # This model does not return timestamps, so duration will be 0.
+        # Your other code already handles this gracefully.
         duration_seconds = 0
-        if "chunks" in result and len(result["chunks"]) > 0:
-            duration_seconds = result["chunks"][-1]["timestamp"][1] or 0
-
+        
         print(f"Transcribed text: {transcript}")
-        print(f"Duration: {duration_seconds} seconds")
-
         return transcript, duration_seconds
 
     except Exception as e:
-        # 5. Keep the enhanced logging
+        # 6. Keep the enhanced logging just in case
         print("!!!!!!!!!!!!!! TRANSCRIPTION FAILED (FULL TRACEBACK) !!!!!!!!!!!!!!")
         traceback.print_exc()
         print(f"Exception Type: {type(e)}")
@@ -128,7 +142,7 @@ def transcribe_audio_to_text(audio_file_path):
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         
         return f"Error: ASR failed. Type: {type(e).__name__}. Check server logs.", 0
-# ⭐️ --- END REBUILT TRANSCRIBE FUNCTION --- ⭐️
+# ⭐️ --- END FINAL TRANSCRIBE FUNCTION --- ⭐️
 
 @handle_gemini_errors
 def generate_ai_question(topic, resume_text=None):
