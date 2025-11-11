@@ -151,7 +151,7 @@ function initializeApp() {
         }
         
         try {
-            const response = await fetch("https://prepmate-backend-bpfn.onrender.com/technical-question", {
+            const response = await fetch("https://prepmate-backend-x77z.onrender.com/technical-question", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -229,7 +229,7 @@ function initializeApp() {
         const userCode = codeEditor.getValue();
         
         try {
-            const response = await fetch("https://prepmate-backend-bpfn.onrender.com/run-code", {
+            const response = await fetch("https://prepmate-backend-x77z.onrender.com/run-code", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

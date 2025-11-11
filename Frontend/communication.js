@@ -78,7 +78,7 @@ function initializeApp() {
       isFetching = true;
       
       try {
-          const response = await fetch("https://prepmate-backend-bpfn.onrender.com/communication-topic");
+          const response = await fetch("https://prepmate-backend-x77z.onrender.com/communication-topic");
           const data = await response.json();
           isFetching = false;
           
@@ -238,7 +238,7 @@ function initializeApp() {
     formData.append("expressions", JSON.stringify(expressionData));
 
     try {
-      const response = await fetch("https://prepmate-backend-bpfn.onrender.com/communication-feedback", {
+      const response = await fetch("https://prepmate-backend-x77z.onrender.com/communication-feedback", {
         method: "POST",
         body: formData, 
       });

@@ -78,7 +78,7 @@ function initializeApp() {
     speechPlayButton.style.display = "none";
 
     try {
-      const response = await fetch("https://prepmate-backend-bpfn.onrender.com/generate-question", {
+      const response = await fetch("https://prepmate-backend-x77z.onrender.com/generate-question", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ "topic": topic }),
@@ -253,7 +253,7 @@ function initializeApp() {
     // --- ⭐️ END NEW CODE ---
 
     try {
-      const response = await fetch("https://prepmate-backend-bpfn.onrender.com/interview", {
+      const response = await fetch("https://prepmate-backend-x77z.onrender.com/interview", {
         method: "POST",
         body: formData, 
       });

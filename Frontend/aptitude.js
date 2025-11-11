@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isFetching = true;
         
         try {
-            const response = await fetch("https://prepmate-backend-bpfn.onrender.com/aptitude-question", {
+            const response = await fetch("https://prepmate-backend-x77z.onrender.com/aptitude-question", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ topic: selectedTopic }),
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch("https://prepmate-backend-bpfn.onrender.com/aptitude-feedback", {
+            const response = await fetch("https://prepmate-backend-x77z.onrender.com/aptitude-feedback", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ results: practiceResults }),

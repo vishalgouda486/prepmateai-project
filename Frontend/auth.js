@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const handleLogout = async () => {
         try {
             // Use the full URL
-            const response = await fetch("https://prepmate-backend-bpfn.onrender.com/api/logout", {
+            const response = await fetch("https://prepmate-backend-x77z.onrender.com/api/logout", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: 'include',
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkUserSession = async () => {
         try {
             // Use the full URL
-            const response = await fetch("https://prepmate-backend-bpfn.onrender.com/api/check_session", {
+            const response = await fetch("https://prepmate-backend-x77z.onrender.com/api/check_session", {
                 method: "GET",
                 credentials: 'include',
             });

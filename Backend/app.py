@@ -35,7 +35,7 @@ CORS(app,
      origins=[
          "http://localhost:8000",
          "https://prepmateai-project.vercel.app",
-         "https://prepmate-backend-bpfn.onrender.com"
+         "https://prepmate-backend-x77z.onrender.com"
      ],
      allow_headers=["Content-Type", "Authorization"],
      expose_headers=["Content-Type"]
@@ -148,8 +148,6 @@ def login():
             "username": user.username,
             "redirect": "/home.html"
         })
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:8000")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
         return response, 200
 
     return jsonify({"error": "Invalid email or password"}), 401
@@ -167,8 +165,6 @@ def check_session():
     else:
         response = jsonify({"is_logged_in": False})
 
-    response.headers.add("Access-Control-Allow-Origin", "http://localhost:8000")
-    response.headers.add("Access-Control-Allow-Credentials", "true")
     return response, 200
         
 @app.route('/api/save_report', methods=['POST'])

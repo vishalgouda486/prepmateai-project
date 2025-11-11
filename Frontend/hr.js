@@ -247,7 +247,7 @@ function initializeApp() {
       }
 
       try {
-        const response = await fetch("https://prepmate-backend-bpfn.onrender.com/hr-conversation", {
+        const response = await fetch("https://prepmate-backend-x77z.onrender.com/hr-conversation", {
           method: "POST",
           body: formData, 
         });
