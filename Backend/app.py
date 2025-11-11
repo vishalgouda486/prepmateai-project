@@ -35,7 +35,7 @@ CORS(app,
      origins=[
          "http://localhost:8000",
          "https://prepmateai-project.vercel.app",
-         "https://prepmate-backend-x77z.onrender.com"
+         "https://prepmate-backend-bpfn.onrender.com" # NOTE: You should update this with your new backend URL
      ],
      allow_headers=["Content-Type", "Authorization"],
      expose_headers=["Content-Type"]
@@ -105,7 +105,7 @@ def serve_frontend(path):
 
 
 
-# ⭐️ --- NEW AUTHENTICATION ROUTES (CLEANED) --- ⭐️
+# ⭐️ --- AUTHENTICATION ROUTES (CLEANED) --- ⭐️
 
 @app.route('/api/signup', methods=['POST']) 
 def signup():
@@ -142,12 +142,12 @@ def login():
 
     if user and bcrypt.check_password_hash(user.password_hash, password):
         login_user(user)
-        # ✅ Added redirect info so frontend can go to home.html
         response = jsonify({
             "message": "Login successful",
             "username": user.username,
             "redirect": "/home.html"
         })
+        # ⭐️ --- BUG FIX: REMOVED BAD .headers.add LINES --- ⭐️
         return response, 200
 
     return jsonify({"error": "Invalid email or password"}), 401
@@ -165,6 +165,7 @@ def check_session():
     else:
         response = jsonify({"is_logged_in": False})
 
+    # ⭐️ --- BUG FIX: REMOVED BAD .headers.add LINES --- ⭐️
     return response, 200
         
 @app.route('/api/save_report', methods=['POST'])
@@ -181,12 +182,6 @@ def save_report():
     print(report_content)
     
     return jsonify({"message": "Report saved successfully (simulated)"}), 201
-
-# ❌ --- REMOVED _build_cors_preflight_response FUNCTION --- ❌
-
-
-# --- ⭐️ OLD Frontend Routes (REMOVED) ⭐️ ---
-# ...
 
 # --- API Routes (CLEANED) ---
 @app.route('/technical-question', methods=['POST'])

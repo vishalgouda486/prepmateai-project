@@ -3,33 +3,33 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import json
 import io
-import requests # ⭐️ --- USED FOR HUGGING FACE
+import requests
 from collections import Counter
 import pdfplumber
 import re 
 import time
 from functools import wraps
-
-# --- ❌ REMOVED WHISPER/GLADIA CLIENTS ---
+from huggingface_hub import InferenceClient # ⭐️ --- NEW, ROBUST IMPORT --- ⭐️
 
 # --- Load API Keys ---
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY")
-# ⭐️ --- NEW: LOAD HUGGING FACE KEY --- ⭐️
-HF_API_KEY = os.getenv("HF_API_KEY")
+HF_API_KEY = os.getenv("HF_API_KEY") # ⭐️ --- NEW: LOAD HUGGING FACE KEY --- ⭐️
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-# ⭐️ --- NEW: HUGGING FACE API CONFIG --- ⭐️
-# THE CORRECT LINE:
-HF_API_URL = "https://api-inference.huggingface.co/models/openai/whisper-base"
-HF_HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
-
-if not HF_API_KEY:
-    print("⚠️ WARNING: HF_API_KEY not set. Transcription will fail.")
-else:
-    print("✅ Hugging Face client configured.")
+# ⭐️ --- NEW: HUGGING FACE API CLIENT --- ⭐️
+try:
+    if not HF_API_KEY:
+        print("⚠️ WARNING: HF_API_KEY not set. Transcription will fail.")
+        hf_client = None
+    else:
+        hf_client = InferenceClient(token=HF_API_KEY)
+        print("✅ Hugging Face InferenceClient configured.")
+except Exception as e:
+    print(f"❌ ERROR: Failed to initialize Hugging Face client: {e}")
+    hf_client = None
 # ⭐️ --- END NEW HUGGING FACE CONFIG --- ⭐️
 
 
@@ -76,66 +76,48 @@ def extract_text_from_pdf(pdf_file_path):
         print(f"Error extracting PDF text: {e}")
         return None
 
-# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (USING HUGGING FACE API) --- ⭐️
+# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (USING InferenceClient) --- ⭐️
 def transcribe_audio_to_text(audio_file_path):
     try:
-        if not HF_API_KEY:
-            return "Error: Hugging Face API key is not configured.", 0
+        if not hf_client:
+            return "Error: Hugging Face client is not configured.", 0
             
-        print(f"Transcribing audio from: {audio_file_path} using Hugging Face API")
+        print(f"Transcribing audio from: {audio_file_path} using Hugging Face InferenceClient")
         
-        # 1. Load the audio file into memory
-        with open(audio_file_path, "rb") as f:
-            audio_data = f.read()
-
-        # 2. Send the request to Hugging Face
-        # Note: The free tier can be slow and may time out.
-        # It also needs to boot up the model if it's not "hot".
-        print("Sending audio to Hugging Face API... (this may take a moment)")
-        response = requests.post(HF_API_URL, headers=HF_HEADERS, data=audio_data)
+        # 1. Send the request to Hugging Face using the new client
+        # This client handles the new router URL automatically
+        # We also ask for timestamps to get the duration
+        result = hf_client.automatic_speech_recognition(
+            audio=audio_file_path,
+            model="openai/whisper-base",
+            response_format="json",
+            chunk_level_timestamp=True,
+        )
         
-       # ⭐️ --- START OF FIX --- ⭐️
-        # This block now safely handles non-JSON errors
-        if response.status_code != 200:
-            error_message = f"Hugging Face API returned status {response.status_code}."
-            try:
-                # Try to parse the error as JSON
-                error_info = response.json()
-                if "error" in error_info and "estimated_time" in error_info:
-                     # This is a "model is loading" error
-                     return f"Error: The AI model is starting up. Please try again in {int(error_info['estimated_time'])} seconds.", 0
-                elif "error" in error_info:
-                    error_message = f"Error: {error_info.get('error')}"
-            except requests.exceptions.JSONDecodeError:
-                # This catches the "Expecting value..." error if the response is empty or HTML
-                error_message = f"Error: Hugging Face API returned a non-JSON error. {response.text}"
-            
-            print(error_message)
-            return error_message, 0
-        # ⭐️ --- END OF FIX --- ⭐️
-
-        # 3. Process the result
-        result = response.json()
+        # 2. Process the result
         if not result or not result.get("text"):
             print("Transcription failed: No text returned.")
             return "Error: No speech was detected in the audio.", 0
 
         transcript = result["text"].strip()
         
-        # 4. Get duration
-        # The free Hugging Face API does not provide audio duration.
-        # We will return 0 and handle this in the feedback functions.
-        duration_seconds = 0 
+        # 3. Get duration from timestamps
+        duration_seconds = 0
+        if "chunks" in result and len(result["chunks"]) > 0:
+            # Get the end time of the very last word
+            duration_seconds = result["chunks"][-1]["timestamp"][1] or 0
 
         print(f"Transcribed text: {transcript}")
-        print(f"Duration: {duration_seconds} seconds (Not provided by HF API)")
+        print(f"Duration: {duration_seconds} seconds")
 
         return transcript, duration_seconds
 
     except Exception as e:
         print(f"Error during Hugging Face API transcription: {e}")
+        # The error from the client will be more informative (e.g., model loading)
         return f"Error: {str(e)}", 0
 # ⭐️ --- END REBUILT TRANSCRIBE FUNCTION --- ⭐️
+
 
 @handle_gemini_errors
 def generate_ai_question(topic, resume_text=None):
@@ -173,18 +155,15 @@ def generate_ai_question(topic, resume_text=None):
         return "Error: The AI failed to generate a question. This may be due to safety filters. Please try again."
     return response.text.strip() 
 
-# ⭐️ --- MODIFIED FUNCTION --- ⭐️
 @handle_gemini_errors
 def get_ai_response(interview_question, user_answer, expression_data_json, duration_seconds):
     model = genai.GenerativeModel("models/gemini-flash-latest")
     
-    # This section is now robust to `duration_seconds` being 0
     audio_analysis_summary = "No audio analysis was performed."
     try:
         words = user_answer.split()
         word_count = len(words)
         
-        # Check if duration is valid (greater than 0)
         if duration_seconds > 0:
             duration_minutes = duration_seconds / 60.0
             wpm = int(word_count / duration_minutes) 
@@ -193,8 +172,7 @@ def get_ai_response(interview_question, user_answer, expression_data_json, durat
             elif wpm > 160: pace_feedback = "A bit fast. Remember to pause for emphasis."
             pace_line = f"- **Pace:** {wpm} WPM (Words Per Minute). ({pace_feedback})"
         else:
-            # Fallback if duration is 0 (e.g., from Hugging Face)
-            pace_line = "- **Pace:** Pace analysis is unavailable for this transcription method."
+            pace_line = "- **Pace:** Pace analysis is unavailable."
 
         filler_words = ['um', 'uh', 'like', 'so', 'you know', 'basically', 'actually']
         filler_count = 0
@@ -440,12 +418,10 @@ def run_code_with_judge0(user_code, language, test_cases):
         print(f"Error calling Judge0: {e}")
         return {"error": str(e)}
 
-# ⭐️ --- MODIFIED FUNCTION --- ⭐️
 @handle_gemini_errors
 def get_communication_feedback(topic, user_answer, expression_data_json, duration_seconds):
     model = genai.GenerativeModel("models/gemini-flash-latest")
     
-    # This section is now robust to `duration_seconds` being 0
     audio_analysis_summary = "No audio analysis was performed."
     try:
         words = user_answer.split()
@@ -459,7 +435,7 @@ def get_communication_feedback(topic, user_answer, expression_data_json, duratio
             elif wpm > 160: pace_feedback = "A bit fast. Remember to pause for emphasis."
             pace_line = f"- **Pace:** {wpm} WPM (Words Per Minute). ({pace_feedback})"
         else:
-            pace_line = "- **Pace:** Pace analysis is unavailable for this transcription method."
+            pace_line = "- **Pace:** Pace analysis is unavailable."
             
         filler_words = ['um', 'uh', 'like', 'so', 'you know', 'basically', 'actually']
         filler_count = 0
