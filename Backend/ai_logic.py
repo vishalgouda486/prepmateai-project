@@ -3,37 +3,33 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import json
 import io
-from gladia import Gladia # ⭐️ --- NEW IMPORT ---
+import requests # ⭐️ --- USED FOR HUGGING FACE
 from collections import Counter
 import pdfplumber
 import re 
-import requests 
 import time
 from functools import wraps
 
-# --- ❌ REMOVED WHISPER LAZY-LOAD SETUP ---
+# --- ❌ REMOVED WHISPER/GLADIA CLIENTS ---
 
 # --- Load API Keys ---
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY")
-# ⭐️ --- NEW: LOAD GLADIA KEY --- ⭐️
-GLADIA_API_KEY = os.getenv("GLADIA_API_KEY")
+# ⭐️ --- NEW: LOAD HUGGING FACE KEY --- ⭐️
+HF_API_KEY = os.getenv("HF_API_KEY")
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-# ⭐️ --- NEW: CONFIGURE GLADIA CLIENT --- ⭐️
-try:
-    if not GLADIA_API_KEY:
-        print("⚠️ WARNING: GLADIA_API_KEY not set. Transcription will fail.")
-        gladia_client = None
-    else:
-        gladia_client = Gladia(GLADIA_API_KEY)
-        print("✅ Gladia client configured.")
-except Exception as e:
-    print(f"❌ ERROR: Failed to initialize Gladia client: {e}")
-    gladia_client = None
-# ⭐️ --- END NEW GLADIA CLIENT --- ⭐️
+# ⭐️ --- NEW: HUGGING FACE API CONFIG --- ⭐️
+HF_API_URL = "https://api-inference.huggingface.co/models/openai/whisper-tiny"
+HF_HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
+
+if not HF_API_KEY:
+    print("⚠️ WARNING: HF_API_KEY not set. Transcription will fail.")
+else:
+    print("✅ Hugging Face client configured.")
+# ⭐️ --- END NEW HUGGING FACE CONFIG --- ⭐️
 
 
 # ⭐️ --- ERROR HANDLING WRAPPER --- ⭐️
@@ -79,37 +75,51 @@ def extract_text_from_pdf(pdf_file_path):
         print(f"Error extracting PDF text: {e}")
         return None
 
-# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (USING GLADIA API) --- ⭐️
+# ⭐️ --- REBUILT TRANSCRIBE FUNCTION (USING HUGGING FACE API) --- ⭐️
 def transcribe_audio_to_text(audio_file_path):
     try:
-        if not gladia_client:
-            return "Error: Gladia transcription service is not configured.", 0
+        if not HF_API_KEY:
+            return "Error: Hugging Face API key is not configured.", 0
             
-        print(f"Transcribing audio from: {audio_file_path} using Gladia API")
+        print(f"Transcribing audio from: {audio_file_path} using Hugging Face API")
         
-        # 1. Send the request to Gladia
-        response = gladia_client.audio.transcription.sync_request(
-            file_path=audio_file_path,
-            language_behaviour="automatic single language",
-            language="english", # Be specific for better accuracy
-            output_format="json"
-        )
+        # 1. Load the audio file into memory
+        with open(audio_file_path, "rb") as f:
+            audio_data = f.read()
+
+        # 2. Send the request to Hugging Face
+        # Note: The free tier can be slow and may time out.
+        # It also needs to boot up the model if it's not "hot".
+        print("Sending audio to Hugging Face API... (this may take a moment)")
+        response = requests.post(HF_API_URL, headers=HF_HEADERS, data=audio_data)
         
-        # 2. Process the result
-        if not response or not response.prediction:
-            print("Transcription failed: No speech detected or error from GladIA.")
+        if response.status_code != 200:
+            error_info = response.json()
+            if "error" in error_info and "estimated_time" in error_info:
+                 # This happens when the model is loading.
+                 return f"Error: The AI model is starting up. Please try again in {int(error_info['estimated_time'])} seconds.", 0
+            return f"Error: Hugging Face API returned status {response.status_code}. {response.text}", 0
+
+        # 3. Process the result
+        result = response.json()
+        if not result or not result.get("text"):
+            print("Transcription failed: No text returned.")
             return "Error: No speech was detected in the audio.", 0
 
-        transcript = response.prediction_full
-        duration_seconds = response.duration_seconds
+        transcript = result["text"].strip()
+        
+        # 4. Get duration
+        # The free Hugging Face API does not provide audio duration.
+        # We will return 0 and handle this in the feedback functions.
+        duration_seconds = 0 
 
         print(f"Transcribed text: {transcript}")
-        print(f"Duration: {duration_seconds} seconds")
+        print(f"Duration: {duration_seconds} seconds (Not provided by HF API)")
 
         return transcript, duration_seconds
 
     except Exception as e:
-        print(f"Error during Gladia API transcription: {e}")
+        print(f"Error during Hugging Face API transcription: {e}")
         return f"Error: {str(e)}", 0
 # ⭐️ --- END REBUILT TRANSCRIBE FUNCTION --- ⭐️
 
@@ -150,24 +160,36 @@ def generate_ai_question(topic, resume_text=None):
         return "Error: The AI failed to generate a question. This may be due to safety filters. Please try again."
     return response.text.strip() 
 
+# ⭐️ --- MODIFIED FUNCTION --- ⭐️
 @handle_gemini_errors
 def get_ai_response(interview_question, user_answer, expression_data_json, duration_seconds):
     model = genai.GenerativeModel("models/gemini-flash-latest")
+    
+    # This section is now robust to `duration_seconds` being 0
     audio_analysis_summary = "No audio analysis was performed."
     try:
         words = user_answer.split()
         word_count = len(words)
-        duration_minutes = duration_seconds / 60.0
-        wpm = int(word_count / duration_minutes) if duration_minutes > 0 else 0
-        pace_feedback = "Good"
-        if wpm < 120: pace_feedback = "A bit slow. Try to speak more fluently."
-        elif wpm > 160: pace_feedback = "A bit fast. Remember to pause for emphasis."
+        
+        # Check if duration is valid (greater than 0)
+        if duration_seconds > 0:
+            duration_minutes = duration_seconds / 60.0
+            wpm = int(word_count / duration_minutes) 
+            pace_feedback = "Good"
+            if wpm < 120: pace_feedback = "A bit slow. Try to speak more fluently."
+            elif wpm > 160: pace_feedback = "A bit fast. Remember to pause for emphasis."
+            pace_line = f"- **Pace:** {wpm} WPM (Words Per Minute). ({pace_feedback})"
+        else:
+            # Fallback if duration is 0 (e.g., from Hugging Face)
+            pace_line = "- **Pace:** Pace analysis is unavailable for this transcription method."
+
         filler_words = ['um', 'uh', 'like', 'so', 'you know', 'basically', 'actually']
         filler_count = 0
         for word in words:
             if word.lower().strip(",.") in filler_words: filler_count += 1
+        
         audio_analysis_summary = (
-            f"- **Pace:** {wpm} WPM (Words Per Minute). ({pace_feedback})\n"
+            f"{pace_line}\n"
             f"- **Filler Words:** Found {filler_count} filler words (e.g., 'um', 'like', 'so')."
         )
     except Exception as e:
@@ -405,25 +427,33 @@ def run_code_with_judge0(user_code, language, test_cases):
         print(f"Error calling Judge0: {e}")
         return {"error": str(e)}
 
-
+# ⭐️ --- MODIFIED FUNCTION --- ⭐️
 @handle_gemini_errors
 def get_communication_feedback(topic, user_answer, expression_data_json, duration_seconds):
     model = genai.GenerativeModel("models/gemini-flash-latest")
+    
+    # This section is now robust to `duration_seconds` being 0
     audio_analysis_summary = "No audio analysis was performed."
     try:
         words = user_answer.split()
         word_count = len(words)
-        duration_minutes = duration_seconds / 60.0
-        wpm = int(word_count / duration_minutes) if duration_minutes > 0 else 0
-        pace_feedback = "Good"
-        if wpm < 120: pace_feedback = "A bit slow. Try to speak more fluently."
-        elif wpm > 160: pace_feedback = "A bit fast. Remember to pause for emphasis."
+        
+        if duration_seconds > 0:
+            duration_minutes = duration_seconds / 60.0
+            wpm = int(word_count / duration_minutes)
+            pace_feedback = "Good"
+            if wpm < 120: pace_feedback = "A bit slow. Try to speak more fluently."
+            elif wpm > 160: pace_feedback = "A bit fast. Remember to pause for emphasis."
+            pace_line = f"- **Pace:** {wpm} WPM (Words Per Minute). ({pace_feedback})"
+        else:
+            pace_line = "- **Pace:** Pace analysis is unavailable for this transcription method."
+            
         filler_words = ['um', 'uh', 'like', 'so', 'you know', 'basically', 'actually']
         filler_count = 0
         for word in words:
             if word.lower().strip(",.") in filler_words: filler_count += 1
         audio_analysis_summary = (
-            f"- **Pace:** {wpm} WPM (Words Per Minute). ({pace_feedback})\n"
+            f"{pace_line}\n"
             f"- **Filler Words:** Found {filler_count} filler words (e.g., 'um', 'like', 'so')."
         )
     except Exception as e:
