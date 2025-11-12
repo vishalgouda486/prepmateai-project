@@ -39,7 +39,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 🔮 Particle Background */
     #particles-js {
       position: fixed;
       inset: 0;
@@ -47,7 +46,7 @@
       background: linear-gradient(135deg, #0a192f, #1e3a8a, #1e40af);
     }
 
-    /* 🌐 Navbar */
+    /* Navbar */
     .navbar {
       position: fixed;
       top: 0;
@@ -85,11 +84,9 @@
       transition: color 0.3s ease;
     }
 
-    .nav-links a:hover {
-      color: #93c5fd;
-    }
+    .nav-links a:hover { color: #93c5fd; }
 
-    /* 🌟 Main Section */
+    /* Main */
     main {
       flex: 1;
       padding: 120px 20px 60px;
@@ -119,15 +116,8 @@
       backdrop-filter: blur(12px);
       margin-bottom: 40px;
       font-size: 1rem;
-      animation: fadeIn 1.5s ease forwards;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* 🧊 Glass Containers */
     .glass-card {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
@@ -138,22 +128,27 @@
       margin: 20px 0;
       backdrop-filter: blur(14px);
       box-shadow: 0 6px 30px rgba(0,0,0,0.3);
-      transition: transform 0.3s ease, border-color 0.3s ease, opacity 1s ease;
+      transition: transform 0.3s ease, opacity 1s ease;
       opacity: 0;
       transform: translateY(40px);
     }
 
-    .glass-card.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .glass-card.show { opacity: 1; transform: translateY(0); }
 
-    .glass-card h2 {
-      color: var(--accent-1);
+    h2 { color: var(--accent-1); margin-bottom: 15px; }
+
+    select {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
       margin-bottom: 15px;
     }
 
-    /* Buttons */
     button {
       background: linear-gradient(90deg, var(--btn-a), var(--btn-b));
       color: #fff;
@@ -172,7 +167,6 @@
       transform: translateY(-2px);
     }
 
-    /* Question Box */
     .question-box {
       background: rgba(255,255,255,0.05);
       border-radius: 10px;
@@ -197,20 +191,19 @@
       transform: translateX(3px);
     }
 
-    #timer {
+    #question-timer {
       color: #a5b4fc;
       font-weight: 600;
       margin-bottom: 10px;
     }
 
-    #feedback-report {
+    #solution-box, #feedback-report {
       background: rgba(255,255,255,0.05);
       border-radius: 10px;
       padding: 15px;
       margin-top: 15px;
       text-align: left;
       color: #e2e8f0;
-      font-size: 0.95rem;
     }
 
     footer {
@@ -222,20 +215,12 @@
       background: rgba(255,255,255,0.03);
       margin-top: 40px;
     }
-
-    @media (max-width: 600px) {
-      main h1 { font-size: 2rem; }
-      .glass-card { padding: 20px; }
-      .instructions { font-size: 0.95rem; }
-    }
   </style>
 </head>
 
 <body>
-  <!-- 🔮 Particle Background -->
   <div id="particles-js"></div>
 
-  <!-- 🌐 Navbar -->
   <nav class="navbar">
     <div class="nav-brand">PrepAura AI</div>
     <ul class="nav-links">
@@ -246,7 +231,6 @@
     </ul>
   </nav>
 
-  <!-- 🌟 Main Section -->
   <main>
     <h1>Aptitude Practice Round</h1>
 
@@ -259,33 +243,36 @@
     <!-- Setup Screen -->
     <div class="glass-card" id="setup-screen">
       <h2>📋 Choose Topic</h2>
-      <select id="topic-select">
+      <select id="aptitude-topic">
         <option value="">Select a topic</option>
         <option value="Quantitative Aptitude">Quantitative Aptitude</option>
         <option value="Logical Reasoning">Logical Reasoning</option>
         <option value="Verbal Ability">Verbal Ability</option>
         <option value="Data Interpretation">Data Interpretation</option>
         <option value="Mix">Mix (All Topics)</option>
-      </select><br><br>
-      <button id="start-practice">Start Practice</button>
+      </select>
+      <button id="start-btn">Start Practice</button>
     </div>
 
     <!-- Practice Screen -->
     <div class="glass-card hidden" id="practice-screen">
-      <h2>🧮 Question <span id="question-number">1</span></h2>
-      <div id="timer">Time Left: <span id="time-left">60</span> sec</div>
-      <div class="question-box" id="question-box">Question will appear here</div>
-      <div id="options-container"></div>
-      <button id="show-solution">Show Solution</button>
-      <button id="next-question">Next Question</button>
-      <button id="end-practice">End Practice</button>
+      <h2>🧮 Question <span id="question-counter">1</span></h2>
+      <p><strong>Topic:</strong> <span id="question-topic"></span></p>
+      <div id="question-timer">Time Left: <span id="time">60</span> sec</div>
+      <div class="question-box" id="question-text">Question will appear here</div>
+      <div id="options-grid"></div>
+      <div id="solution-box" style="display:none;"></div>
+      <button id="submit-btn">Submit Answer</button>
+      <button id="solution-btn">Show Solution</button>
+      <button id="next-btn">Next Question</button>
+      <button id="end-btn">End Practice</button>
     </div>
 
     <!-- Feedback Screen -->
     <div class="glass-card hidden" id="feedback-screen">
       <h2>📊 AI Feedback Report</h2>
       <div id="feedback-report">Your performance summary will appear here after practice.</div>
-      <button id="back-to-home">Back to Practice Hub</button>
+      <button id="restart-btn">Back to Practice Hub</button>
     </div>
   </main>
 
@@ -294,15 +281,11 @@
   <script src="aptitude.js"></script>
   <script src="auth.js"></script>
 
-  <!-- 🎇 Particles + Animations -->
   <script>
     particlesJS("particles-js", {
       particles: {
-        number: { value: 80, density: { enable: true, value_area: 800 } },
+        number: { value: 80 },
         color: { value: "#38bdf8" },
-        shape: { type: "circle" },
-        opacity: { value: 0.5 },
-        size: { value: 3, random: true },
         line_linked: {
           enable: true,
           distance: 150,
@@ -310,28 +293,17 @@
           opacity: 0.4,
           width: 1
         },
-        move: { enable: true, speed: 2, out_mode: "out" }
+        move: { enable: true, speed: 2 }
       },
       interactivity: {
         detect_on: "canvas",
-        events: { onhover: { enable: true, mode: "grab" }, onclick: { enable: true, mode: "push" }, resize: true },
-        modes: { grab: { distance: 180, line_linked: { opacity: 0.8 } }, repulse: { distance: 120, duration: 0.4 }, push: { particles_nb: 4 } }
+        events: { onhover: { enable: true, mode: "grab" }, onclick: { enable: true, mode: "push" } },
+        modes: { grab: { distance: 200, line_linked: { opacity: 0.9 } } }
       },
       retina_detect: true
     });
 
-    // Ensure the Start Practice button works
-    document.getElementById("start-practice").addEventListener("click", () => {
-      const topic = document.getElementById("topic-select").value;
-      if (!topic) {
-        alert("Please select a topic before starting!");
-        return;
-      }
-      document.getElementById("setup-screen").classList.add("hidden");
-      document.getElementById("practice-screen").classList.remove("hidden");
-    });
-
-    // Smooth fade-in for cards
+    // Show animations on scroll
     const cards = document.querySelectorAll(".glass-card");
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
