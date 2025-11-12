@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Home - PrepAura AI</title>
-  <link rel="icon" href="logo.png" type="image/png">
+
   <style>
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
-      color: #f8fafc;
       background: linear-gradient(135deg, #0a192f, #1e3a8a, #1e40af);
-      background-attachment: fixed;
+      color: #f5f6fa;
+      display: flex;
+      flex-direction: column;
       min-height: 100vh;
-      overflow-x: hidden;
       animation: fadeInBody 1.2s ease forwards;
       opacity: 0;
     }
@@ -23,35 +23,27 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Navbar */
+    /* --- Navbar --- */
     .navbar {
       position: fixed;
       top: 0;
-      left: 0;
-      right: 0;
+      width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 15px 40px;
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
       z-index: 1000;
     }
 
     .nav-brand {
       font-weight: 700;
       font-size: 1.5rem;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .nav-brand img {
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
+      background: linear-gradient(90deg, #38bdf8, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .nav-links {
@@ -73,190 +65,170 @@
       color: #93c5fd;
     }
 
-    /* Hero Section */
+    /* --- Hero Section --- */
     .hero {
-      margin-top: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
-      animation: slideUp 1.2s ease forwards;
-      opacity: 0;
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
+      flex: 1;
+      margin-top: 120px;
+      padding: 0 20px;
     }
 
     .hero h1 {
-      font-size: 2.2rem;
+      font-size: 2.4rem;
+      font-weight: 700;
       color: #ffffff;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, #38bdf8, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .hero p {
-      max-width: 700px;
-      margin: 0 auto 30px;
+      max-width: 600px;
       color: #cbd5e1;
       font-size: 1.1rem;
-      line-height: 1.6;
+      line-height: 1.7;
+      margin-bottom: 40px;
     }
 
-    .hero button {
-      background: linear-gradient(90deg, #2563eb, #1d4ed8);
-      color: #fff;
-      border: none;
-      padding: 14px 40px;
-      font-size: 1.1rem;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: transform 0.2s ease, box-shadow 0.3s ease;
-    }
-
-    .hero button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-    }
-
-    /* Features Section */
+    /* --- Main Features Section --- */
     .features {
-      margin: 80px auto;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 30px;
-      max-width: 1000px;
-      padding: 0 20px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+      width: 90%;
+      max-width: 1100px;
+      margin: 0 auto 60px auto;
     }
 
     .feature-box {
       background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(15px);
-      border-radius: 18px;
-      padding: 30px 25px;
+      border-radius: 16px;
+      padding: 30px;
       text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+      transition: transform 0.25s ease, border-color 0.25s ease;
     }
 
     .feature-box:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 8px 35px rgba(37, 99, 235, 0.3);
+      transform: translateY(-5px);
+      border-color: #38bdf8;
     }
 
-    .feature-box h2 {
-      font-size: 1.6rem;
-      color: #93c5fd;
-      margin-bottom: 15px;
+    .feature-box h3 {
+      font-size: 1.3rem;
+      color: #38bdf8;
+      margin-bottom: 10px;
     }
 
     .feature-box p {
-      color: #e2e8f0;
-      line-height: 1.6;
-    }
-
-    /* AI Summary Section */
-    .summary {
-      max-width: 850px;
-      margin: 60px auto 100px;
-      text-align: center;
-      padding: 40px 25px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-    }
-
-    .summary h2 {
-      font-size: 1.8rem;
-      color: #90cdf4;
-      margin-bottom: 20px;
-    }
-
-    .summary p {
       color: #dbeafe;
-      line-height: 1.7;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
     }
 
-    /* Footer */
+    .feature-box a {
+      display: inline-block;
+      padding: 10px 20px;
+      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .feature-box a:hover {
+      background: linear-gradient(90deg, #1d4ed8, #1e3a8a);
+      transform: translateY(-2px);
+    }
+
+    /* --- Footer --- */
     footer {
       text-align: center;
-      padding: 25px 10px;
-      font-size: 0.95rem;
-      color: #cbd5e1;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      padding: 20px 0;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
+      margin-top: auto;
+      background: rgba(255, 255, 255, 0.03);
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       .hero h1 {
-        font-size: 1.6rem;
+        font-size: 2rem;
       }
-      .nav-links {
-        display: none;
-      }
-      .features {
-        gap: 20px;
+      .hero p {
+        font-size: 1rem;
       }
     }
   </style>
 </head>
-<body>
 
-  <!-- Navbar -->
+<body>
   <nav class="navbar">
-    <div class="nav-brand">
-      <img src="logo.png" alt="PrepAura AI Logo">
-      PrepAura AI
-    </div>
+    <div class="nav-brand">PrepAura AI</div>
     <ul class="nav-links">
-      <li><a href="home.html">Home</a></li>
+      <li><a href="index.html">Home</a></li>
       <li><a href="practice.html">Practice Hub</a></li>
       <li><a href="mock_test.html">Mock Test</a></li>
-      <li><a href="index.html">Logout</a></li>
+      <li><a href="login.html">Logout</a></li>
     </ul>
   </nav>
 
-  <!-- Hero Section -->
   <section class="hero">
     <h1>Welcome to PrepAura AI</h1>
-    <p>Your all-in-one AI-powered interview assistant — practice aptitude, improve communication, code smarter, and get real-time performance feedback powered by intelligent analysis.</p>
-    <button onclick="window.location.href='practice.html'">Start Practicing</button>
+    <p>Your personalized AI-powered interview assistant that helps you master aptitude, communication, coding, and mock interviews — all in one place.</p>
   </section>
 
-  <!-- Features Section -->
   <section class="features">
     <div class="feature-box">
-      <h2>🎯 Practice Hub</h2>
-      <p>Focus on one skill at a time. From Aptitude and Communication to HR and Managerial rounds — all designed for skill-based improvement with instant AI feedback.</p>
+      <h3>📊 Aptitude Practice</h3>
+      <p>Sharpen your logical reasoning and problem-solving skills with timed aptitude tests designed to match real company assessments.</p>
+      <a href="aptitude.html">Start Practice</a>
     </div>
 
     <div class="feature-box">
-      <h2>🧠 Mock Test Hub</h2>
-      <p>Simulate a full-length proctored interview — from Aptitude to HR — in one go. Experience the real feel of campus placements with live feedback and scoring.</p>
+      <h3>🗣️ Communication Test</h3>
+      <p>Enhance your fluency and clarity with real-time voice analysis powered by AI — track your tone, confidence, and vocabulary.</p>
+      <a href="communication.html">Start Test</a>
     </div>
 
     <div class="feature-box">
-      <h2>💻 Coding Challenges</h2>
-      <p>Enhance your problem-solving with DSA-based and logic-driven coding tests. The AI checks efficiency, logic, and syntax automatically.</p>
+      <h3>💻 Technical Practice</h3>
+      <p>Code in Python or Java, run test cases instantly, and get AI-powered insights on logic, efficiency, and accuracy.</p>
+      <a href="technical.html">Start Coding</a>
     </div>
 
     <div class="feature-box">
-      <h2>🗣️ Communication Analysis</h2>
-      <p>PrepAura AI listens to your tone, clarity, and confidence — analyzing your speech and expressions to help you improve your presentation skills.</p>
+      <h3>👔 Managerial Round</h3>
+      <p>Prepare for scenario-based and leadership questions — train your analytical and management decision-making responses.</p>
+      <a href="managerial.html">Start Round</a>
+    </div>
+
+    <div class="feature-box">
+      <h3>🧠 HR Interview</h3>
+      <p>Simulate real HR interviews with AI follow-ups and performance feedback to boost your communication and confidence.</p>
+      <a href="hr.html">Start HR Round</a>
+    </div>
+
+    <div class="feature-box">
+      <h3>📄 Resume-Based Interview</h3>
+      <p>Upload your resume and face targeted questions based on your projects, achievements, and experiences.</p>
+      <a href="resume.html">Start Interview</a>
     </div>
   </section>
 
-  <!-- AI Summary Section -->
-  <section class="summary">
-    <h2>Why Choose PrepAura AI?</h2>
-    <p>PrepAura AI isn’t just another interview prep platform — it’s your personal AI-powered interview coach. With live facial emotion tracking, voice tone evaluation, coding test validation, and professional HR simulations, it prepares you to ace your next placement interview with confidence.</p>
-  </section>
-
-  <!-- Footer -->
   <footer>
-    © 2025 PrepAura AI | Designed by Vishalgouda N. Patil
+    © 2025 PrepAura AI — Designed with 💙 by Vicchu
   </footer>
 
+  <script src="auth.js"></script>
 </body>
 </html>
