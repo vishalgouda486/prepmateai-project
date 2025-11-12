@@ -44,7 +44,6 @@
       font-weight: 700;
       font-size: 1.4rem;
       color: #ffffff;
-      text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
     }
 
     .nav-links {
@@ -69,10 +68,9 @@
     /* --- Login Container --- */
     .container {
       background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 18px;
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
       padding: 40px 50px;
       width: 100%;
       max-width: 420px;
@@ -91,7 +89,6 @@
       color: #ffffff;
       margin-bottom: 25px;
       font-size: 1.8rem;
-      text-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
     }
 
     label {
@@ -108,15 +105,16 @@
       margin-bottom: 20px;
       border: none;
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.12);
       color: #fff;
       font-size: 1rem;
       outline: none;
-      transition: box-shadow 0.3s ease;
+      transition: border 0.3s ease, background-color 0.3s ease;
     }
 
     input:focus {
-      box-shadow: 0 0 8px rgba(37, 99, 235, 0.7);
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid #3b82f6;
     }
 
     #error-message {
@@ -137,13 +135,12 @@
       font-size: 1.1rem;
       cursor: pointer;
       font-weight: 600;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      transition: background 0.25s ease, transform 0.2s ease;
     }
 
     button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6);
+      background: linear-gradient(90deg, #1d4ed8, #1e3a8a);
+      transform: translateY(-2px);
     }
 
     /* --- Signup Link --- */

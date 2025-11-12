@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Welcome to Prepmate AI</title>
   <style>
-    /* --- Global Styles --- */
     body {
       margin: 0;
       padding: 0;
@@ -29,6 +28,7 @@
       align-items: center;
       justify-content: center;
       padding: 40px 20px;
+      flex-direction: column;
     }
 
     .container {
@@ -37,17 +37,26 @@
       text-align: center;
     }
 
-    /* --- Logo Animation --- */
-    .splash-logo {
-      width: 260px;
-      max-width: 80%;
-      height: auto;
-      margin-bottom: 25px;
-      border-radius: 14px;
-      box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
+    /* --- Logo Background Section --- */
+    .logo-section {
+      background: linear-gradient(180deg, #f5f7fa, #e2e8f0, #dbeafe);
+      border-radius: 20px;
+      padding: 40px 60px;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+      display: inline-block;
+      margin-bottom: 40px;
       animation: fadeZoom 1.6s ease-in-out forwards;
       opacity: 0;
       transform: scale(0.9);
+    }
+
+    .splash-logo {
+      width: 320px;
+      max-width: 85%;
+      height: auto;
+      border-radius: 14px;
+      display: block;
+      margin: 0 auto;
     }
 
     @keyframes fadeZoom {
@@ -74,7 +83,7 @@
       color: #90cdf4;
       margin-top: 60px;
       margin-bottom: 25px;
-      text-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+      text-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
     }
 
     /* --- Glass Cards --- */
@@ -138,7 +147,7 @@
 
     @media (max-width: 600px) {
       .splash-logo {
-        width: 200px;
+        width: 240px;
       }
       .splash-heading {
         font-size: 1.4rem;
@@ -146,14 +155,20 @@
       h1 {
         font-size: 1.6rem;
       }
+      .logo-section {
+        padding: 25px 30px;
+      }
     }
   </style>
 </head>
 <body>
 
   <div class="splash-container">
-    <div class="container splash-content">
+    <div class="logo-section">
       <img src="logo.png" alt="Prepmate AI Logo" class="splash-logo" />
+    </div>
+
+    <div class="container splash-content">
       <h1>Your All-In-One AI Interview Coach</h1>
       <p class="splash-intro">
         Stop just <em>reading</em> about interviews. Start <em>experiencing</em> them. Prepmate is a free, AI-powered platform designed to take you from the classroom to your first tech offer by simulating the entire interview process.
