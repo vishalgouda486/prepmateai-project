@@ -191,9 +191,10 @@
       <label for="password">Password</label>
       <input type="password" id="password" placeholder="Enter your password" required />
 
-      <div id="error-message">Invalid credentials. Please try again.</div>
+      <div id="error-message"></div>
 
-      <button type="submit">Login</button>
+      <!-- ✅ FIX: Added correct button ID -->
+      <button id="login-button" type="submit">Login</button>
     </form>
 
     <div class="signup-text">
@@ -201,6 +202,7 @@
     </div>
   </div>
 
+  <!-- ✅ Keep script at the bottom -->
   <script src="login.js"></script>
 </body>
 </html>
