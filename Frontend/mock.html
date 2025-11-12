@@ -3,336 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Mock Interview - PrepAura AI</title>
-
-  <!-- Particle.js CDN -->
-  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <title>Mock Interview - Prepmate AI</title>
+  
   <script src="face-api.min.js"></script>
-
-  <style>
-    :root {
-      --glass-bg: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.15);
-      --accent-1: #38bdf8;
-      --accent-2: #a78bfa;
-      --btn-a: #2563eb;
-      --btn-b: #1d4ed8;
-    }
-
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: #0a192f;
-      color: #f5f6fa;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
-      animation: fadeInBody 1.2s ease forwards;
-      opacity: 0;
-    }
-
-    @keyframes fadeInBody {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Particle Background */
-    #particles-js {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: -1;
-      background: linear-gradient(135deg, #0a192f, #1e3a8a, #1e40af);
-    }
-
-    /* Navbar */
-    .navbar {
-      position: fixed;
-      top: 0; width: 100%;
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 15px 40px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-      z-index: 1000;
-    }
-
-    .nav-brand {
-      font-weight: 700;
-      font-size: 1.5rem;
-      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 25px;
-      margin: 0;
-      padding: 0;
-    }
-
-    .nav-links a {
-      text-decoration: none;
-      color: #dbeafe;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    .nav-links a:hover {
-      color: #93c5fd;
-    }
-
-    /* Main Container */
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 110px 20px 60px;
-      text-align: center;
-    }
-
-    main h1 {
-      font-size: 2.3rem;
-      font-weight: 700;
-      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 15px;
-    }
-
-    .instructions {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 20px 30px;
-      max-width: 700px;
-      color: #dbeafe;
-      line-height: 1.7;
-      backdrop-filter: blur(12px);
-      margin-bottom: 40px;
-      font-size: 1rem;
-      animation: fadeIn 1.5s ease forwards;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 30px;
-      width: 100%;
-      max-width: 850px;
-      align-items: center;
-    }
-
-    .glass-card {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 30px;
-      width: 100%;
-      backdrop-filter: blur(14px);
-      box-shadow: 0 6px 30px rgba(0,0,0,0.3);
-      transition: transform 0.3s ease, border-color 0.3s ease, opacity 1s ease;
-      opacity: 0;
-      transform: translateY(40px);
-    }
-
-    .glass-card.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .glass-card h2 {
-      color: var(--accent-1);
-      margin-bottom: 15px;
-    }
-
-    /* Inputs and Buttons */
-    input[type="file"], textarea {
-      width: 100%;
-      padding: 12px 15px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background: rgba(255,255,255,0.1);
-      color: #f1f5f9;
-      font-size: 1rem;
-      margin-top: 10px;
-    }
-
-    button {
-      background: linear-gradient(90deg, var(--btn-a), var(--btn-b));
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 20px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin: 10px 5px;
-    }
-
-    button:hover {
-      background: linear-gradient(90deg, #1d4ed8, #1e3a8a);
-      transform: translateY(-2px);
-    }
-
-    video {
-      width: 100%;
-      max-width: 500px;
-      border-radius: 10px;
-      border: 2px solid var(--accent-1);
-      margin-top: 10px;
-      box-shadow: 0 0 20px rgba(56,189,248,0.4);
-    }
-
-    #feedback {
-      background: rgba(255,255,255,0.05);
-      border-radius: 10px;
-      padding: 15px;
-      color: #e2e8f0;
-      font-size: 1rem;
-      min-height: 100px;
-      margin-top: 15px;
-    }
-
-    footer {
-      text-align: center;
-      color: #94a3b8;
-      font-size: 0.9rem;
-      padding: 20px 0;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      margin-top: 30px;
-      background: rgba(255,255,255,0.03);
-    }
-
-    @media (max-width: 600px) {
-      main h1 { font-size: 1.9rem; }
-      .glass-card { padding: 20px; }
-      video { max-width: 100%; }
-    }
-  </style>
+  
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <!-- 🔮 Particle Background -->
-  <div id="particles-js"></div>
 
-  <!-- 🌐 Navbar -->
   <nav class="navbar">
-    <div class="nav-brand">PrepAura AI</div>
+    <div class="nav-brand">Prepmate AI</div>
     <ul class="nav-links">
-      <li><a href="home.html">Home</a></li>
+      <li><a href="index.html">Home</a></li>
       <li><a href="practice.html">Practice Hub</a></li>
-      <li><a href="login.html">Logout</a></li>
+      <li><a href="mock_test.html">Mock Test</a></li>
     </ul>
   </nav>
 
-  <!-- 🌟 Main Section -->
-  <main>
-    <h1>AI Mock Interview</h1>
-
-    <div class="instructions">
-      <p>🎙️ Allow camera and microphone access to begin your AI interview.</p>
-      <p>🧠 Answer naturally — our system will analyze your facial expressions, voice tone, and confidence level.</p>
-      <p>💬 After submission, AI-generated feedback will appear below your video response.</p>
-    </div>
-
+  <main class="content">
     <div class="container">
-      <!-- Resume Upload -->
-      <div class="glass-card">
-        <h2>📄 Upload Your Resume</h2>
+      <h1>💼 AI Mock Interview</h1>
+      <div id="model-status">Loading AI Face Models...</div>
+      
+      <div class="resume-uploader">
+        <label for="resume-upload">Upload Resume (PDF):</label>
         <input type="file" id="resume-upload" accept=".pdf" />
-        <button id="upload-resume-btn">Upload</button>
+        <span id="resume-status"></span>
       </div>
-
-      <!-- Question Generation -->
-      <div class="glass-card">
-        <h2>🧩 Generate Interview Question</h2>
+      
+      <div class="generator-controls">
+        <select id="topic-select">
+          <option value="Behavioral">Behavioral Question</option>
+          <option value="Python">Python</option>
+          <option value="Data Structures">Data Structures</option>
+          <option value="General Tech">General Tech</option>
+          <option value="Resume-Based" id="resume-option" disabled>Resume-Based (Upload First)</option>
+        </select>
         <button id="generate-button">Generate Question</button>
-        <p id="question-display" style="margin-top:10px; color:#dbeafe;"></p>
       </div>
-
-      <!-- Video and Audio Capture -->
-      <div class="glass-card">
-        <h2>🎥 Record Your Answer</h2>
-        <video id="user-video" autoplay muted></video><br />
-        <button id="start-record">Start Recording</button>
-        <button id="stop-record" disabled>Stop Recording</button>
+      
+      <textarea id="interview_question" placeholder="Click 'Generate Question' above..."></textarea>
+      
+      <div class="speech-controls">
+        <button id="speech-play-button">▶️ Play Question</button>
       </div>
-
-      <!-- AI Feedback -->
-      <div class="glass-card">
-        <h2>💬 AI Feedback</h2>
-        <button id="feedback-button">Submit for Feedback</button>
-        <div id="feedback">Your AI evaluation will appear here after submission.</div>
+      
+      <div class="video-container" id="video-container">
+        <video id="user-video" width="400" height="300" autoplay muted></video>
+      </div>
+      
+      <div class="audio-controls">
+        <button id="record-button">🎙️ Record Answer</button>
+        <button id="stop-button" disabled>⏹️ Stop Recording</button>
+        <span id="record-status"></span>
+      </div>
+      
+      <audio id="audio-playback" controls></audio>
+  
+      <button id="feedback-button" disabled>Submit for Feedback</button>
+      
+      <div class="response-box" id="response">
+        Your feedback will appear here...
       </div>
     </div>
   </main>
-
-  <footer>
-    © 2025 PrepAura AI — Designed with 💙 by Vicchu
-  </footer>
-
-  <!-- JS Scripts -->
+  
   <script src="script.js"></script>
-
-  <!-- 🎇 Particle Config + Fade Animations -->
-  <script>
-    particlesJS("particles-js", {
-      "particles": {
-        "number": { "value": 85, "density": { "enable": true, "value_area": 800 } },
-        "color": { "value": "#38bdf8" },
-        "shape": { "type": "circle" },
-        "opacity": { "value": 0.5 },
-        "size": { "value": 3, "random": true },
-        "line_linked": {
-          "enable": true,
-          "distance": 150,
-          "color": "#60a5fa",
-          "opacity": 0.4,
-          "width": 1
-        },
-        "move": { "enable": true, "speed": 2.2, "out_mode": "bounce" }
-      },
-      "interactivity": {
-        "detect_on": "canvas",
-        "events": {
-          "onhover": { "enable": true, "mode": "grab" },
-          "onclick": { "enable": true, "mode": "push" },
-          "resize": true
-        },
-        "modes": {
-          "grab": { "distance": 180, "line_linked": { "opacity": 0.8 } },
-          "repulse": { "distance": 120, "duration": 0.4 },
-          "push": { "particles_nb": 4 }
-        }
-      },
-      "retina_detect": true
-    });
-
-    // Fade animation for each card
-    const cards = document.querySelectorAll(".glass-card");
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("show");
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.2 });
-    cards.forEach(card => observer.observe(card));
-  </script>
 </body>
 </html>
