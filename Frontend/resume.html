@@ -5,15 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Resume Interview - PrepAura AI</title>
 
-  <!-- Face API -->
   <script src="face-api.min.js"></script>
-
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="practice-tool.css" />
   <link rel="stylesheet" href="managerial.css" />
-
-  <!-- Particles -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
   <style>
@@ -48,13 +43,19 @@
       border-radius: 12px;
     }
 
-    #model-status, .status-box { color:#cfe9ff; }
+    #model-status, .status-box {
+      color: #93c5fd;
+      margin-top: 10px;
+      display: none; /* hidden initially */
+      font-size: 0.95rem;
+    }
 
     .video-container {
       margin-bottom: 15px;
       max-width: 420px;
-      display: none; /* hidden initially */
+      display: none;
     }
+
     #user-video {
       width:100%;height:auto;
       border-radius:8px;
@@ -74,10 +75,6 @@
     }
     .ai {background:linear-gradient(90deg,#38bdf8,#3b82f6);color:#fff;}
     .user {background:linear-gradient(90deg,#a78bfa,#8b5cf6);color:#fff;}
-
-    .tool-button-primary:hover{box-shadow:0 6px 18px rgba(56,189,248,0.12);}
-    .tool-button-danger:hover{box-shadow:0 6px 18px rgba(239,68,68,0.08);}
-    .spinner-overlay{backdrop-filter:blur(6px);}
 
     .resume-uploader {
       text-align: center;
@@ -130,7 +127,7 @@
           <input type="file" id="resume-upload" accept=".pdf" />
           <br>
           <button id="upload-btn" class="tool-button-primary" style="margin-top:15px;">Upload</button>
-          <div id="model-status">Loading AI Face Models...</div>
+          <div id="model-status">AI Models Loaded Successfully ✅</div>
           <span id="resume-status"></span>
         </div>
       </div>
@@ -178,27 +175,48 @@
   <script src="resume.js"></script>
   <script src="auth.js"></script>
 
-  <!-- File Label & Camera Visibility -->
+  <!-- File Label, Voice & Camera Visibility -->
   <script>
     const videoContainer=document.getElementById("video-container");
     const recordBtn=document.getElementById("record-button");
     const stopBtn=document.getElementById("stop-button");
     const uploadInput=document.getElementById("resume-upload");
     const uploadStatus=document.getElementById("resume-status");
+    const modelStatus=document.getElementById("model-status");
 
-    // File name display
-    uploadInput.addEventListener("change", (e)=>{
+    // Initially hide model status
+    modelStatus.style.display = "none";
+
+    // File upload display
+    uploadInput.addEventListener("change",(e)=>{
       const file=e.target.files[0];
       if(file){
-        uploadStatus.textContent = `✅ ${file.name} uploaded successfully.`;
+        uploadStatus.textContent=`✅ ${file.name} uploaded successfully.`;
+        modelStatus.style.display="none";
       }
     });
 
+    // Camera visibility control
     if(videoContainer&&recordBtn&&stopBtn){
       videoContainer.style.display="none";
       recordBtn.addEventListener("click",()=>{videoContainer.style.display="block";});
       stopBtn.addEventListener("click",()=>{videoContainer.style.display="none";});
     }
+
+    // Better voice output: pick best female voice
+    function setPreferredVoice(){
+      const synth=window.speechSynthesis;
+      const voices=synth.getVoices();
+      if(!voices.length){
+        setTimeout(setPreferredVoice,500);
+        return;
+      }
+      window.prepAuraVoice = voices.find(v=>v.name.toLowerCase().includes("female")) || 
+                             voices.find(v=>v.name.toLowerCase().includes("english")) || 
+                             voices[0];
+    }
+    window.speechSynthesis.onvoiceschanged=setPreferredVoice;
+    setPreferredVoice();
   </script>
 
   <!-- Interactive Particles -->
