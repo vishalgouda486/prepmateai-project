@@ -148,25 +148,27 @@
       background: #1e3a8a;
     }
 
-    /* ✅ Darkened inner loader box fix */
+    /* ✅ Fix the white loading box issue */
     #round-content.loading {
-      background: none; /* keep outer transparent */
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       min-height: 300px;
+      position: relative;
     }
 
-    #round-content.loading .loader {
-      background: rgba(11, 18, 37, 0.85);
-      padding: 80px 50px;
+    /* This targets the inner white loader box (the one shown while buffering) */
+    #round-content.loading > div {
+      background: rgba(15, 23, 42, 0.92); /* Dark navy glass */
       border-radius: 16px;
-      backdrop-filter: blur(6px);
+      padding: 80px 60px;
       box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      transition: background 0.4s ease-in-out;
     }
 
     .loading-text {
@@ -174,8 +176,7 @@
       font-weight: 600;
       color: #ffffff !important;
       text-align: center;
-      text-shadow: 0 0 10px rgba(56, 189, 248, 0.6),
-                   0 0 18px rgba(30, 58, 138, 0.4);
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.8), 0 0 18px rgba(30, 58, 138, 0.5);
       margin-top: 18px;
       animation: fadeIn 0.5s ease-in-out;
     }
@@ -275,8 +276,8 @@
           <div><strong>Warnings:</strong> <span id="warning-count">0 / 3</span></div>
         </div>
         <div id="round-content" class="loading">
-          <div class="loader">
-            <div class="spinner"></div>
+          <div>
+            <div class="loader"></div>
             <p class="loading-text">Preparing a test tailored specially for you...</p>
           </div>
         </div>
