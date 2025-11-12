@@ -3,17 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Communication Round - PrepAura AI</title>
+  <title>Communication Assessment - PrepAura AI</title>
 
+  <!-- Face API -->
+  <script src="face-api.min.js"></script>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="practice-tool.css" />
 
-  <!-- Particle.js -->
+  <!-- Particles -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
   <style>
     :root {
-      --glass-bg: rgba(255,255,255,0.08);
-      --glass-border: rgba(255,255,255,0.12);
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.12);
       --accent-1: #38bdf8;
       --accent-2: #a78bfa;
       --btn-a: #2563eb;
@@ -29,7 +34,6 @@
       flex-direction: column;
       min-height: 100vh;
       align-items: center;
-      justify-content: center;
       overflow-x: hidden;
       position: relative;
     }
@@ -40,20 +44,17 @@
       z-index: -1;
     }
 
-    /* Navbar */
     .navbar {
       position: fixed;
       top: 0;
-      left: 0;
-      right: 0;
-      height: 64px;
+      width: 100%;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
-      background: rgba(255,255,255,0.04);
+      align-items: center;
+      padding: 15px 40px;
+      background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       z-index: 1000;
     }
 
@@ -66,9 +67,9 @@
     }
 
     .nav-links {
+      list-style: none;
       display: flex;
       gap: 20px;
-      list-style: none;
       margin: 0;
       padding: 0;
     }
@@ -77,46 +78,50 @@
       color: #dbeafe;
       text-decoration: none;
       font-weight: 500;
+      transition: color 0.3s ease;
     }
 
     .nav-links a:hover { color: #fff; }
 
-    /* Main Container */
+    main.content {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 100px;
+    }
+
     .container {
       background: var(--glass-bg);
-      backdrop-filter: blur(16px);
+      backdrop-filter: blur(14px);
       border: 1px solid var(--glass-border);
       border-radius: 16px;
-      padding: 32px;
-      width: 95%;
+      padding: 40px;
+      width: 90%;
       max-width: 950px;
-      margin-top: 90px;
       text-align: center;
       box-shadow: 0 8px 25px rgba(0,0,0,0.4);
     }
 
-    h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
+    h1, h2 {
       background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 20px;
     }
 
     p {
       color: #dbeafe;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       line-height: 1.6;
     }
 
-    /* Question box - subtle glowing glass */
+    /* Glass Question/Topic Box */
     .question-box {
       background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.25);
       border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 25px;
+      padding: 18px;
+      margin: 20px 0;
       color: #e6eef8;
       font-size: 1.05rem;
       box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15);
@@ -128,62 +133,72 @@
       box-shadow: 0 6px 20px rgba(56, 189, 248, 0.25);
     }
 
-    /* Video frame styling */
-    #video-container {
+    .stats-bar {
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 10px 15px;
+      color: #dce7ff;
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
-      margin-bottom: 25px;
+      align-items: center;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 15px;
     }
 
-    #video {
-      width: 480px;
-      height: 360px;
+    video {
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.05);
-      object-fit: cover;
-      box-shadow: 0 5px 18px rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 4px 15px rgba(56,189,248,0.12);
     }
 
-    #start-recording {
-      padding: 12px 20px;
+    button {
+      padding: 12px 18px;
+      border-radius: 10px;
       border: none;
-      border-radius: 8px;
       font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .tool-button-primary {
       background: linear-gradient(90deg, var(--btn-a), var(--btn-b));
       color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease, background 0.2s ease;
-      margin-bottom: 20px;
     }
 
-    #start-recording:hover {
+    .tool-button-primary:hover {
       transform: translateY(-2px);
       background: linear-gradient(90deg, var(--btn-b), var(--btn-a));
     }
 
-    /* Feedback box */
-    .feedback-box {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .tool-button-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .tool-button-danger:hover {
+      transform: translateY(-2px);
+      background: #dc2626;
+    }
+
+    .response-box {
+      background: rgba(255,255,255,0.07);
       border-radius: 14px;
       padding: 20px;
       color: #e6eef8;
-      font-size: 1rem;
-      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.12);
+      box-shadow: 0 4px 15px rgba(56,189,248,0.12);
     }
 
-    @media (max-width: 600px) {
-      .container {
-        padding: 22px;
-      }
-      #video {
-        width: 100%;
-        height: 250px;
-      }
+    .spinner-overlay {
+      backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.45);
+    }
+
+    @media (max-width: 700px) {
+      .container { padding: 25px; }
+      video { width: 100%; height: auto; }
     }
   </style>
 </head>
@@ -194,35 +209,58 @@
 
   <nav class="navbar">
     <div class="nav-brand">PrepAura AI</div>
-    <ul class="nav-links">
-      <li><a href="practice.html">Practice Hub</a></li>
-      <li><a href="mock_test.html">Mock Test</a></li>
-      <li><a href="login.html">Logout</a></li>
-    </ul>
+    <ul class="nav-links" id="nav-links-list"></ul>
   </nav>
 
-  <main class="container">
-    <h1>Communication Round</h1>
-    <p>Answer the given question while the system analyzes your facial expressions and tone of voice to generate personalized feedback.</p>
+  <main class="content">
+    <div class="container">
 
-    <div class="question-box" id="question-box">
-      Loading your communication prompt...
-    </div>
+      <!-- Setup Screen -->
+      <div id="setup-screen">
+        <h1>1-Minute Communication Assessment</h1>
+        <p>You will be given a random topic. You will have 15 seconds to prepare and then 60 seconds to speak.</p>
+        <p>Your voice, gaze, and facial expressions will be analyzed. Good luck!</p>
+        <div id="model-status">Loading AI Face Models...</div>
+        <button id="start-btn" class="tool-button-primary" disabled>Start Challenge</button>
+      </div>
 
-    <div id="video-container">
-      <video id="video" autoplay muted></video>
-    </div>
+      <!-- Practice Screen -->
+      <div id="practice-screen" class="hidden">
+        <h2 id="status-text">Prepare...</h2>
+        <div class="stats-bar">
+          <div id="timer-text">Time Left: 15s</div>
+        </div>
 
-    <button id="start-recording">Start Recording</button>
+        <div class="question-box" id="topic-box">Your topic will appear here...</div>
 
-    <div class="feedback-box" id="feedback-box">
-      Feedback and emotion analysis will appear here after recording.
+        <div class="video-container" id="video-container">
+          <video id="user-video" width="400" height="300" autoplay muted></video>
+        </div>
+
+        <div class="audio-controls">
+          <button id="stop-btn" class="tool-button-danger" disabled>Stop Recording</button>
+        </div>
+
+        <button id="feedback-btn" class="tool-button-primary" disabled>Submit for Feedback</button>
+      </div>
+
+      <!-- Feedback Screen -->
+      <div id="feedback-screen" class="hidden">
+        <h2>Your Report</h2>
+        <div class="response-box" id="feedback-report">Generating your feedback...</div>
+        <button id="restart-btn" class="tool-button-primary">Try Another Topic</button>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div id="loading-spinner" class="spinner-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p id="spinner-text">Loading...</p> 
+      </div>
     </div>
   </main>
 
   <script src="communication.js"></script>
   <script src="auth.js"></script>
-  <script src="face-api.min.js"></script>
 
   <!-- Particles Config -->
   <script>
@@ -242,7 +280,7 @@
         },
         move: {
           enable: true,
-          speed: 2,
+          speed: 2.2,
           out_mode: "out"
         }
       },
