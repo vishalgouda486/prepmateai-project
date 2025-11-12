@@ -3,40 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resume Interview - Prepmate AI</title>
-  
+  <title>Resume Interview - PrepAura AI</title>
+
+  <!-- Face API -->
   <script src="face-api.min.js"></script>
-  
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="practice-tool.css" />
-  <link rel="stylesheet" href="managerial.css" /> </head>
+  <link rel="stylesheet" href="managerial.css" />
+
+  <!-- Particles -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+  <style>
+    :root {
+      --glass-bg: rgba(255,255,255,0.06);
+      --glass-border: rgba(255,255,255,0.10);
+      --accent-1: #38bdf8;
+      --accent-2: #a78bfa;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #0a192f, #1e3a8a, #1e40af);
+      color: #f5f6fa;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    #particles-js {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+    }
+
+    .container {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px) saturate(120%);
+      box-shadow: 0 8px 30px rgba(2,6,23,0.55);
+      border-radius: 12px;
+    }
+
+    #model-status, .status-box { color:#cfe9ff; }
+
+    .video-container {
+      margin-bottom: 15px;
+      max-width: 420px;
+      display: none; /* hidden initially */
+    }
+    #user-video {
+      width:100%;height:auto;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 6px 18px rgba(2,6,23,0.6);
+      transform:scaleX(-1);
+    }
+
+    #chat-container {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius:10px;
+      padding:14px;
+      max-height:420px;
+      overflow-y:auto;
+      text-align:left;
+    }
+    .ai {background:linear-gradient(90deg,#38bdf8,#3b82f6);color:#fff;}
+    .user {background:linear-gradient(90deg,#a78bfa,#8b5cf6);color:#fff;}
+
+    .tool-button-primary:hover{box-shadow:0 6px 18px rgba(56,189,248,0.12);}
+    .tool-button-danger:hover{box-shadow:0 6px 18px rgba(239,68,68,0.08);}
+    .spinner-overlay{backdrop-filter:blur(6px);}
+
+    .resume-uploader {
+      text-align: center;
+      border: 1px dashed rgba(255,255,255,0.3);
+      border-radius: 10px;
+      padding: 25px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    @media(max-width:700px){
+      .container{padding:18px;}
+    }
+  </style>
+</head>
 <body>
 
+  <div id="particles-js"></div>
+
   <nav class="navbar">
-    <div class="nav-brand">Prepmate AI</div>
-    <ul class="nav-links" id="nav-links-list">
-  </ul>
+    <div class="nav-brand">PrepAura AI</div>
+    <ul class="nav-links" id="nav-links-list"></ul>
   </nav>
 
   <main class="content">
     <div class="container">
-      
+
       <div id="upload-screen">
         <h1>Resume-Based Interview</h1>
         <p>This is a 6-question live interview about your resume. Upload your resume (PDF) to begin.</p>
         
-        <div class="resume-uploader" style="text-align: center; border-style: solid; padding: 20px;">
-          <label for="resume-upload">Upload Your Resume (PDF):</label>
+        <div class="resume-uploader">
+          <label for="resume-upload">Upload Your Resume (PDF):</label><br>
           <input type="file" id="resume-upload" accept=".pdf" />
-          <button id="upload-btn" class="tool-button-primary" style="width: auto; margin-top: 15px;">Upload</button>
+          <br>
+          <button id="upload-btn" class="tool-button-primary" style="width:auto;margin-top:15px;">Upload</button>
           <span id="resume-status"></span>
         </div>
       </div>
 
       <div id="interview-screen" class="hidden">
-        
-        <div id="chat-container">
-          </div>
+        <div id="chat-container"></div>
 
         <div id="typing-indicator" class="hidden">
           <div class="chat-bubble ai">
@@ -45,15 +127,15 @@
             <div class="typing-dot"></div>
           </div>
         </div>
-        
+
         <div class="video-container" id="video-container">
           <video id="user-video" width="400" height="300" autoplay muted></video>
         </div>
-        
+
         <div class="voice-controls">
           <button id="mute-btn" class="tool-button-secondary">🔇 Mute Voice</button>
         </div>
-        
+
         <div class="audio-controls">
           <button id="record-button" disabled>🎙️ Record Answer</button>
           <button id="stop-button" disabled>⏹️ Stop Recording</button>
@@ -68,17 +150,60 @@
         </div>
         <a href="practice.html" class="tool-button-primary">Back to Practice Hub</a>
       </div>
-      
-      <div id="loading-spinner" class="spinner-overlay" style="display: none;">
+
+      <div id="loading-spinner" class="spinner-overlay" style="display:none;">
         <div class="spinner"></div>
-        <p id="spinner-text">Loading...</p> 
+        <p id="spinner-text">Loading...</p>
       </div>
 
     </div>
   </main>
-  
+
   <script src="resume.js"></script>
   <script src="auth.js"></script>
-  
+
+  <!-- Camera visibility -->
+  <script>
+    const videoContainer=document.getElementById("video-container");
+    const recordBtn=document.getElementById("record-button");
+    const stopBtn=document.getElementById("stop-button");
+
+    if(videoContainer&&recordBtn&&stopBtn){
+      videoContainer.style.display="none";
+      recordBtn.addEventListener("click",()=>{videoContainer.style.display="block";});
+      stopBtn.addEventListener("click",()=>{videoContainer.style.display="none";});
+    }
+  </script>
+
+  <!-- Interactive Particles -->
+  <script>
+    particlesJS("particles-js",{
+      particles:{
+        number:{value:75,density:{enable:true,value_area:800}},
+        color:{value:"#38bdf8"},
+        shape:{type:"circle"},
+        opacity:{value:0.55},
+        size:{value:3.5,random:true},
+        line_linked:{
+          enable:true,distance:150,color:"#60a5fa",opacity:0.4,width:1.2
+        },
+        move:{enable:true,speed:2.2,out_mode:"out"}
+      },
+      interactivity:{
+        detect_on:"canvas",
+        events:{
+          onhover:{enable:true,mode:"grab"},
+          onclick:{enable:true,mode:"repulse"},
+          resize:true
+        },
+        modes:{
+          grab:{distance:180,line_linked:{opacity:0.8}},
+          repulse:{distance:140,duration:0.4},
+          push:{particles_nb:4}
+        }
+      },
+      retina_detect:true
+    });
+  </script>
 </body>
 </html>
