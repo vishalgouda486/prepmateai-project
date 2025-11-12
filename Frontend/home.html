@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Home - PrepAura AI</title>
 
-  <!-- Particle.js CDN -->
+  <!-- Particle.js -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
   <style>
-    :root{
+    :root {
       --glass-bg: rgba(255,255,255,0.08);
       --glass-border: rgba(255,255,255,0.12);
       --accent-1: #38bdf8;
@@ -18,7 +18,7 @@
       --btn-b: #1d4ed8;
     }
 
-    *{box-sizing:border-box}
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
@@ -38,7 +38,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Particles container (behind content) */
     #particles-js {
       position: fixed;
       inset: 0;
@@ -62,101 +61,163 @@
       border-bottom: 1px solid rgba(255,255,255,0.06);
       z-index: 1000;
     }
-    .nav-brand{
-      font-weight:700;
-      font-size:1.4rem;
-      background: linear-gradient(90deg,var(--accent-1),var(--accent-2));
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-    }
-    .nav-links{display:flex; gap:20px; list-style:none; margin:0; padding:0}
-    .nav-links a{ color:#dbeafe; text-decoration:none; font-weight:500; padding:8px 10px; border-radius:6px}
-    .nav-links a:hover{ color:#fff }
 
-    /* Main content */
-    .main{
-      flex:1;
+    .nav-brand {
+      font-weight: 700;
+      font-size: 1.4rem;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links a {
+      color: #dbeafe;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 10px;
+      border-radius: 6px;
+    }
+
+    .nav-links a:hover { color: #fff; }
+
+    /* Main */
+    .main {
+      flex: 1;
       padding: 110px 20px 60px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      text-align:center;
-    }
-    .main h1{
-      margin:0 0 12px;
-      font-size:2.4rem;
-      font-weight:700;
-      background: linear-gradient(90deg,var(--accent-1),var(--accent-2));
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-    }
-    .main p{ max-width:720px; color:#cbd5e1; line-height:1.7; margin:0 0 36px; font-size:1.05rem }
-
-    /* Boxes layout */
-    .box-container{
-      display:flex;
-      gap:32px;
-      justify-content:center;
-      align-items:flex-start;
-      flex-wrap:wrap;
-      width:100%;
-      max-width:1100px;
-      margin:0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
 
-    /* Equal-height Feature Boxes */
-    .feature-box{
+    .main h1 {
+      margin: 0 0 12px;
+      font-size: 2.4rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .main p {
+      max-width: 720px;
+      color: #cbd5e1;
+      line-height: 1.7;
+      margin: 0 0 36px;
+      font-size: 1.05rem;
+    }
+
+    /* Box Container */
+    .box-container {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      align-items: stretch;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Feature Boxes */
+    .feature-box {
       background: var(--glass-bg);
       backdrop-filter: blur(14px);
       border: 1px solid var(--glass-border);
       border-radius: 14px;
       padding: 24px;
       width: 360px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      min-height: 360px; /* increased for equal size */
-      transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease, opacity .9s ease;
-      opacity:0; transform: translateY(30px);
-    }
-    .feature-box.show{ opacity:1; transform:translateY(0) }
-
-    /* Glowing hover effect */
-    .feature-box:hover{
-      transform:translateY(-8px);
-      border-color: rgba(56,189,248,0.4);
-      box-shadow:0 0 25px rgba(56,189,248,0.25), 0 6px 30px rgba(2,6,23,0.65);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 380px; /* ✅ Equal height */
+      transition: transform 0.28s ease, border-color 0.28s ease, opacity 0.9s ease;
+      opacity: 0;
+      transform: translateY(30px);
     }
 
-    .feature-box h2{ margin:0 0 8px; color:var(--accent-1); font-size:1.4rem }
-    .feature-box p{ margin:0 0 14px; color:#dbeafe; line-height:1.5 }
-    .feature-box ul{ margin:0 0 18px; padding:0; list-style:none }
-    .feature-box ul li{ color:#e6eef9; margin:8px 0; font-size:.96rem }
-
-    /* Button area anchored at bottom */
-    .feature-actions{ display:flex; justify-content:center; margin-top:auto; }
-    .feature-box a{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:12px 18px; border-radius:10px; text-decoration:none; color:#fff; font-weight:700;
-      background: linear-gradient(90deg,var(--btn-a),var(--btn-b));
-      transition: transform .18s ease, box-shadow .18s ease;
-      min-width:180px;
+    .feature-box.show {
+      opacity: 1;
+      transform: translateY(0);
     }
-    .feature-box a:hover{
+
+    .feature-box:hover {
+      transform: translateY(-6px);
+      border-color: rgba(56,189,248,0.45); /* Only border color change */
+    }
+
+    .feature-box h2 {
+      margin: 0 0 8px;
+      color: var(--accent-1);
+      font-size: 1.4rem;
+    }
+
+    .feature-box p {
+      margin: 0 0 14px;
+      color: #dbeafe;
+      line-height: 1.5;
+    }
+
+    .feature-box ul {
+      margin: 0 0 18px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-box ul li {
+      color: #e6eef9;
+      margin: 8px 0;
+      font-size: 0.96rem;
+    }
+
+    .feature-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: auto;
+    }
+
+    .feature-box a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--btn-a), var(--btn-b));
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      min-width: 180px;
+    }
+
+    .feature-box a:hover {
       transform: translateY(-3px);
-      box-shadow:0 6px 22px rgba(37,99,235,0.18);
     }
 
-    /* Ensure both cards match height */
-    #mock-card { min-height: 360px; }
-
-    footer{
-      text-align:center; color:#94a3b8; font-size:.9rem; padding:20px 0; border-top:1px solid rgba(255,255,255,0.04);
-      margin-top:36px;
+    footer {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      padding: 20px 0;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      margin-top: 36px;
       background: rgba(255,255,255,0.01);
     }
 
-    @media (max-width:900px){
-      .feature-box{ width: 90%; min-height:300px }
-      .box-container{ gap:20px }
+    @media (max-width: 900px) {
+      .feature-box {
+        width: 90%;
+        min-height: 340px;
+      }
+      .box-container { gap: 20px; }
     }
   </style>
 </head>
@@ -176,7 +237,6 @@
     <p>Experience AI-powered, proctored interview preparation across every round — practice, analyze, and improve like never before.</p>
 
     <div class="box-container">
-      <!-- Practice Hub -->
       <div class="feature-box" id="practice-card">
         <div>
           <h2>🧩 Practice Hub</h2>
@@ -194,7 +254,6 @@
         </div>
       </div>
 
-      <!-- Mock Test -->
       <div class="feature-box" id="mock-card">
         <div>
           <h2>🎯 Mock Test</h2>
@@ -218,49 +277,44 @@
 
   <script src="auth.js"></script>
 
-  <!-- Particles + interaction -->
+  <!-- Particles config -->
   <script>
     particlesJS("particles-js", {
       particles: {
-        number: { value: 85, density: { enable: true, value_area: 800 } },
+        number: { value: 80, density: { enable: true, value_area: 900 } },
         color: { value: "#38bdf8" },
         shape: { type: "circle" },
-        opacity: { value: 0.55 },
-        size: { value: 3, random: true },
+        opacity: { value: 0.5 },
+        size: { value: 3.5, random: true },
         line_linked: {
           enable: true,
-          distance: 140,
+          distance: 150,
           color: "#60a5fa",
-          opacity: 0.35,
-          width: 1
+          opacity: 0.4,
+          width: 1.2
         },
         move: {
           enable: true,
           speed: 2.2,
           direction: "none",
-          random: false,
-          straight: false,
-          out_mode: "out",
-          bounce: false
+          out_mode: "out"
         }
       },
       interactivity: {
         detect_on: "canvas",
         events: {
           onhover: { enable: true, mode: "grab" },
-          onclick: { enable: true, mode: "push" },
+          onclick: { enable: true, mode: "repulse" },
           resize: true
         },
         modes: {
-          grab: { distance: 200, line_linked: { opacity: 0.9 } },
-          repulse: { distance: 120, duration: 0.4 },
-          push: { particles_nb: 4 }
+          grab: { distance: 180, line_linked: { opacity: 0.8 } },
+          repulse: { distance: 140, duration: 0.4 }
         }
       },
       retina_detect: true
     });
 
-    // Fade-in observer
     const boxes = document.querySelectorAll(".feature-box");
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
