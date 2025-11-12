@@ -3,277 +3,177 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Managerial Round - PrepAura AI</title>
-
-  <!-- Face API -->
+  <title>Managerial Round - Prepmate AI</title>
+  
+  <!-- Face API (kept in place) -->
   <script src="face-api.min.js"></script>
-
-  <!-- Styles -->
+  
+  <!-- Keep original stylesheets (unchanged) -->
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="practice-tool.css" />
+  <link rel="stylesheet" href="managerial.css" /> 
 
   <!-- Particles -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
+  <!-- Minimal inline theme overrides: glass look only (won't change IDs or structure) -->
   <style>
     :root {
-      --glass-bg: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-bg: rgba(255,255,255,0.06);
+      --glass-border: rgba(255,255,255,0.10);
       --accent-1: #38bdf8;
       --accent-2: #a78bfa;
-      --btn-a: #2563eb;
-      --btn-b: #1d4ed8;
     }
 
+    /* PrepAura gradient background behind everything */
     body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
       background: linear-gradient(135deg, #0a192f, #1e3a8a, #1e40af);
       color: #f5f6fa;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
     }
 
+    /* Particles container (behind content) */
     #particles-js {
       position: fixed;
       inset: 0;
       z-index: -1;
     }
 
-    /* Navbar */
-    .navbar {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 40px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      z-index: 1000;
-    }
-
-    .nav-brand {
-      font-weight: 700;
-      font-size: 1.4rem;
-      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 20px;
-      margin: 0;
-      padding: 0;
-    }
-
-    .nav-links a {
-      color: #dbeafe;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    .nav-links a:hover { color: #fff; }
-
-    /* Main content */
-    main.content {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 100px;
-      width: 100%;
-    }
-
+    /* Keep original .container styles but add subtle glass */
     .container {
       background: var(--glass-bg);
-      backdrop-filter: blur(14px);
       border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 40px;
-      width: 90%;
-      max-width: 1000px;
-      text-align: center;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px) saturate(120%);
+      box-shadow: 0 8px 30px rgba(2,6,23,0.55);
+      border-radius: 12px;
     }
 
-    h1 {
-      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    /* A subtle accent for status box */
+    #model-status, .status-box {
+      color: #cfe9ff;
+    }
+
+    /* Video container - keep layout but add thin accent border */
+    .video-container {
+      display: block; /* ensure visible if your JS toggles it */
       margin-bottom: 15px;
+      max-width: 420px;
+    }
+    #user-video {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+      transform: scaleX(-1);
     }
 
-    p {
-      color: #dbeafe;
-      margin-bottom: 25px;
-      line-height: 1.6;
-    }
-
-    video {
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.05);
-      box-shadow: 0 4px 15px rgba(56,189,248,0.12);
-      width: 420px;
-      height: 320px;
-    }
-
-    .status-box {
-      margin: 10px auto;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(56,189,248,0.2);
-      padding: 10px;
-      border-radius: 10px;
-      color: #e2e8f0;
-      font-weight: 500;
-      width: fit-content;
-    }
-
-    /* Chat Section */
+    /* Chat container styling (keeps same ID for JS) */
     #chat-container {
-      margin-top: 20px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 20px;
-      max-height: 400px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 14px;
+      max-height: 420px;
       overflow-y: auto;
       text-align: left;
     }
 
-    .message {
-      max-width: 75%;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-      border-radius: 12px;
-      line-height: 1.5;
-      font-size: 0.98rem;
-      word-wrap: break-word;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-      animation: fadeInMsg 0.4s ease;
-    }
+    /* Chat bubbles keep their classes (ai/user) so JS still appends them */
+    .ai { background: linear-gradient(90deg, #38bdf8, #3b82f6); color: #fff; }
+    .user { background: linear-gradient(90deg, #a78bfa, #8b5cf6); color: #fff; }
 
-    @keyframes fadeInMsg {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    /* Buttons: keep width & behavior from style.css but add subtle border color on hover */
+    .tool-button-primary:hover { box-shadow: 0 6px 18px rgba(56,189,248,0.12); }
+    .tool-button-danger:hover  { box-shadow: 0 6px 18px rgba(239,68,68,0.08); }
 
-    .ai-msg {
-      background: linear-gradient(90deg, #38bdf8, #3b82f6);
-      color: #ffffff;
-      border-bottom-left-radius: 0;
-      margin-right: auto;
-    }
-
-    .user-msg {
-      background: linear-gradient(90deg, #a78bfa, #8b5cf6);
-      color: #ffffff;
-      border-bottom-right-radius: 0;
-      margin-left: auto;
-    }
-
-    /* Buttons */
-    button {
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.2s ease, background 0.2s ease;
-      margin: 5px;
-    }
-
-    .tool-button-primary {
-      background: linear-gradient(90deg, var(--btn-a), var(--btn-b));
-      color: white;
-    }
-
-    .tool-button-primary:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(90deg, var(--btn-b), var(--btn-a));
-    }
-
-    .tool-button-danger {
-      background: #ef4444;
-      color: white;
-    }
-
-    .tool-button-danger:hover {
-      transform: translateY(-2px);
-      background: #dc2626;
-    }
-
-    .feedback-box {
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 14px;
-      padding: 20px;
-      margin-top: 20px;
-      color: #e6eef8;
-      box-shadow: 0 4px 15px rgba(56,189,248,0.12);
-    }
+    /* ensure spinner overlay still overlays properly */
+    .spinner-overlay { backdrop-filter: blur(6px); }
 
     @media (max-width: 700px) {
-      .container { padding: 25px; }
-      video { width: 100%; height: auto; }
+      .container { padding: 18px; }
     }
   </style>
 </head>
-
 <body>
-  <!-- Particles Background -->
+
+  <!-- Particles Background (interactive) -->
   <div id="particles-js"></div>
 
-  <!-- Navbar -->
   <nav class="navbar">
-    <div class="nav-brand">PrepAura AI</div>
-    <ul class="nav-links" id="nav-links-list"></ul>
+    <div class="nav-brand">Prepmate AI</div>
+    <ul class="nav-links" id="nav-links-list">
+  </ul>
   </nav>
 
   <main class="content">
     <div class="container">
-
-      <h1>Managerial Round</h1>
-      <p>Answer AI-driven managerial questions while your communication, tone, and confidence are analyzed in real-time.</p>
-
-      <div class="status-box" id="status-box">Loading AI Models...</div>
-
-      <div id="video-container">
-        <video id="user-video" autoplay muted></video>
+      
+      <div id="setup-screen">
+        <h1>Managerial Round</h1>
+        <p>This is a 4-question live interview simulation with <strong>Prepmate</strong>, your AI Interview Architect. You will not receive feedback until the end.</p>
+        <p>Prepmate will ask a question, and then a smart follow-up based on your answer. Good luck.</p>
+        <div id="model-status">Loading AI Face Models...</div>
+        <!-- leave disabled state and ID exactly as original so manageria.js controls it -->
+        <button id="start-btn" class="tool-button-primary" disabled>Begin Interview</button>
       </div>
 
-      <button id="start-btn" class="tool-button-primary">Start Interview</button>
-      <button id="stop-btn" class="tool-button-danger" disabled>Stop</button>
+      <div id="interview-screen" class="hidden">
+        
+        <div id="chat-container">
+          <!-- messages appended by managerial.js using same IDs/classes -->
+        </div>
 
-      <div id="chat-container"></div>
-
-      <div class="feedback-box" id="feedback-box">
-        Feedback will appear here after analysis.
+        <div id="typing-indicator" class="hidden">
+          <div class="chat-bubble ai">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+        
+        <div class="video-container" id="video-container">
+          <video id="user-video" width="400" height="300" autoplay muted></video>
+        </div>
+        
+        <div class="voice-controls">
+          <button id="mute-btn" class="tool-button-secondary">🔇 Mute Voice</button>
+        </div>
+        
+        <div class="audio-controls">
+          <button id="record-button" disabled>🎙️ Record Answer</button>
+          <button id="stop-button" disabled>⏹️ Stop Recording</button>
+          <span id="record-status"></span>
+        </div>
       </div>
+
+      <div id="feedback-screen" class="hidden">
+        <h2>Managerial Round: Final Debrief</h2>
+        <div class="response-box" id="feedback-report">
+          Generating your final report...
+        </div>
+        <a href="practice.html" class="tool-button-primary">Back to Practice Hub</a>
+      </div>
+      
+      <div id="loading-spinner" class="spinner-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p id="spinner-text">Loading...</p> 
+      </div>
+
     </div>
   </main>
-
-  <!-- Scripts -->
+  
+  <!-- keep original logic files unchanged and in original order -->
   <script src="managerial.js"></script>
   <script src="auth.js"></script>
 
-  <!-- Particles Config -->
+  <!-- Particles config — interactive with cursor (grab + repulse) -->
   <script>
     particlesJS("particles-js", {
       particles: {
         number: { value: 75, density: { enable: true, value_area: 800 } },
         color: { value: "#38bdf8" },
         shape: { type: "circle" },
-        opacity: { value: 0.5 },
+        opacity: { value: 0.55 },
         size: { value: 3.5, random: true },
         line_linked: {
           enable: true,
@@ -297,7 +197,8 @@
         },
         modes: {
           grab: { distance: 180, line_linked: { opacity: 0.8 } },
-          repulse: { distance: 140, duration: 0.4 }
+          repulse: { distance: 140, duration: 0.4 },
+          push: { particles_nb: 4 }
         }
       },
       retina_detect: true
