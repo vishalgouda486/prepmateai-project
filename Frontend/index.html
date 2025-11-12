@@ -4,21 +4,123 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Welcome to Prepmate AI</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #f4f7fb, #e9eef5);
+      color: #333;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .splash-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    /* Logo with animation */
+    .splash-logo {
+      width: 180px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      animation: fadeZoom 1.6s ease-in-out forwards;
+      opacity: 0;
+      transform: scale(0.9);
+    }
+
+    @keyframes fadeZoom {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .splash-heading {
+      text-align: center;
+      margin-top: 60px;
+      font-size: 1.8rem;
+      color: #1d2b53;
+    }
+
+    .splash-intro {
+      max-width: 700px;
+      margin: 15px auto;
+      font-size: 1.1rem;
+      color: #444;
+      line-height: 1.6;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 40px;
+    }
+
+    .feature-item, .detailed-feature-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease;
+    }
+
+    .feature-item:hover, .detailed-feature-card:hover {
+      transform: translateY(-5px);
+    }
+
+    h1, h2, h3 {
+      color: #1d2b53;
+    }
+
+    ul {
+      padding-left: 20px;
+      color: #444;
+      line-height: 1.6;
+    }
+
+    .button-primary {
+      background-color: #2a4dd0;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      padding: 15px 40px;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      display: inline-block;
+    }
+
+    .button-primary:hover {
+      background-color: #223fa1;
+      transform: translateY(-2px);
+    }
+
+  </style>
 </head>
 <body>
 
   <div class="splash-container">
-    
     <div class="container splash-content">
-      
       <div style="text-align: center;">
-        
         <img src="logo.png" alt="Prepmate AI Logo" class="splash-logo" />
-        
         <h1>Your All-In-One AI Interview Coach</h1>
         <p class="splash-intro">
-          Stop just *reading* about interviews. Start *experiencing* them. Prepmate is a free, AI-powered platform designed to take you from the classroom to your first tech offer by simulating the entire interview process.
+          Stop just <em>reading</em> about interviews. Start <em>experiencing</em> them. Prepmate is a free, AI-powered platform designed to take you from the classroom to your first tech offer by simulating the entire interview process.
         </p>
       </div>
 
@@ -39,43 +141,40 @@
       </div>
 
       <h2 class="splash-heading">Feature-Rich Practice Environment</h2>
-      <div class="detailed-feature-grid">
-        
+      <div class="feature-grid">
         <div class="detailed-feature-card">
-            <h3>Aptitude & Coding Practice</h3>
-            <ul>
-                <li><strong>Timed Questions:</strong> Simulates real test pressure with a per-question timer.</li>
-                <li><strong>Instant Solutions:</strong> Get immediate, step-by-step solutions for aptitude problems.</li>
-                <li><strong>Live Code Execution:</strong> Run your Python & Java code against multiple, hidden test cases using a real code-judging API.</li>
-                <li><strong>Model Solutions:</strong> Compare your failing code against the optimal solution to learn new techniques.</li>
-            </ul>
+          <h3>Aptitude & Coding Practice</h3>
+          <ul>
+            <li><strong>Timed Questions:</strong> Simulates real test pressure with a per-question timer.</li>
+            <li><strong>Instant Solutions:</strong> Get immediate, step-by-step solutions for aptitude problems.</li>
+            <li><strong>Live Code Execution:</strong> Run your Python & Java code against multiple, hidden test cases using a real code-judging API.</li>
+            <li><strong>Model Solutions:</strong> Compare your failing code against the optimal solution to learn new techniques.</li>
+          </ul>
         </div>
-    
+
         <div class="detailed-feature-card">
-            <h3>Live Interview Analysis</h3>
-            <ul>
-                <li><strong>Voice & Tone Analysis:</strong> Get feedback on your speaking pace (Words Per Minute) and use of filler words ("um", "like", "so").</li>
-                <li><strong>Facial Expression AI:</strong> Real-time analysis of your facial expressions (Neutral, Happy, Surprised, etc.) to help you project confidence.</li>
-                <li><strong>Dynamic AI Interviewer:</strong> Our AI asks smart, follow-up questions based on your previous answer, not just a static list.</li>
-                <li><strong>STAR Method Feedback:</strong> Get detailed reports on how well your answers fit the professional STAR (Situation, Task, Action, Result) method.</li>
-            </ul>
+          <h3>Live Interview Analysis</h3>
+          <ul>
+            <li><strong>Voice & Tone Analysis:</strong> Get feedback on your speaking pace (Words Per Minute) and use of filler words ("um", "like", "so").</li>
+            <li><strong>Facial Expression AI:</strong> Real-time analysis of your facial expressions (Neutral, Happy, Surprised, etc.) to help you project confidence.</li>
+            <li><strong>Dynamic AI Interviewer:</strong> Our AI asks smart, follow-up questions based on your previous answer, not just a static list.</li>
+            <li><strong>STAR Method Feedback:</strong> Get detailed reports on how well your answers fit the professional STAR (Situation, Task, Action, Result) method.</li>
+          </ul>
         </div>
-    
+
         <div class="detailed-feature-card">
-            <h3>Proctored Mock Test</h3>
-            <ul>
-                <li><strong>Full 4-Round Simulation:</strong> A final, timed exam that combines Aptitude, Communication, Coding, and a Live Interview in one session.</li>
-                <li><strong>Proctoring Enabled:</strong> The test runs in fullscreen and monitors for tab-switching, training you for real proctored environments.</li>
-                <li><strong>Comprehensive Final Report:</strong> Receive a single, detailed report that analyzes your performance across all four rounds, identifying cross-functional strengths and weaknesses.</li>
-            </ul>
+          <h3>Proctored Mock Test</h3>
+          <ul>
+            <li><strong>Full 4-Round Simulation:</strong> A final, timed exam that combines Aptitude, Communication, Coding, and a Live Interview in one session.</li>
+            <li><strong>Proctoring Enabled:</strong> The test runs in fullscreen and monitors for tab-switching, training you for real proctored environments.</li>
+            <li><strong>Comprehensive Final Report:</strong> Receive a single, detailed report that analyzes your performance across all four rounds, identifying cross-functional strengths and weaknesses.</li>
+          </ul>
         </div>
       </div>
-
 
       <div style="text-align: center; margin-top: 40px;">
-        <a href="login.html" class="button button-primary" style="width: 50%; font-size: 1.2rem; padding: 15px 0;">Get Started</a>
+        <a href="login.html" class="button-primary">Get Started</a>
       </div>
-
     </div>
   </div>
   
