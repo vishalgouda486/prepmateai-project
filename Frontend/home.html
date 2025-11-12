@@ -5,16 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Home - PrepAura AI</title>
 
+  <!-- Particle.js CDN -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
   <style>
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #0a192f, #1e3a8a, #1e40af);
+      background: #0a192f;
       color: #f5f6fa;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
       overflow-x: hidden;
+      position: relative;
       animation: fadeInBody 1.2s ease forwards;
       opacity: 0;
     }
@@ -22,6 +26,17 @@
     @keyframes fadeInBody {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Particle Background --- */
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: linear-gradient(135deg, #0a192f, #1e3a8a, #1e40af);
     }
 
     /* --- Navbar --- */
@@ -74,24 +89,32 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 100px 20px;
+      padding: 120px 20px 60px 20px;
     }
 
     .main h1 {
-      font-size: 2.4rem;
+      font-size: 2.5rem;
       font-weight: 700;
-      margin-bottom: 30px;
       background: linear-gradient(90deg, #38bdf8, #a78bfa);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      margin-bottom: 15px;
     }
 
+    .main p {
+      color: #cbd5e1;
+      font-size: 1.1rem;
+      max-width: 650px;
+      line-height: 1.7;
+      margin-bottom: 50px;
+    }
+
+    /* --- Boxes --- */
     .box-container {
       display: flex;
       gap: 40px;
       flex-wrap: wrap;
       justify-content: center;
-      margin-top: 40px;
     }
 
     .feature-box {
@@ -100,9 +123,16 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 16px;
       padding: 40px 30px;
-      width: 280px;
-      text-align: center;
-      transition: transform 0.3s ease, border-color 0.3s ease;
+      width: 320px;
+      text-align: left;
+      transition: transform 0.3s ease, border-color 0.3s ease, opacity 1s ease;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    .feature-box.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .feature-box:hover {
@@ -113,14 +143,26 @@
     .feature-box h2 {
       font-size: 1.4rem;
       color: #38bdf8;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
 
     .feature-box p {
       font-size: 1rem;
       color: #dbeafe;
-      margin-bottom: 25px;
+      margin-bottom: 18px;
       line-height: 1.6;
+    }
+
+    .feature-box ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0 0 20px 0;
+    }
+
+    .feature-box ul li {
+      color: #e2e8f0;
+      margin: 8px 0;
+      font-size: 0.95rem;
     }
 
     .feature-box a {
@@ -132,6 +174,7 @@
       text-decoration: none;
       border-radius: 8px;
       transition: all 0.25s ease;
+      text-align: center;
     }
 
     .feature-box a:hover {
@@ -158,6 +201,8 @@
 </head>
 
 <body>
+  <!-- 🔮 Particle Background -->
+  <div id="particles-js"></div>
 
   <!-- 🌐 Navigation -->
   <nav class="navbar">
@@ -168,21 +213,37 @@
     </ul>
   </nav>
 
-  <!-- 🧩 Main Content -->
+  <!-- 🌟 Main Content -->
   <main class="main">
     <h1>Welcome Back to PrepAura AI</h1>
-    <p>Choose where you’d like to start your interview preparation journey.</p>
+    <p>Experience AI-powered, proctored interview preparation across every round — practice, analyze, and improve like never before.</p>
 
     <div class="box-container">
+      <!-- Practice Hub -->
       <div class="feature-box">
-        <h2>🧠 Practice Hub</h2>
-        <p>Access AI-driven modules like Aptitude, Coding, Communication, and HR rounds — all designed to strengthen your skills.</p>
+        <h2>🧩 Practice Hub</h2>
+        <p>Master each round individually with real-time AI feedback and performance analytics.</p>
+        <ul>
+          <li>⏱️ Aptitude – Timed tests with “Show Solution”</li>
+          <li>🗣️ Communication – Facial & Voice emotion analysis</li>
+          <li>💻 Coding – Hidden test cases & instant feedback</li>
+          <li>👔 Managerial & HR – Scenario-based responses</li>
+          <li>📄 Resume Q&A – AI-driven personalized interview</li>
+        </ul>
         <a href="practice.html">Go to Practice Hub</a>
       </div>
 
+      <!-- Mock Test -->
       <div class="feature-box">
         <h2>🎯 Mock Test</h2>
-        <p>Simulate a complete interview experience with technical, managerial, and HR rounds in one continuous test.</p>
+        <p>Simulate a full AI-proctored interview — from aptitude to HR — all in one automated session.</p>
+        <ul>
+          <li>🧠 Combines all six practice rounds sequentially</li>
+          <li>🎥 Proctored with face & voice monitoring</li>
+          <li>📊 Timed sections & AI-driven evaluations</li>
+          <li>📃 Final Report with performance summary</li>
+          <li>💬 Instant feedback to improve next attempt</li>
+        </ul>
         <a href="mock_test.html">Start Mock Test</a>
       </div>
     </div>
@@ -193,5 +254,44 @@
   </footer>
 
   <script src="auth.js"></script>
+
+  <!-- 🎇 Particle Configuration + Fade Animation -->
+  <script>
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 85 },
+        "color": { "value": "#38bdf8" },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5 },
+        "size": { "value": 3 },
+        "line_linked": {
+          "enable": true,
+          "distance": 150,
+          "color": "#60a5fa",
+          "opacity": 0.4,
+          "width": 1
+        },
+        "move": { "enable": true, "speed": 2.2, "out_mode": "bounce" }
+      },
+      "interactivity": {
+        "events": { "onhover": { "enable": true, "mode": "repulse" }, "resize": true },
+        "modes": { "repulse": { "distance": 120, "duration": 0.4 } }
+      },
+      "retina_detect": true
+    });
+
+    // 🌈 Fade-in Animation for Boxes
+    const boxes = document.querySelectorAll(".feature-box");
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("show");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    boxes.forEach(box => observer.observe(box));
+  </script>
 </body>
 </html>
