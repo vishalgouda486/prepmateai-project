@@ -149,29 +149,16 @@
       background: #1e3a8a;
     }
 
-/* Fix: Always-visible loading text (PrepAura theme) */
-.loading-text {
-  font-weight: 600;
-  font-size: 1.1rem;
-  text-align: center;
-  color: #0a192f; /* Fallback visible base color */
-  background: linear-gradient(90deg, #0a192f, #2563eb, #38bdf8, #1e40af);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: #0a192f;
-  animation: shimmer 2.5s infinite linear;
-  text-shadow: 
-    0 0 8px rgba(56, 189, 248, 0.3),
-    0 0 16px rgba(30, 64, 175, 0.35),
-    0 0 22px rgba(0, 0, 0, 0.15);
-  background-size: 300% 300%;
-}
-
-@keyframes shimmer {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
-}
-
-
+    /* ✅ Fixed and clean loader caption color */
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #0a192f !important; /* Deep navy - visible on white */
+      text-align: center;
+      text-shadow:
+        0 0 4px rgba(56, 189, 248, 0.3),
+        0 0 10px rgba(30, 58, 138, 0.25);
+    }
 
     .tool-button-primary {
       background: linear-gradient(90deg, var(--btn-a), var(--btn-b));
@@ -277,7 +264,7 @@
     </div>
   </main>
 
-  <footer>© 2025 PrepAura AI — Designed with 💙 by Vicchu</footer>
+  <footer>© 2025 PrepAura AI — Designed with 💙 by Vishalgouda</footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
   <script src="mock_test.js"></script>
@@ -315,15 +302,3 @@
   </script>
 </body>
 </html>
-
-/* Simple & visible loader caption fix */
-
-.loading-text {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #0a192f !important; /* Deep navy for visibility */
-  text-align: center;
-  text-shadow:
-    0 0 4px rgba(56, 189, 248, 0.3),
-    0 0 10px rgba(30, 58, 138, 0.25);
-}
