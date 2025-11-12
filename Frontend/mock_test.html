@@ -113,7 +113,6 @@
       border-radius: 8px;
     }
 
-    /* Dropdown box fix */
     .language-select-box {
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.03);
@@ -149,15 +148,24 @@
       background: #1e3a8a;
     }
 
-    /* ✅ Fixed and clean loader caption color */
+    /* ✅ Updated loader background & text for better visibility */
+    #round-content.loading {
+      background: rgba(10, 25, 47, 0.92);
+      border-radius: 16px;
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
     .loading-text {
       font-size: 1.2rem;
       font-weight: 600;
-      color: #0a192f !important; /* Deep navy - visible on white */
+      color: #e2e8f0 !important; /* Bright readable text */
       text-align: center;
-      text-shadow:
-        0 0 4px rgba(56, 189, 248, 0.3),
-        0 0 10px rgba(30, 58, 138, 0.25);
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+      margin-top: 16px;
     }
 
     .tool-button-primary {
@@ -249,7 +257,8 @@
           <div><strong>Time Left:</strong> <span id="master-timer">30:00</span></div>
           <div><strong>Warnings:</strong> <span id="warning-count">0 / 3</span></div>
         </div>
-        <div id="round-content">
+        <div id="round-content" class="loading">
+          <div class="loader"></div>
           <p class="loading-text">Preparing a test tailored specially for you...</p>
         </div>
       </div>
