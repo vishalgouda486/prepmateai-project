@@ -11,16 +11,22 @@
   <link rel="stylesheet" href="managerial.css" /> 
   <link rel="stylesheet" href="mock_test.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/editor/editor.main.min.css" />
+
+  <!-- Particles.js -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
   <style>
     :root {
-      --accent-1: #38bdf8;
-      --accent-2: #a78bfa;
       --glass-bg: rgba(255, 255, 255, 0.06);
       --glass-border: rgba(255, 255, 255, 0.1);
+      --accent-1: #38bdf8;
+      --accent-2: #a78bfa;
       --btn-a: #2563eb;
       --btn-b: #1d4ed8;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
@@ -28,16 +34,29 @@
       font-family: "Poppins", sans-serif;
       background: linear-gradient(135deg, #0a192f, #1e3a8a, #1e40af);
       color: #f5f6fa;
-      overflow-x: hidden;
       min-height: 100vh;
       position: relative;
+      overflow-x: hidden;
     }
 
-    #particles-js { position: fixed; inset: 0; z-index: -1; }
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
 
     .navbar {
-      position: fixed; top: 0; left: 0; right: 0;
-      height: 64px; display: flex; align-items: center; justify-content: space-between;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 0 24px;
       background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(12px);
@@ -46,7 +65,8 @@
     }
 
     .nav-brand {
-      font-weight: 700; font-size: 1.4rem;
+      font-weight: 700;
+      font-size: 1.4rem;
       background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -75,7 +95,10 @@
       margin-bottom: 12px;
     }
 
-    p { color: #cbd5e1; line-height: 1.6; }
+    p {
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
 
     .setup-grid {
       display: grid;
@@ -86,7 +109,9 @@
     }
 
     @media (max-width: 768px) {
-      .setup-grid { grid-template-columns: 1fr; }
+      .setup-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .resume-uploader {
@@ -132,59 +157,8 @@
       padding: 10px 12px;
       border-radius: 8px;
       border: none;
-      background: rgba(10, 25, 47, 0.9);
-      color: #e0f2fe;
-      font-weight: 500;
-      box-shadow: inset 0 0 6px rgba(56, 189, 248, 0.25);
-    }
-
-    .tool-select option {
-      background: #0f172a;
-      color: #e0f2fe;
-      padding: 6px;
-    }
-
-    .tool-select option:hover {
-      background: #1e3a8a;
-    }
-
-    /* ✅ FIX — Darken the full white loader box */
-    #round-content.loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 300px;
-    }
-
-    #round-content.loading > div {
-      background: linear-gradient(145deg, rgba(9, 15, 30, 0.95), rgba(15, 23, 42, 0.9));
-      border-radius: 16px;
-      padding: 80px 60px;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(10px);
-      width: 100%;
-      max-width: 700px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.4s ease-in-out;
-    }
-
-    .loading-text {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #ffffff !important;
-      text-align: center;
-      text-shadow: 0 0 10px rgba(56, 189, 248, 0.9),
-                   0 0 20px rgba(30, 58, 138, 0.6);
-      margin-top: 20px;
-      animation: fadeIn 0.6s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+      background: rgba(255, 255, 255, 0.1);
+      color: #f1f5f9;
     }
 
     .tool-button-primary {
@@ -211,6 +185,16 @@
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
+    }
+
+    .tool-button-secondary:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .round-list {
+      text-align: left;
+      color: #dbeafe;
+      margin-left: 20px;
     }
 
     footer {
@@ -261,7 +245,7 @@
       <div id="ready-screen" class="hidden">
         <h1>Test Structure</h1>
         <p>Your mock test consists of 4 rounds and will begin in fullscreen. You cannot pause. Leaving the tab 3 times will end the test.</p>
-        <ul style="text-align:left; color:#dbeafe;">
+        <ul class="round-list">
           <li>Round 1: Aptitude Test (20 Qs, 30 Mins)</li>
           <li>Round 2: Communication Test (1 Min)</li>
           <li>Round 3: Coding Test (2 Qs, 45 Mins)</li>
@@ -276,25 +260,18 @@
           <div><strong>Time Left:</strong> <span id="master-timer">30:00</span></div>
           <div><strong>Warnings:</strong> <span id="warning-count">0 / 3</span></div>
         </div>
-        <div id="round-content" class="loading">
-          <div>
-            <div class="loader"></div>
-            <p class="loading-text">Preparing a test tailored specially for you...</p>
-          </div>
-        </div>
+        <div id="round-content"></div>
       </div>
 
       <div id="report-screen" class="hidden">
         <h1>Mock Test Final Report</h1>
-        <div class="response-box" id="final-report-box">
-          <p class="loading-text">Generating your comprehensive report...</p>
-        </div>
+        <div class="response-box" id="final-report-box">Generating your comprehensive report...</div>
         <a href="index.html" class="tool-button-primary">Back to Home</a>
       </div>
     </div>
   </main>
 
-  <footer>© 2025 PrepAura AI — Designed with 💙 by Vishalgouda</footer>
+  <footer>© 2025 PrepAura AI — Designed with 💙 by Vicchu</footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
   <script src="mock_test.js"></script>
@@ -318,14 +295,8 @@
         move: { enable: true, speed: 2.2, out_mode: "bounce" }
       },
       interactivity: {
-        events: {
-          onhover: { enable: true, mode: "grab" },
-          onclick: { enable: true, mode: "repulse" }
-        },
-        modes: {
-          grab: { distance: 200, line_linked: { opacity: 0.8 } },
-          repulse: { distance: 150, duration: 0.4 }
-        }
+        events: { onhover: { enable: true, mode: "grab" }, onclick: { enable: true, mode: "repulse" } },
+        modes: { grab: { distance: 200, line_linked: { opacity: 0.8 } }, repulse: { distance: 150, duration: 0.4 } }
       },
       retina_detect: true
     });

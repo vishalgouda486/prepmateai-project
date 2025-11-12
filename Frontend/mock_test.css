@@ -97,3 +97,27 @@
     height: auto;
     border-radius: 8px;
 }
+
+/* --- ⭐️ ADDED FIXES BELOW --- ⭐️ */
+
+/* * FIX 1: Dropdown Option Visibility
+ * This targets the <option> elements inside your .tool-select dropdown.
+ * It gives them a standard dark text color and white background
+ * so they are readable when the dropdown is open.
+*/
+.tool-select option {
+  color: #111; /* Dark text color */
+  background: #fff; /* White background */
+}
+
+/* * FIX 2: Spinner/Loading Caption Visibility
+ * This targets the <p> text inside any .spinner-overlay.
+ * Your JS adds an inline style (rgba(255,255,255,0.8)) as the background,
+ * which is white. This rule makes the text dark so it's
+ * visible on that white background.
+*/
+.spinner-overlay p {
+  color: #1F2937; /* Dark blue-gray text */
+  font-weight: 500;
+  margin-top: 10px;
+}
