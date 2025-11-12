@@ -5,12 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Welcome to Prepmate AI</title>
   <style>
+    /* --- Global Styles --- */
     body {
-      background: linear-gradient(135deg, #f4f7fb, #e9eef5);
-      color: #333;
-      font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
+      font-family: "Poppins", sans-serif;
+      color: #f5f6fa;
+      background: linear-gradient(135deg, #151d3b, #3a0ca3, #4361ee);
+      background-attachment: fixed;
+      overflow-x: hidden;
+      animation: fadeInBody 1.5s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeInBody {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .splash-container {
@@ -18,132 +28,150 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px;
+      padding: 40px 20px;
     }
 
     .container {
       max-width: 1200px;
       margin: auto;
+      text-align: center;
     }
 
-    /* Bigger logo with smooth animation */
+    /* --- Logo Animation --- */
     .splash-logo {
-      width: 260px; /* Increased size */
+      width: 260px;
       max-width: 80%;
       height: auto;
-      border-radius: 14px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
       margin-bottom: 25px;
+      border-radius: 14px;
+      box-shadow: 0 0 25px rgba(108, 92, 231, 0.6);
       animation: fadeZoom 1.6s ease-in-out forwards;
       opacity: 0;
       transform: scale(0.9);
     }
 
     @keyframes fadeZoom {
-      0% {
-        opacity: 0;
-        transform: scale(0.85);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
+      0% { opacity: 0; transform: scale(0.85); }
+      100% { opacity: 1; transform: scale(1); }
     }
 
-    .splash-heading {
-      text-align: center;
-      margin-top: 60px;
-      font-size: 1.8rem;
-      color: #1d2b53;
+    h1 {
+      font-size: 2rem;
+      color: #ffffff;
+      margin-bottom: 15px;
     }
 
     .splash-intro {
       max-width: 700px;
-      margin: 15px auto;
+      margin: 15px auto 40px;
       font-size: 1.1rem;
-      color: #444;
-      line-height: 1.6;
+      color: #dbe4ff;
+      line-height: 1.7;
     }
 
+    .splash-heading {
+      font-size: 1.8rem;
+      color: #a2b2ff;
+      margin-top: 60px;
+      margin-bottom: 25px;
+      text-shadow: 0 0 12px rgba(162, 178, 255, 0.4);
+    }
+
+    /* --- Glass Cards --- */
     .feature-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
       margin-top: 40px;
     }
 
     .feature-item, .detailed-feature-card {
-      background: #ffffff;
-      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
       padding: 25px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s ease;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s ease;
     }
 
     .feature-item:hover, .detailed-feature-card:hover {
       transform: translateY(-5px);
+      box-shadow: 0 6px 35px rgba(108, 92, 231, 0.5);
     }
 
-    h1, h2, h3 {
-      color: #1d2b53;
+    h3 {
+      color: #f8f9ff;
+      margin-bottom: 12px;
+    }
+
+    p, ul {
+      color: #d6d9ff;
+      line-height: 1.6;
+      font-size: 1rem;
     }
 
     ul {
-      padding-left: 20px;
-      color: #444;
-      line-height: 1.6;
+      text-align: left;
+      padding-left: 25px;
     }
 
+    /* --- Gradient Button --- */
     .button-primary {
-      background-color: #2a4dd0;
+      display: inline-block;
+      margin-top: 50px;
+      background: linear-gradient(90deg, #4361ee, #7209b7);
       color: white;
       border: none;
       border-radius: 10px;
       font-size: 1.2rem;
-      padding: 15px 40px;
+      padding: 15px 50px;
       text-decoration: none;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      display: inline-block;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.5);
     }
 
     .button-primary:hover {
-      background-color: #223fa1;
-      transform: translateY(-2px);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 25px rgba(114, 9, 183, 0.6);
     }
 
     @media (max-width: 600px) {
       .splash-logo {
         width: 200px;
       }
+      .splash-heading {
+        font-size: 1.4rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
     }
-
   </style>
 </head>
 <body>
 
   <div class="splash-container">
     <div class="container splash-content">
-      <div style="text-align: center;">
-        <img src="logo.png" alt="Prepmate AI Logo" class="splash-logo" />
-        <h1>Your All-In-One AI Interview Coach</h1>
-        <p class="splash-intro">
-          Stop just <em>reading</em> about interviews. Start <em>experiencing</em> them. Prepmate is a free, AI-powered platform designed to take you from the classroom to your first tech offer by simulating the entire interview process.
-        </p>
-      </div>
+      <img src="logo.png" alt="Prepmate AI Logo" class="splash-logo" />
+      <h1>Your All-In-One AI Interview Coach</h1>
+      <p class="splash-intro">
+        Stop just <em>reading</em> about interviews. Start <em>experiencing</em> them. Prepmate is a free, AI-powered platform designed to take you from the classroom to your first tech offer by simulating the entire interview process.
+      </p>
 
       <h2 class="splash-heading">A Complete Interview Toolkit</h2>
       <div class="feature-grid">
         <div class="feature-item">
           <h3>🧠 Practice Online Assessments</h3>
-          <p>Sharpen your skills with timed aptitude challenges (Quant, Logical) and solve live coding problems in Python or Java. Our platform runs your code against real test cases, just like a real online assessment.</p>
+          <p>Sharpen your skills with timed aptitude challenges and coding problems in Python or Java. Our system evaluates your performance like a real test.</p>
         </div>
         <div class="feature-item">
           <h3>🗣️ Master the Live Interview</h3>
-          <p>Practice with an AI that asks dynamic follow-up questions for HR, Managerial, and Resume-based rounds. Get instant, detailed feedback on your answer structure (STAR method), vocal pace, and professional confidence.</p>
+          <p>Experience realistic HR and technical interviews with AI follow-ups, STAR method analysis, and instant feedback.</p>
         </div>
         <div class="feature-item">
           <h3>🏆 Simulate the Final Test</h3>
-          <p>Test your readiness with our full, 4-round proctored simulation. It combines aptitude, communication, coding, and a live AI interview into one high-pressure exam to build your endurance and confidence.</p>
+          <p>Combine all rounds — Aptitude, Coding, and Live Interview — into one proctored final challenge to test real readiness.</p>
         </div>
       </div>
 
@@ -152,38 +180,36 @@
         <div class="detailed-feature-card">
           <h3>Aptitude & Coding Practice</h3>
           <ul>
-            <li><strong>Timed Questions:</strong> Simulates real test pressure with a per-question timer.</li>
-            <li><strong>Instant Solutions:</strong> Get immediate, step-by-step solutions for aptitude problems.</li>
-            <li><strong>Live Code Execution:</strong> Run your Python & Java code against multiple, hidden test cases using a real code-judging API.</li>
-            <li><strong>Model Solutions:</strong> Compare your failing code against the optimal solution to learn new techniques.</li>
+            <li><strong>Timed Questions:</strong> Real exam pressure simulation.</li>
+            <li><strong>Instant Solutions:</strong> Step-by-step solutions for quick learning.</li>
+            <li><strong>Live Code Execution:</strong> Real test case validations.</li>
+            <li><strong>Model Solutions:</strong> Learn optimized approaches.</li>
           </ul>
         </div>
 
         <div class="detailed-feature-card">
           <h3>Live Interview Analysis</h3>
           <ul>
-            <li><strong>Voice & Tone Analysis:</strong> Get feedback on your speaking pace (Words Per Minute) and use of filler words ("um", "like", "so").</li>
-            <li><strong>Facial Expression AI:</strong> Real-time analysis of your facial expressions (Neutral, Happy, Surprised, etc.) to help you project confidence.</li>
-            <li><strong>Dynamic AI Interviewer:</strong> Our AI asks smart, follow-up questions based on your previous answer, not just a static list.</li>
-            <li><strong>STAR Method Feedback:</strong> Get detailed reports on how well your answers fit the professional STAR (Situation, Task, Action, Result) method.</li>
+            <li><strong>Voice & Tone Analysis:</strong> Real-time pace and clarity check.</li>
+            <li><strong>Facial AI Feedback:</strong> Expression tracking for confidence.</li>
+            <li><strong>Dynamic AI Interviewer:</strong> Adaptive question follow-ups.</li>
+            <li><strong>STAR Evaluation:</strong> Professional answer structure scoring.</li>
           </ul>
         </div>
 
         <div class="detailed-feature-card">
           <h3>Proctored Mock Test</h3>
           <ul>
-            <li><strong>Full 4-Round Simulation:</strong> A final, timed exam that combines Aptitude, Communication, Coding, and a Live Interview in one session.</li>
-            <li><strong>Proctoring Enabled:</strong> The test runs in fullscreen and monitors for tab-switching, training you for real proctored environments.</li>
-            <li><strong>Comprehensive Final Report:</strong> Receive a single, detailed report that analyzes your performance across all four rounds, identifying cross-functional strengths and weaknesses.</li>
+            <li><strong>Full 4-Round Simulation:</strong> Complete interview journey.</li>
+            <li><strong>Proctoring Enabled:</strong> Anti-tab switch and fullscreen mode.</li>
+            <li><strong>Comprehensive Report:</strong> Insightful breakdown of your performance.</li>
           </ul>
         </div>
       </div>
 
-      <div style="text-align: center; margin-top: 40px;">
-        <a href="login.html" class="button-primary">Get Started</a>
-      </div>
+      <a href="login.html" class="button-primary">Get Started</a>
     </div>
   </div>
-  
+
 </body>
 </html>
