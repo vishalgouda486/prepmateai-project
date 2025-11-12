@@ -150,18 +150,20 @@
     }
 
     /* Gradient shimmer text for loading captions */
-    .loading-text {
-      font-weight: 600;
-      background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-1));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: shimmer 2.5s infinite linear;
-    }
+.loading-text {
+  font-weight: 600;
+  background: linear-gradient(90deg, #1e3a8a, #38bdf8, #1e3a8a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 2.5s infinite linear;
+  text-shadow: 0 0 6px rgba(30, 58, 138, 0.45), 0 0 12px rgba(56, 189, 248, 0.25);
+}
 
-    @keyframes shimmer {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 200% 50%; }
-    }
+@keyframes shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
 
     .tool-button-primary {
       background: linear-gradient(90deg, var(--btn-a), var(--btn-b));
