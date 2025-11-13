@@ -79,24 +79,29 @@
       align-items: center;
     }
 
+    /* 🌟 NAV BUTTONS BOLDER */
     .nav-links a {
       color: #dbeafe;
       text-decoration: none;
-      font-weight: 500;
-      padding: 8px 10px;
+      font-weight: 600;
+      padding: 8px 12px;
       border-radius: 6px;
+      letter-spacing: 0.2px;
     }
 
-    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover {
+      color: #fff;
+      text-shadow: 0 0 6px rgba(255,255,255,0.3);
+    }
 
-    /* username pill */
+    /* 🌟 Username pill more attractive */
     .nav-user {
-      color: #dbeafe;
-      font-weight: 600;
-      padding: 6px 10px;
+      color: #ffffff;
+      font-weight: 700;
+      padding: 6px 12px;
       border-radius: 8px;
-      background: rgba(255,255,255,0.03);
-      display: inline-block;
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 8px rgba(255,255,255,0.15);
     }
 
     /* Main */
@@ -138,14 +143,14 @@
       margin: 0 auto;
     }
 
-    /* Feature Boxes */
+    /* 🌟 Feature Boxes — widened */
     .feature-box {
       background: var(--glass-bg);
       backdrop-filter: blur(14px);
       border: 1px solid var(--glass-border);
       border-radius: 14px;
       padding: 24px;
-      width: 360px;
+      width: 400px; /* 🔥 Increased from 360px */
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -153,6 +158,7 @@
       transition: transform 0.28s ease, border-color 0.28s ease, opacity 0.9s ease;
       opacity: 0;
       transform: translateY(30px);
+      text-align: left; /* 🔥 Align text to left */
     }
 
     .feature-box.show {
@@ -169,12 +175,14 @@
       margin: 0 0 8px;
       color: var(--accent-1);
       font-size: 1.4rem;
+      text-align: left; /* ensure header aligns left */
     }
 
     .feature-box p {
       margin: 0 0 14px;
       color: #dbeafe;
       line-height: 1.5;
+      text-align: left;
     }
 
     .feature-box ul {
@@ -239,7 +247,6 @@
   <nav class="navbar">
     <div class="nav-brand">PrepAura AI</div>
 
-    <!-- IMPORTANT FIX: auth.js expects THIS ID EXACTLY -->
     <ul class="nav-links" id="nav-links-list"></ul>
   </nav>
 
@@ -322,7 +329,6 @@
       }
     });
 
-    // Animation
     const boxes = document.querySelectorAll(".feature-box");
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
