@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <li><a href="practice.html">Practice Hub</a></li>
                     <li><a href="mock_test.html">Mock Test</a></li>
                     <li class="nav-user-info">Welcome, ${data.username}!</li>
-                    <li><a href="#" id="logout-button" class="nav-button-logout">Logout</a></li>
+                    <li><a href="#" id="logout-button" class="nav-logout">Logout</a></li>
                 `;
                 
                 // Add the event listener to the new logout button
