@@ -22,12 +22,11 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-     /* 🌟 ADDED FOR PARTICLES */
+     /* 🌟 PARTICLES FIXED (pointer-events removed) */
     #particles-js {
       position: fixed;
       inset: 0;
       z-index: -1;
-      pointer-events: none;
     }
 
     .splash-container {
@@ -123,14 +122,11 @@
       box-shadow: 0 6px 30px rgba(59, 130, 246, 0.3);
     }
 
+    /* Center the buttons properly */
     .feature-item a {
-  display: inline-block;
-  margin-left: auto;
-  margin-right: auto;
-    }
-
-    .feature-item {
-  text-align: center;
+      display: inline-block;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     h3 {
@@ -200,7 +196,6 @@
 </head>
 <body>
 
-   <!-- 🌟 ADDED FOR PARTICLES -->
   <div id="particles-js"></div>
 
   <div class="splash-container">
@@ -222,8 +217,8 @@
 
 <div class="feature-grid">
 
-  <!-- ⭐ Updated Practice Hub Box -->
-  <div class="feature-item" style="padding:35px; text-align:left;">
+  <!-- ⭐ Practice Hub -->
+  <div class="feature-item" style="padding:35px; display:flex; flex-direction:column; align-items:center; text-align:left;">
     <h3 style="font-size:1.6rem; margin-bottom:15px;">🎯 Practice Hub</h3>
 
     <p style="font-size:1.05rem; margin-bottom:20px;">
@@ -240,18 +235,15 @@
       <li><strong>Resume-Based Q&A:</strong> AI extracts questions from your resume</li>
     </ul>
 
-    <div style="height:20px;"></div>
-
-    <a href="practice.html" 
-       style="margin-top:25px; display:inline-block; 
-              background:linear-gradient(90deg,#2563eb,#1d4ed8); 
+    <a href="login.html" 
+       style="margin-top:25px; background:linear-gradient(90deg,#2563eb,#1d4ed8); 
               padding:12px 26px; border-radius:10px; color:white; text-decoration:none;">
       Start Practicing
     </a>
   </div>
 
-  <!-- ⭐ Updated Mock Test Hub Box -->
-  <div class="feature-item" style="padding:35px; text-align:left;">
+  <!-- ⭐ Mock Test Hub -->
+  <div class="feature-item" style="padding:35px; display:flex; flex-direction:column; align-items:center; text-align:left;">
     <h3 style="font-size:1.6rem; margin-bottom:15px;">🧠 Mock Test Hub</h3>
 
     <p style="font-size:1.05rem; margin-bottom:20px;">
@@ -268,9 +260,8 @@
       <li><strong>Final Performance Report:</strong> AI gives detailed scorecard</li>
     </ul>
 
-    <a href="mock_test.html" 
-       style="margin-top:25px; display:inline-block; 
-              background:linear-gradient(90deg,#2563eb,#1d4ed8); 
+    <a href="login.html" 
+       style="margin-top:25px; background:linear-gradient(90deg,#2563eb,#1d4ed8); 
               padding:12px 26px; border-radius:10px; color:white; text-decoration:none;">
       Start Mock Test
     </a>
@@ -317,7 +308,8 @@
 
     <a href="login.html" class="button-primary">Get Started</a>
   </div>
-  <!-- 🌟 ADDED: PARTICLES JS + INTERACTIVITY -->
+
+  <!-- 🌟 PARTICLES WITH INTERACTION FIXED -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <script>
     particlesJS("particles-js", {
