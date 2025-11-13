@@ -22,13 +22,12 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* --- PARTICLES CANVAS --- */
+    /* 🌟 ADDED FOR PARTICLES */
     #particles-js {
       position: fixed;
       inset: 0;
-      z-index: -1; /* behind everything */
-      pointer-events: none; /* ensure the page remains interactive */
-      background: linear-gradient(135deg, rgba(10,25,47,0.25), rgba(30,58,138,0.18));
+      z-index: -1;
+      pointer-events: none;
     }
 
     .splash-container {
@@ -109,103 +108,175 @@
       margin: 40px auto;
     }
 
-    .feature-item, .feature-grid .feature-item {
-      background: rgba(255,255,255,0.03);
-      border-radius: 12px;
-      padding: 22px;
-      color: #dbeafe;
-      border: 1px solid rgba(255,255,255,0.04);
+    .feature-item, .detailed-feature-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+      transition: all 0.3s ease;
     }
 
-    footer {
-      margin-top: 40px;
-      color: #9fb7df;
-      font-size: 0.9rem;
-      text-align: center;
-      padding-bottom: 20px;
+    .feature-item:hover, .detailed-feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 30px rgba(59, 130, 246, 0.3);
+    }
+
+    h3 {
+      color: #f8f9ff;
+      margin-bottom: 12px;
+    }
+
+    p, ul {
+      color: #e2e8f0;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .button-primary {
+      display: inline-block;
+      margin-top: 50px;
+      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      padding: 15px 50px;
+      text-decoration: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .button-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 25px rgba(37, 99, 235, 0.5);
+    }
+
+    .steps {
+      max-width: 900px;
+      margin: 60px auto;
+      text-align: left;
+    }
+
+    .step {
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 4px solid #2563eb;
+      padding: 20px 25px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      transition: background 0.3s ease;
+    }
+
+    .step:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    @media (max-width: 800px) {
+      .ai-feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .splash-logo {
+        width: 280px;
+      }
+      .logo-section {
+        padding: 20px 25px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Particle canvas -->
+
+  <!-- 🌟 ADDED FOR PARTICLES -->
   <div id="particles-js"></div>
 
   <div class="splash-container">
-    <div class="container">
-      <div class="logo-section">
-        <img class="splash-logo" src="assets/your-logo.png" alt="PrepAura AI logo" />
+    <div class="logo-section">
+      <img src="logo.png" alt="PrepAura AI Logo" class="splash-logo" />
+    </div>
+
+    <div class="container splash-content">
+      <h1>Experience AI-Powered Interview Preparation</h1>
+      <p class="splash-intro">
+        PrepAura AI simulates your entire interview journey — from aptitude to HR —
+        using smart voice, video, and coding analysis. Practice every round individually
+        or take a complete proctored mock test with instant AI feedback.
+      </p>
+      <a href="login.html" class="button-primary">Get Started</a>
+    </div>
+
+    <h2 class="splash-heading">Choose Your Practice Mode</h2>
+    <div class="feature-grid">
+      <div class="feature-item">
+        <h3>🎯 Practice Hub</h3>
+        <p>Sharpen your skills in six interactive rounds...</p>
       </div>
-
-      <h1>PrepAura AI — Experience Smart Interview Preparation</h1>
-      <p class="splash-intro">Practice, analyze and improve your interview skills with AI-driven feedback across aptitude, communication, coding, and mock interviews.</p>
-
-      <div class="feature-grid">
-        <div class="feature-item">🔹 Aptitude practice — timed, realistic questions</div>
-        <div class="feature-item">🔹 Communication tests — voice & facial analysis</div>
-        <div class="feature-item">🔹 Coding rounds — run & evaluate code with hidden testcases</div>
-        <div class="feature-item">🔹 Full mock tests — proctored, end-to-end</div>
+      <div class="feature-item">
+        <h3>🧠 Mock Test Hub</h3>
+        <p>Simulate the full 6-round interview...</p>
       </div>
     </div>
+
+    <h2 class="splash-heading">AI That Coaches You Smarter</h2>
+    <div class="ai-feature-grid">
+      <div class="detailed-feature-card"><h3>🎙️ Voice Analysis</h3><p>AI listens...</p></div>
+      <div class="detailed-feature-card"><h3>😊 Facial Emotion Analysis</h3><p>AI tracks...</p></div>
+      <div class="detailed-feature-card"><h3>💻 Smart Coding Evaluation</h3><p>Run DSA...</p></div>
+      <div class="detailed-feature-card"><h3>📊 Real-Time Insights</h3><p>Instant reports...</p></div>
+    </div>
+
+    <h2 class="splash-heading">How It Works</h2>
+    <div class="steps">
+      <div class="step"><h4>1️⃣ Choose Your Mode</h4><p>Start from Practice Hub...</p></div>
+      <div class="step"><h4>2️⃣ Engage with AI</h4><p>Answer aptitude...</p></div>
+      <div class="step"><h4>3️⃣ Get Your AI Feedback</h4><p>Receive instant reports...</p></div>
+    </div>
+
+    <a href="login.html" class="button-primary">Get Started</a>
   </div>
 
-  <footer>© 2025 PrepAura AI — Designed with 💙 by Vishalgouda</footer>
-
-  <!-- Particles.js CDN (add only once) -->
+  <!-- 🌟 ADDED: PARTICLES JS + INTERACTIVITY -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
-  <!-- Particles configuration with cursor interactivity -->
   <script>
-    (function () {
-      // base config
-      const baseConfig = {
-        particles: {
-          number: { value: 80, density: { enable: true, value_area: 900 } },
-          color: { value: "#38bdf8" },
-          shape: { type: "circle" },
-          opacity: { value: 0.55 },
-          size: { value: 3, random: true },
-          line_linked: {
-            enable: true,
-            distance: 140,
-            color: "#60a5fa",
-            opacity: 0.38,
-            width: 1
-          },
-          move: {
-            enable: true,
-            speed: 2,
-            direction: "none",
-            out_mode: "out"
-          }
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 900 } },
+        color: { value: "#38bdf8" },
+        shape: { type: "circle" },
+        opacity: { value: 0.55 },
+        size: { value: 3, random: true },
+        line_linked: {
+          enable: true,
+          distance: 140,
+          color: "#60a5fa",
+          opacity: 0.38,
+          width: 1
         },
-        interactivity: {
-          detect_on: "canvas",
-          events: {
-            onhover: { enable: true, mode: "grab" }, // hover → grab lines
-            onclick: { enable: true, mode: "repulse" }, // click → repulse particles
-            resize: true
-          },
-          modes: {
-            grab: { distance: 180, line_linked: { opacity: 0.85 } },
-            repulse: { distance: 160, duration: 0.4 },
-            bubble: { distance: 200, size: 6, duration: 0.3 }
-          }
+        move: {
+          enable: true,
+          speed: 2,
+          direction: "none",
+          out_mode: "out"
+        }
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: { enable: true, mode: "grab" },
+          onclick: { enable: true, mode: "repulse" },
+          resize: true
         },
-        retina_detect: true
-      };
-
-      // reduce particles on narrow screens (mobile friendly)
-      const isSmall = window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
-      if (isSmall) {
-        baseConfig.particles.number.value = 36;
-        baseConfig.particles.size.value = 2.2;
-        baseConfig.particles.line_linked.opacity = 0.25;
-        baseConfig.interactivity.modes.grab.distance = 120;
-        baseConfig.interactivity.modes.repulse.distance = 100;
-      }
-
-      particlesJS("particles-js", baseConfig);
-    })();
+        modes: {
+          grab: { distance: 180, line_linked: { opacity: 0.85 } },
+          repulse: { distance: 160, duration: 0.4 }
+        }
+      },
+      retina_detect: true
+    });
   </script>
+
 </body>
 </html>
