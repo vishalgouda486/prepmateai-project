@@ -40,10 +40,7 @@
       background-attachment: fixed;
     }
 
-    /* ----------------------------------------- */
-    /*           🔥 YOUR NAVBAR STYLE            */
-    /* ----------------------------------------- */
-
+    /* --- Navbar --- */
     .navbar {
       position: fixed;
       top: 0;
@@ -72,49 +69,20 @@
       gap: 25px;
       margin: 0;
       padding: 0;
-      align-items: center;
     }
 
-    /* Bold glowing buttons */
     .nav-links a {
-      color: #dbeafe;
       text-decoration: none;
-      font-weight: 600;
-      padding: 8px 12px;
-      border-radius: 6px;
-      letter-spacing: 0.2px;
+      color: #dbeafe;
+      font-weight: 500;
+      transition: color 0.3s ease;
     }
 
     .nav-links a:hover {
-      color: #fff;
-      text-shadow: 0 0 6px rgba(255,255,255,0.3);
+      color: #93c5fd;
     }
 
-    /* Username pill */
-    .nav-user-info {
-      color: #ffffff;
-      font-weight: 700;
-      padding: 6px 12px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.08);
-      box-shadow: 0 0 8px rgba(255,255,255,0.15);
-    }
-
-    /* RED logout button */
-    .nav-button-logout {
-      background: #ff3b43 !important;
-      color: #ffffff !important;
-      padding: 8px 12px !important;
-      border-radius: 6px;
-      font-weight: 700 !important;
-      box-shadow: 0 0 6px rgba(255,0,0,0.25);
-    }
-
-    .nav-button-logout:hover {
-      background: #bd0e0e !important;
-    }
-
-    /* --- Hero Section (unchanged) --- */
+    /* --- Hero Section --- */
     .hero {
       display: flex;
       flex-direction: column;
@@ -144,7 +112,7 @@
       margin-bottom: 40px;
     }
 
-    /* --- Features Section (unchanged) --- */
+    /* --- Features Section --- */
     .features {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -205,6 +173,7 @@
       transform: translateY(-2px);
     }
 
+    /* --- Footer --- */
     footer {
       text-align: center;
       color: #94a3b8;
@@ -229,7 +198,12 @@
   <!-- 🌐 Navigation -->
   <nav class="navbar">
     <div class="nav-brand">PrepAura AI</div>
-    <ul class="nav-links" id="nav-links-list"></ul>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="practice.html">Practice Hub</a></li>
+      <li><a href="mock_test.html">Mock Test</a></li>
+      <li><a href="login.html">Logout</a></li>
+    </ul>
   </nav>
 
   <!-- 🌟 Hero Section -->
