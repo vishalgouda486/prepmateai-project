@@ -22,11 +22,12 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* PARTICLES container stays visually behind content; interactions tracked on window */
     #particles-js {
       position: fixed;
       inset: 0;
-      z-index: -1;
-      pointer-events: none;
+      z-index: -1;           /* keep background */
+      pointer-events: none;  /* don't block clicks */
     }
 
     .splash-container {
@@ -36,7 +37,7 @@
       align-items: center;
       justify-content: center;
       padding: 40px 20px;
-      position: relative;
+      position: relative;    /* keep stacking context above particles */
       z-index: 1;
     }
 
@@ -46,15 +47,13 @@
       text-align: center;
     }
 
-    /* CLEAN TEXT LOGO (no background box) */
+    /* NEW TEXT LOGO STYLING (replaces old image box) */
     .logo-section {
-      margin-top: 60px;
       margin-bottom: 40px;
       text-align: center;
       padding: 10px 20px;
     }
 
-    /* main brand title with animation + underline */
     .brand-title {
       font-size: 3.6rem;
       font-weight: 800;
@@ -77,13 +76,12 @@
       width: 0;
       height: 3px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.9);
       box-shadow: 0 0 16px rgba(148, 163, 255, 0.6);
       animation: underlineGrow 0.7s ease-out forwards;
       animation-delay: 0.55s;
     }
 
-    /* tagline with slight delay for staggered feel */
     .brand-tagline {
       margin-top: 22px;
       font-size: 1.2rem;
@@ -125,7 +123,7 @@
         opacity: 0;
       }
       100% {
-        width: 160px; /* adjust if you want shorter/longer line */
+        width: 160px; /* adjust if you want a shorter/longer underline */
         opacity: 1;
       }
     }
@@ -157,6 +155,7 @@
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 30px;
       margin-top: 40px;
+      align-items: stretch; /* ensure grid items stretch to same row height if possible */
     }
 
     .ai-feature-grid {
@@ -167,6 +166,7 @@
       margin: 40px auto;
     }
 
+    /* ---------- FEATURE CARD FIXES (only layout changes) ---------- */
     .feature-item, .detailed-feature-card {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(14px);
@@ -177,12 +177,17 @@
       transition: all 0.3s ease;
     }
 
+    /* Force visual parity and vertical alignment for buttons:
+       - Make each card a vertical flex column
+       - Space content between top and button (pushes button to bottom)
+       - Give a reasonable min-height so two cards align visually
+    */
     .feature-item {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 520px;
-      padding: 35px;
+      min-height: 520px; /* tweak this number if you want the boxes taller/shorter */
+      padding: 35px;     /* keep your larger padding used in markup */
     }
 
     .feature-item:hover, .detailed-feature-card:hover {
@@ -190,6 +195,7 @@
       box-shadow: 0 6px 30px rgba(59, 130, 246, 0.3);
     }
 
+    /* center the call-to-action horizontally while keeping text left-aligned */
     .feature-item a {
       display: inline-block;
       margin: 0 auto;
@@ -248,45 +254,46 @@
       .ai-feature-grid {
         grid-template-columns: 1fr;
       }
-      .feature-item {
-        min-height: 420px;
-      }
-      .brand-title {
-        font-size: 2.6rem;
-      }
-      .brand-tagline {
-        font-size: 1.05rem;
-      }
+      /* reduce min-height on small screens so card fits */
+      .feature-item { min-height: 420px; }
+      .brand-title { font-size: 2.6rem; }
+      .brand-tagline { font-size: 1.05rem; }
     }
 
+    @media (max-width: 600px) {
+      .logo-section {
+        padding: 10px 15px;
+      }
+    }
   </style>
 </head>
 <body>
 
+  <!-- Particles container (visually behind page) -->
   <div id="particles-js"></div>
 
-  <!-- NEW TEXT LOGO WITH ANIMATION -->
-  <div class="logo-section">
-    <h1 class="brand-title">PrepAura AI</h1>
-    <p class="brand-tagline">
-      Turn Interview Anxiety,<br />
-      To AI-Driven Clarity
-    </p>
-  </div>
+  <div class="splash-container">
+    <div class="logo-section">
+      <h1 class="brand-title">PrepAura AI</h1>
+      <p class="brand-tagline">
+        Turn Interview Anxiety,<br />
+        To AI-Driven Clarity
+      </p>
+    </div>
 
-  <div class="container splash-content">
-    <h1>Experience AI-Powered Interview Preparation</h1>
-    <p class="splash-intro">
-      PrepAura AI simulates your entire interview journey — from aptitude to HR — 
-      using smart voice, video, and coding analysis. Practice every round individually 
-      or take a complete proctored mock test with instant AI feedback.
-    </p>
-    <a href="login.html" class="button-primary">Get Started</a>
-  </div>
+    <div class="container splash-content">
+      <h1>Experience AI-Powered Interview Preparation</h1>
+      <p class="splash-intro">
+        PrepAura AI simulates your entire interview journey — from aptitude to HR — 
+        using smart voice, video, and coding analysis. Practice every round individually 
+        or take a complete proctored mock test with instant AI feedback.
+      </p>
+      <a href="login.html" class="button-primary">Get Started</a>
+    </div>
 
-  <h2 class="splash-heading">Choose Your Practice Mode</h2>
+    <h2 class="splash-heading">Choose Your Practice Mode</h2>
 
-  <div class="feature-grid">
+    <div class="feature-grid">
 
       <!-- Practice Hub (kept your markup & text exactly) -->
       <div class="feature-item" style="text-align:left;">
@@ -387,6 +394,8 @@
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
   <script>
+    /* Use detect_on: "window" so particles respond to mouse even though the canvas is behind content.
+       This avoids pointer-event conflicts and ensures hover & click effects work. */
     particlesJS("particles-js", {
       particles: {
         number: { value: 80, density: { enable: true, value_area: 900 } },
@@ -409,7 +418,7 @@
         }
       },
       interactivity: {
-        detect_on: "window",
+        detect_on: "window",   // <--- important: use "window" so cursor is tracked even if canvas is behind elements
         events: {
           onhover: { enable: true, mode: "grab" },
           onclick: { enable: true, mode: "repulse" },
