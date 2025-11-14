@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Managerial Round - PrepAura AI</title>
+  <title>Managerial Round - Prepmate AI</title>
   
   <!-- Face API -->
   <script src="face-api.min.js"></script>
@@ -23,12 +23,8 @@
       --accent-2: #a78bfa;
     }
 
-    /* ✅ FIX 1: remove horizontal line & make gradient continuous */
     body {
-      margin: 0;
-      min-height: 100vh;
       background: linear-gradient(135deg, #0a192f, #1e3a8a, #1e40af);
-      background-attachment: fixed;
       color: #f5f6fa;
     }
 
@@ -38,98 +34,6 @@
       z-index: -1;
     }
 
-    /* ---------------- MY NAV BAR STYLE ---------------- */
-    .navbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      z-index: 1000;
-    }
-
-    .nav-brand {
-      font-weight: 700;
-      font-size: 1.4rem;
-      background: linear-gradient(90deg, #38bdf8, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 20px;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      align-items: center;
-    }
-
-    .nav-links a {
-      color: #dbeafe;
-      text-decoration: none;
-      font-weight: 600;
-      padding: 8px 12px;
-      border-radius: 6px;
-      letter-spacing: 0.2px;
-    }
-
-    .nav-links a:hover {
-      color: #fff;
-      text-shadow: 0 0 6px rgba(255,255,255,0.3);
-    }
-
-    .nav-user {
-      color: #ffffff;
-      font-weight: 700;
-      padding: 6px 12px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.08);
-      box-shadow: 0 0 8px rgba(255,255,255,0.15);
-    }
-
-    .nav-logout {
-      background: #ff3b43 !important;
-      color: #ffffff !important;
-      padding: 8px 12px !important;
-      border-radius: 6px;
-      font-weight: 700 !important;
-      box-shadow: 0 0 6px rgba(255,0,0,0.25);
-    }
-
-    .nav-logout:hover {
-      background: #b81010 !important;
-    }
-    /* --------------------------------------------------- */
-
-    /* FIXED BOTTOM BACK BUTTON */
-    .back-btn {
-      position: fixed;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255,255,255,0.14);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.25);
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 1rem;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: 0.25s ease;
-      z-index: 2000;
-    }
-
-    .back-btn:hover { background: rgba(255,255,255,0.22); }
-    .hidden-btn { display: none !important; }
-
     .container {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
@@ -138,12 +42,16 @@
       border-radius: 12px;
     }
 
-    /* ✅ FIX 2: push content down so it doesn’t touch navbar */
-    main.content {
-      padding-top: 110px;
+    #model-status, .status-box {
+      color: #cfe9ff;
     }
 
-    .video-container { margin-bottom: 15px; max-width: 420px; display: none; }
+    .video-container {
+      margin-bottom: 15px;
+      max-width: 420px;
+      display: none; /* hidden initially */
+    }
+
     #user-video {
       width: 100%;
       height: auto;
@@ -151,6 +59,28 @@
       border: 1px solid rgba(255,255,255,0.08);
       box-shadow: 0 6px 18px rgba(2,6,23,0.6);
       transform: scaleX(-1);
+    }
+
+    #chat-container {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 14px;
+      max-height: 420px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .ai { background: linear-gradient(90deg, #38bdf8, #3b82f6); color: #fff; }
+    .user { background: linear-gradient(90deg, #a78bfa, #8b5cf6); color: #fff; }
+
+    .tool-button-primary:hover { box-shadow: 0 6px 18px rgba(56,189,248,0.12); }
+    .tool-button-danger:hover  { box-shadow: 0 6px 18px rgba(239,68,68,0.08); }
+
+    .spinner-overlay { backdrop-filter: blur(6px); }
+
+    @media (max-width: 700px) {
+      .container { padding: 18px; }
     }
   </style>
 </head>
@@ -160,27 +90,21 @@
   <div id="particles-js"></div>
 
   <nav class="navbar">
-    <div class="nav-brand">PrepAura AI</div>
+    <div class="nav-brand">Prepmate AI</div>
     <ul class="nav-links" id="nav-links-list"></ul>
   </nav>
-
-  <!-- GLOBAL BACK BUTTON -->
-  <button id="back-btn" class="back-btn" onclick="location.href='practice.html'">
-    ⬅ Back to Practice Hub
-  </button>
 
   <main class="content">
     <div class="container">
       
-      <!-- SETUP SCREEN -->
       <div id="setup-screen">
         <h1>Managerial Round</h1>
-        <p>This is a 4-question live interview simulation.</p>
+        <p>This is a 4-question live interview simulation with <strong>Prepmate</strong>, your AI Interview Architect. You will not receive feedback until the end.</p>
+        <p>Prepmate will ask a question, and then a smart follow-up based on your answer. Good luck.</p>
         <div id="model-status">Loading AI Face Models...</div>
         <button id="start-btn" class="tool-button-primary" disabled>Begin Interview</button>
       </div>
 
-      <!-- INTERVIEW SCREEN -->
       <div id="interview-screen" class="hidden">
         <div id="chat-container"></div>
 
@@ -191,11 +115,15 @@
             <div class="typing-dot"></div>
           </div>
         </div>
-
+        
+        <div class="video-container" id="video-container">
+          <video id="user-video" width="400" height="300" autoplay muted></video>
+        </div>
+        
         <div class="voice-controls">
           <button id="mute-btn" class="tool-button-secondary">🔇 Mute Voice</button>
         </div>
-
+        
         <div class="audio-controls">
           <button id="record-button" disabled>🎙️ Record Answer</button>
           <button id="stop-button" disabled>⏹️ Stop Recording</button>
@@ -203,7 +131,6 @@
         </div>
       </div>
 
-      <!-- FEEDBACK SCREEN -->
       <div id="feedback-screen" class="hidden">
         <h2>Managerial Round: Final Debrief</h2>
         <div class="response-box" id="feedback-report">
@@ -211,70 +138,74 @@
         </div>
         <a href="practice.html" class="tool-button-primary">Back to Practice Hub</a>
       </div>
+      
+      <div id="loading-spinner" class="spinner-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p id="spinner-text">Loading...</p> 
+      </div>
 
     </div>
   </main>
-
+  
   <script src="managerial.js"></script>
   <script src="auth.js"></script>
 
-  <!-- BACK BUTTON LOGIC -->
+  <!-- Camera visibility patch -->
   <script>
-    const backBtn = document.getElementById("back-btn");
+    const videoContainer = document.getElementById("video-container");
+    const recordBtn = document.getElementById("record-button");
+    const stopBtn = document.getElementById("stop-button");
 
-    // Show only at start
-    backBtn.classList.remove("hidden-btn");
+    if (videoContainer && recordBtn && stopBtn) {
+      videoContainer.style.display = "none"; // hide initially
 
-    document.getElementById("start-btn").addEventListener("click", () => {
-      backBtn.classList.add("hidden-btn");
-    });
+      recordBtn.addEventListener("click", () => {
+        videoContainer.style.display = "block"; // show when recording starts
+      });
 
-    // Show again at final report
-    const feedbackScreen = document.getElementById("feedback-screen");
-    const observer = new MutationObserver(() => {
-      if (!feedbackScreen.classList.contains("hidden")) {
-        backBtn.classList.remove("hidden-btn");
-      }
-    });
-    observer.observe(feedbackScreen, { attributes: true });
+      stopBtn.addEventListener("click", () => {
+        videoContainer.style.display = "none"; // hide when recording stops
+      });
+    }
   </script>
 
-  <!-- HOME.HTML PARTICLES -->
+  <!-- Particles Config -->
   <script>
     particlesJS("particles-js", {
       particles: {
-        number: { value: 85 },
+        number: { value: 75, density: { enable: true, value_area: 800 } },
         color: { value: "#38bdf8" },
         shape: { type: "circle" },
-        opacity: { value: 0.5 },
-        size: { value: 3 },
+        opacity: { value: 0.55 },
+        size: { value: 3.5, random: true },
         line_linked: {
           enable: true,
           distance: 150,
           color: "#60a5fa",
           opacity: 0.4,
-          width: 1
+          width: 1.2
         },
         move: {
           enable: true,
           speed: 2.2,
-          out_mode: "bounce"
+          out_mode: "out"
         }
       },
       interactivity: {
         detect_on: "canvas",
         events: {
           onhover: { enable: true, mode: "grab" },
-          onclick: { enable: true, mode: "repulse" }
+          onclick: { enable: true, mode: "repulse" },
+          resize: true
         },
         modes: {
           grab: { distance: 180, line_linked: { opacity: 0.8 } },
-          repulse: { distance: 140, duration: 0.4 }
+          repulse: { distance: 140, duration: 0.4 },
+          push: { particles_nb: 4 }
         }
       },
       retina_detect: true
     });
   </script>
-
 </body>
 </html>
