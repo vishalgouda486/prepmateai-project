@@ -5,10 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Home - PrepAura AI</title>
 
-  <!-- Particle.js CDN -->
+  <!-- Particle.js -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
   <style>
+    :root {
+      --glass-bg: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.12);
+      --accent-1: #38bdf8;
+      --accent-2: #a78bfa;
+      --btn-a: #2563eb;
+      --btn-b: #1d4ed8;
+    }
+
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
@@ -28,228 +38,294 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* --- Particles background --- */
     #particles-js {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       z-index: -1;
       background: linear-gradient(135deg, #0a192f, #1e3a8a, #1e40af);
-      background-attachment: fixed;
     }
 
-    /* --- Navbar --- */
+    /* ----------------------------------------------------
+       NAVBAR EXACTLY LIKE home.html
+    ---------------------------------------------------- */
     .navbar {
       position: fixed;
       top: 0;
-      width: 100%;
+      left: 0;
+      right: 0;
+      height: 64px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 15px 40px;
-      background: rgba(255, 255, 255, 0.05);
+      justify-content: space-between;
+      padding: 0 28px;
+      background: rgba(255,255,255,0.04);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       z-index: 1000;
     }
 
     .nav-brand {
       font-weight: 700;
-      font-size: 1.5rem;
-      background: linear-gradient(90deg, #38bdf8, #a78bfa);
+      font-size: 1.4rem;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .nav-links {
-      list-style: none;
       display: flex;
-      gap: 25px;
+      gap: 20px;
+      list-style: none;
       margin: 0;
       padding: 0;
+      align-items: center;
     }
 
     .nav-links a {
-      text-decoration: none;
       color: #dbeafe;
-      font-weight: 500;
-      transition: color 0.3s ease;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 6px;
+      letter-spacing: 0.2px;
     }
 
     .nav-links a:hover {
-      color: #93c5fd;
+      color: #fff;
+      text-shadow: 0 0 6px rgba(255,255,255,0.3);
     }
 
-    /* --- Hero Section --- */
-    .hero {
+    .nav-user {
+      color: #ffffff;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 8px rgba(255,255,255,0.15);
+    }
+
+    /* 🔥 logout button class FIXED to match auth.js */
+    .nav-button-logout {
+      background: #ff3b43 !important;
+      color: #ffffff !important;
+      padding: 8px 12px !important;
+      border-radius: 6px;
+      font-weight: 700 !important;
+      box-shadow: 0 0 6px rgba(255,0,0,0.25);
+    }
+    .nav-button-logout:hover {
+      background: #bd0e0e !important;
+    }
+
+    /* All other code below untouched */
+    .main {
+      flex: 1;
+      padding: 110px 20px 60px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       text-align: center;
-      flex: 1;
-      margin-top: 120px;
-      padding: 0 20px;
     }
 
-    .hero h1 {
+    .main h1 {
+      margin: 0 0 12px;
       font-size: 2.4rem;
       font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 20px;
-      background: linear-gradient(90deg, #38bdf8, #a78bfa);
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .hero p {
-      max-width: 650px;
+    .main p {
+      max-width: 720px;
       color: #cbd5e1;
-      font-size: 1.1rem;
       line-height: 1.7;
-      margin-bottom: 40px;
+      margin: 0 0 36px;
+      font-size: 1.05rem;
     }
 
-    /* --- Features Section --- */
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 25px;
-      width: 90%;
+    .box-container {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      align-items: stretch;
+      flex-wrap: wrap;
+      width: 100%;
       max-width: 1100px;
-      margin: 0 auto 60px auto;
+      margin: 0 auto;
     }
 
     .feature-box {
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--glass-bg);
       backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 30px;
-      text-align: center;
-      transition: transform 0.25s ease, border-color 0.25s ease, opacity 1s ease;
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 24px;
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 380px;
+      transition: transform 0.28s ease, border-color 0.28s ease, opacity 0.9s ease;
       opacity: 0;
-      transform: translateY(40px);
+      transform: translateY(30px);
+      text-align: left;
     }
 
-    .feature-box.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .feature-box.show { opacity: 1; transform: translateY(0); }
+    .feature-box:hover { transform: translateY(-6px); border-color: rgba(56,189,248,0.45); }
 
-    .feature-box:hover {
-      transform: translateY(-5px);
-      border-color: #38bdf8;
-    }
-
-    .feature-box h3 {
-      font-size: 1.3rem;
-      color: #38bdf8;
-      margin-bottom: 10px;
+    .feature-box h2 {
+      margin: 0 0 8px;
+      color: var(--accent-1);
+      font-size: 1.4rem;
+      text-align: left;
     }
 
     .feature-box p {
+      margin: 0 0 14px;
       color: #dbeafe;
-      font-size: 0.95rem;
-      margin-bottom: 20px;
       line-height: 1.5;
+      text-align: left;
+    }
+
+    .feature-box ul {
+      margin: 0 0 18px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-box ul li {
+      color: #e6eef9;
+      margin: 8px 0;
+      font-size: 0.96rem;
+    }
+
+    .feature-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: auto;
     }
 
     .feature-box a {
-      display: inline-block;
-      padding: 10px 20px;
-      background: linear-gradient(90deg, #2563eb, #1d4ed8);
-      color: white;
-      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      border-radius: 10px;
       text-decoration: none;
-      border-radius: 8px;
-      transition: all 0.25s ease;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--btn-a), var(--btn-b));
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      min-width: 180px;
     }
 
-    .feature-box a:hover {
-      background: linear-gradient(90deg, #1d4ed8, #1e3a8a);
-      transform: translateY(-2px);
-    }
+    .feature-box a:hover { transform: translateY(-3px); }
 
-    /* --- Footer --- */
     footer {
       text-align: center;
       color: #94a3b8;
       font-size: 0.9rem;
       padding: 20px 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      margin-top: auto;
-      background: rgba(255, 255, 255, 0.03);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      margin-top: 36px;
+      background: rgba(255,255,255,0.01);
     }
 
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 2rem; }
-      .hero p { font-size: 1rem; }
+    @media (max-width: 900px) {
+      .feature-box { width: 90%; min-height: 340px; }
+      .box-container { gap: 20px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- 🔮 Particle Background -->
   <div id="particles-js"></div>
 
-  <!-- 🌐 Navigation -->
   <nav class="navbar">
     <div class="nav-brand">PrepAura AI</div>
-    <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="practice.html">Practice Hub</a></li>
-      <li><a href="mock_test.html">Mock Test</a></li>
-      <li><a href="login.html">Logout</a></li>
-    </ul>
+    <ul class="nav-links" id="nav-links-list"></ul>
   </nav>
 
-  <!-- 🌟 Hero Section -->
-  <section class="hero">
-    <h1>Welcome to PrepAura AI</h1>
-    <p>Your personalized AI-powered interview assistant that helps you master aptitude, communication, coding, and mock interviews — all in one place.</p>
-  </section>
+  <main class="main">
+    <h1>Welcome Back to PrepAura AI</h1>
+    <p>Experience AI-powered, proctored interview preparation across every round — practice, analyze, and improve like never before.</p>
 
-  <!-- ⚡ Features -->
-  <section class="features">
-    <div class="feature-box"><h3>📊 Aptitude Practice</h3><p>Sharpen your logical reasoning and problem-solving skills with timed aptitude tests designed to match real company assessments.</p><a href="aptitude.html">Start Practice</a></div>
-    <div class="feature-box"><h3>🗣️ Communication Test</h3><p>Enhance your fluency and clarity with real-time voice analysis powered by AI — track your tone, confidence, and vocabulary.</p><a href="communication.html">Start Test</a></div>
-    <div class="feature-box"><h3>💻 Technical Practice</h3><p>Code in Python or Java, run test cases instantly, and get AI-powered insights on logic, efficiency, and accuracy.</p><a href="technical.html">Start Coding</a></div>
-    <div class="feature-box"><h3>👔 Managerial Round</h3><p>Prepare for scenario-based and leadership questions — train your analytical and management decision-making responses.</p><a href="managerial.html">Start Round</a></div>
-    <div class="feature-box"><h3>🧠 HR Interview</h3><p>Simulate real HR interviews with AI follow-ups and performance feedback to boost your communication and confidence.</p><a href="hr.html">Start HR Round</a></div>
-    <div class="feature-box"><h3>📄 Resume-Based Interview</h3><p>Upload your resume and face targeted questions based on your projects, achievements, and experiences.</p><a href="resume.html">Start Interview</a></div>
-  </section>
+    <div class="box-container">
 
-  <!-- 🌙 Footer -->
-  <footer>
-    © 2025 PrepAura AI — Designed with 💙 by Vishalgouda
-  </footer>
+      <div class="feature-box">
+        <div>
+          <h2>🧩 Practice Hub</h2>
+          <p>Sharpen every interview round with focused, AI-powered practice.</p>
+
+          <ul>
+            <li>⏱️ Aptitude – Timed MCQs with instant results</li>
+            <li>🗣️ Communication – Voice & facial cue analysis</li>
+            <li>💻 Coding – Monaco editor + testcase validation</li>
+            <li>👔 HR & Managerial – Scenario-based Q&A</li>
+            <li>📄 Resume Q&A – Auto-generated personalised questions</li>
+          </ul>
+        </div>
+        <div class="feature-actions">
+          <a href="practice.html">Go to Practice Hub</a>
+        </div>
+      </div>
+
+      <div class="feature-box">
+        <div>
+          <h2>🎯 Mock Test</h2>
+          <p>Take a full proctored interview simulation with AI scoring.</p>
+
+          <ul>
+            <li>🧠 6-round structured flow</li>
+            <li>🎥 Live proctoring (webcam + mic)</li>
+            <li>📊 Real-time voice & emotion scoring</li>
+            <li>💻 Coding with hidden testcases</li>
+            <li>📃 Final performance report</li>
+          </ul>
+        </div>
+        <div class="feature-actions">
+          <a href="mock_test.html">Start Mock Test</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>© 2025 PrepAura AI — Designed with 💙 by Vishalgouda</footer>
 
   <script src="auth.js"></script>
 
-  <!-- 🎇 Particle Configuration -->
   <script>
     particlesJS("particles-js", {
-      "particles": {
-        "number": { "value": 85 },
-        "color": { "value": "#38bdf8" },
-        "shape": { "type": "circle" },
-        "opacity": { "value": 0.5 },
-        "size": { "value": 3 },
-        "line_linked": { "enable": true, "distance": 150, "color": "#60a5fa", "opacity": 0.4, "width": 1 },
-        "move": { "enable": true, "speed": 2.2, "out_mode": "bounce" }
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 900 } },
+        color: { value: "#38bdf8" },
+        size: { value: 3.5, random: true },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#60a5fa",
+          opacity: 0.4,
+          width: 1.2
+        },
+        move: { enable: true, speed: 2.2 }
       },
-      "interactivity": {
-        "events": { "onhover": { "enable": true, "mode": "repulse" }, "resize": true },
-        "modes": { "repulse": { "distance": 120, "duration": 0.4 } }
-      },
-      "retina_detect": true
+      interactivity: {
+        detect_on: "window",
+        events: {
+          onhover: { enable: true, mode: "grab" },
+          onclick: { enable: true, mode: "repulse" }
+        },
+        modes: {
+          grab: { distance: 180, line_linked: { opacity: 0.8 } },
+          repulse: { distance: 140, duration: 0.4 }
+        }
+      }
     });
 
-    // 🌈 Scroll-triggered Fade-in Animation
-    const features = document.querySelectorAll(".feature-box");
+    const boxes = document.querySelectorAll(".feature-box");
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -257,9 +333,8 @@
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.2 });
-
-    features.forEach(feature => observer.observe(feature));
+    }, { threshold: 0.18 });
+    boxes.forEach(box => observer.observe(box));
   </script>
 </body>
 </html>
