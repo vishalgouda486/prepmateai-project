@@ -267,20 +267,31 @@
 
   <script>
     particlesJS("particles-js", {
-      "particles": {
-        "number": { "value": 85 },
-        "color": { "value": "#38bdf8" },
-        "shape": { "type": "circle" },
-        "opacity": { "value": 0.5 },
-        "size": { "value": 3 },
-        "line_linked": { "enable": true, "distance": 150, "color": "#60a5fa", "opacity": 0.4, "width": 1 },
-        "move": { "enable": true, "speed": 2.2, "out_mode": "bounce" }
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 900 } },
+        color: { value: "#38bdf8" },
+        size: { value: 3.5, random: true },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#60a5fa",
+          opacity: 0.4,
+          width: 1.2
+        },
+        move: { enable: true, speed: 2.2 }
       },
-      "interactivity": {
-        "events": { "onhover": { "enable": true, "mode": "repulse" }, "resize": true },
-        "modes": { "repulse": { "distance": 120, "duration": 0.4 } }
+      interactivity: {
+        detect_on: "window",
+        events: {
+          onhover: { enable: true, mode: "grab" },
+          onclick: { enable: true, mode: "repulse" }
+        },
+        modes: {
+          grab: { distance: 180, line_linked: { opacity: 0.8 } },
+          repulse: { distance: 140, duration: 0.4 }
+        }
       },
-      "retina_detect": true
+      retina_detect: true
     });
 
     const features = document.querySelectorAll(".feature-box");
