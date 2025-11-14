@@ -44,17 +44,20 @@
       z-index: -1;
     }
 
+    /* ---------------- MY NAV BAR STYLE ---------------- */
     .navbar {
       position: fixed;
       top: 0;
-      width: 100%;
+      left: 0;
+      right: 0;
+      height: 64px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 15px 40px;
-      background: rgba(255, 255, 255, 0.05);
+      justify-content: space-between;
+      padding: 0 28px;
+      background: rgba(255,255,255,0.04);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       z-index: 1000;
     }
 
@@ -67,21 +70,71 @@
     }
 
     .nav-links {
-      list-style: none;
       display: flex;
       gap: 20px;
+      list-style: none;
       margin: 0;
       padding: 0;
+      align-items: center;
     }
 
     .nav-links a {
       color: #dbeafe;
       text-decoration: none;
-      font-weight: 500;
-      transition: color 0.3s ease;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 6px;
+      letter-spacing: 0.2px;
     }
 
-    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover {
+      color: #fff;
+      text-shadow: 0 0 6px rgba(255,255,255,0.3);
+    }
+
+    .nav-user {
+      color: #ffffff;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 8px rgba(255,255,255,0.15);
+    }
+
+    .nav-logout {
+      background: #ff3b43 !important;
+      color: #ffffff !important;
+      padding: 8px 12px !important;
+      border-radius: 6px;
+      font-weight: 700 !important;
+      box-shadow: 0 0 6px rgba(255,0,0,0.25);
+    }
+    .nav-logout:hover { background: #b81010 !important; }
+    /* --------------------------------------------------- */
+
+    /* BACK BUTTON (BOTTOM CENTER) */
+    .back-btn {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: 0.25s ease;
+      z-index: 2000;
+    }
+    .back-btn:hover {
+      background: rgba(255,255,255,0.22);
+    }
+    .hidden-btn {
+      display: none !important;
+    }
 
     main.content {
       width: 100%;
@@ -115,7 +168,6 @@
       line-height: 1.6;
     }
 
-    /* Glass Question/Topic Box */
     .question-box {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(56, 189, 248, 0.25);
@@ -124,7 +176,7 @@
       margin: 20px 0;
       color: #e6eef8;
       font-size: 1.05rem;
-      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15);
+      box-shadow: 0 4px 15px rgba(56,189,248,0.15);
       transition: transform 0.25s ease, box-shadow 0.3s ease;
     }
 
@@ -167,7 +219,6 @@
       background: linear-gradient(90deg, var(--btn-a), var(--btn-b));
       color: white;
     }
-
     .tool-button-primary:hover {
       transform: translateY(-2px);
       background: linear-gradient(90deg, var(--btn-b), var(--btn-a));
@@ -177,7 +228,6 @@
       background: #ef4444;
       color: white;
     }
-
     .tool-button-danger:hover {
       transform: translateY(-2px);
       background: #dc2626;
@@ -207,10 +257,16 @@
   <!-- Particles Background -->
   <div id="particles-js"></div>
 
+  <!-- NAV BAR -->
   <nav class="navbar">
     <div class="nav-brand">PrepAura AI</div>
     <ul class="nav-links" id="nav-links-list"></ul>
   </nav>
+
+  <!-- GLOBAL BACK BUTTON -->
+  <button id="back-btn" class="back-btn" onclick="location.href='practice.html'">
+    ⬅ Back to Practice Hub
+  </button>
 
   <main class="content">
     <div class="container">
@@ -261,6 +317,29 @@
 
   <script src="communication.js"></script>
   <script src="auth.js"></script>
+
+  <!-- BACK BUTTON LOGIC -->
+  <script>
+    const backBtn = document.getElementById("back-btn");
+
+    // Show initially on setup
+    backBtn.classList.remove("hidden-btn");
+
+    // Hide during assessment (practice)
+    document.getElementById("start-btn").addEventListener("click", () => {
+      backBtn.classList.add("hidden-btn");
+    });
+
+    // Show after report
+    document.getElementById("feedback-btn").addEventListener("click", () => {
+      setTimeout(() => backBtn.classList.remove("hidden-btn"), 400);
+    });
+
+    // When restarting → hide again
+    document.getElementById("restart-btn").addEventListener("click", () => {
+      backBtn.classList.add("hidden-btn");
+    });
+  </script>
 
   <!-- Particles Config -->
   <script>
