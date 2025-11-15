@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     // Show AI Futuristic Success Popup
                     const box = document.getElementById("success-box");
+                    box.classList.remove("hidden");
                     box.innerHTML = `
                         <div class="success-icon">✔</div>
                         <p>Welcome, ${data.username}</p>
