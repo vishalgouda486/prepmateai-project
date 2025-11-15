@@ -26,7 +26,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-   
 /* ---------------- MY NAV BAR STYLE ---------------- */
 .navbar {
   position: fixed;
@@ -74,111 +73,112 @@
   color: #fff;
   text-shadow: 0 0 6px rgba(255,255,255,0.3);
 }
-    /* --- Login Container --- */
-    .container {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 40px 50px;
-      width: 100%;
-      max-width: 420px;
-      margin-top: 80px;
-      text-align: center;
-      animation: slideIn 1.2s ease forwards;
-      opacity: 0;
-      box-sizing: border-box;
-    }
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+/* --- Login Container --- */
+.container {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 40px 50px;
+  width: 100%;
+  max-width: 420px;
+  margin-top: 80px;
+  text-align: center;
+  animation: slideIn 1.2s ease forwards;
+  opacity: 0;
+  box-sizing: border-box;
+}
 
-    h1 {
-      color: #ffffff;
-      margin-bottom: 25px;
-      font-size: 1.8rem;
-    }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-    label {
-      display: block;
-      text-align: left;
-      font-weight: 500;
-      color: #bfdbfe;
-      margin-bottom: 8px;
-    }
+h1 {
+  color: #ffffff;
+  margin-bottom: 25px;
+  font-size: 1.8rem;
+}
 
-    input {
-      width: 100%;
-      padding: 12px 15px;
-      margin-bottom: 20px;
-      border: none;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      font-size: 1rem;
-      outline: none;
-      box-sizing: border-box;
-      transition: border 0.3s ease, background-color 0.3s ease;
-    }
+label {
+  display: block;
+  text-align: left;
+  font-weight: 500;
+  color: #bfdbfe;
+  margin-bottom: 8px;
+}
 
-    input:focus {
-      background: rgba(255, 255, 255, 0.18);
-      border: 1px solid #3b82f6;
-    }
+input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border 0.3s ease, background-color 0.3s ease;
+}
 
-    #error-message {
-      color: #f87171;
-      font-size: 0.95rem;
-      margin-bottom: 15px;
-      display: none;
-    }
+input:focus {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid #3b82f6;
+}
 
-    button {
-      width: 100%;
-      padding: 12px 15px;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(90deg, #2563eb, #1d4ed8);
-      color: #fff;
-      font-size: 1.1rem;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.25s ease, transform 0.2s ease;
-      box-sizing: border-box;
-      margin-top: 5px;
-    }
+#error-message {
+  color: #f87171;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+  display: none;
+}
 
-    button:hover {
-      background: linear-gradient(90deg, #1d4ed8, #1e3a8a);
-      transform: translateY(-2px);
-    }
+button {
+  width: 100%;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.25s ease, transform 0.2s ease;
+  box-sizing: border-box;
+  margin-top: 5px;
+}
 
-    .signup-text {
-      margin-top: 20px;
-      font-size: 0.95rem;
-      color: #cbd5e1;
-    }
+button:hover {
+  background: linear-gradient(90deg, #1d4ed8, #1e3a8a);
+  transform: translateY(-2px);
+}
 
-    .signup-text a {
-      color: #93c5fd;
-      text-decoration: none;
-      font-weight: 600;
-    }
+.signup-text {
+  margin-top: 20px;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+}
 
-    .signup-text a:hover {
-      color: #ffffff;
-      text-decoration: underline;
-    }
+.signup-text a {
+  color: #93c5fd;
+  text-decoration: none;
+  font-weight: 600;
+}
 
-    @media (max-width: 600px) {
-      .container {
-        padding: 30px 25px;
-      }
-    }
+.signup-text a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
 
-    /* AI Futuristic Success Popup */
+@media (max-width: 600px) {
+  .container {
+    padding: 30px 25px;
+  }
+}
+
+/* AI Futuristic Success Popup */
 .success-popup {
   position: fixed;
   top: -140px;
@@ -242,7 +242,6 @@
 
       <div id="error-message"></div>
 
-      <!-- ✅ FIX: Added correct button ID -->
       <button id="login-button" type="submit">Login</button>
     </form>
 
@@ -251,13 +250,14 @@
     </div>
   </div>
 
-  <!-- ✅ Keep script at the bottom -->
+  <!-- JS -->
   <script src="login.js"></script>
+
   <!-- AI Futuristic Success Popup -->
-<div id="success-box" class="success-popup hidden">
-  <div class="success-icon">✔</div>
-  <p>Login Successful</p>
-</div>
+  <div id="success-box" class="success-popup hidden">
+    <div class="success-icon">✔</div>
+    <p>Login Successful</p>
+  </div>
 
 </body>
 </html>
