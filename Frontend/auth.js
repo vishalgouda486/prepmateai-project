@@ -19,14 +19,22 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             
             if (response.ok) {
-                alert("You have been logged out.");
-                window.location.href = "login.html"; // Redirect to login page
-            }
-        } catch (error) {
-            console.error("Logout failed:", error);
-            alert("Logout failed. Could not connect to server.");
-        }
-    };
+
+    // Show logout animation popup
+    const logoutBox = document.getElementById("logout-box");
+    if (logoutBox) {
+        logoutBox.classList.remove("hidden");
+        setTimeout(() => logoutBox.classList.add("show"), 50);
+
+        // Redirect after animation
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 1500);
+    } else {
+        // fallback if popup isn't found
+        window.location.href = "login.html";
+    }
+};
 
     // Function to check the session and update the navbar
     const checkUserSession = async () => {

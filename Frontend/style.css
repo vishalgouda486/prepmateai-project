@@ -667,3 +667,35 @@ textarea:focus {
 .nav-button-logout:hover {
   background-color: #E11D48 !important;
 }
+
+.success-popup {
+  position: fixed;
+  top: -140px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 16px;
+  padding: 18px 32px;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(59,130,246,0.45);
+  color: #e0f2ff;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  opacity: 0;
+  transition: all 0.7s ease;
+  z-index: 9999;
+}
+.success-popup.show {
+  top: 80px;
+  opacity: 1;
+}
+.success-icon {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+  color: #38bdf8;
+  text-shadow: 0 0 14px rgba(59,130,246,0.8);
+}
+.hidden { display: none; }
