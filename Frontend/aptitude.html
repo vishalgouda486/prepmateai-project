@@ -143,17 +143,17 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(56, 189, 248, 0.35);
     }
-
-   /* --- THEMED SELECT DROPDOWN --- */
+    
+    /* --- THEMED SELECT DROPDOWN --- */
 .tool-select {
-  width: 80%;
+  width: 100%;
   padding: 12px 16px;
   margin-top: 12px;
   font-size: 1rem;
   border-radius: 10px;
-  background: rgba(74, 106, 235, 0.1);
+  background: rgba(255,255,255,0.10);
   border: 1px solid rgba(255,255,255,0.25);
-  color: #f8f9fc;
+  color: #000000;
   backdrop-filter: blur(10px);
   outline: none;
   box-shadow: 0 0 10px rgba(56,189,248,0.28);
@@ -163,11 +163,11 @@
 }
 
 .tool-select:hover {
-  background: rgba(97, 160, 232, 0.15);
+  background: rgba(255,255,255,0.15);
 }
 
 .tool-select:focus {
-  border-color: #25b7f6;
+  border-color: #38bdf8;
   box-shadow: 0 0 12px rgba(56,189,248,0.55);
 }
 
@@ -178,23 +178,6 @@
   background-position: right 14px center;
   background-size: 14px;
 }
-
-.tool-select option {
-  background-color: #0a1530 !important; /* dark navy */
-  color: #dbeafe !important;            /* soft white/blue text */
-}
-
-.tool-select option:hover {
-  background-color: #1e3a8a !important; /* theme blue */
-  color: #ffffff !important;
-}
-
-.tool-select option:checked {
-  background-color: #2563eb !important; /* bright blue */
-  color: #ffffff !important;
-}
-
-
 
     .nav-button-row,
     .solution-button-row,
@@ -221,28 +204,6 @@
 
     .fade-in { opacity: 0; transform: translateY(10px); transition: opacity .5s, transform .4s; }
     .fade-in.show { opacity: 1; transform: translateY(0); }
-  
-    select::-internal-list-box {
-    background-color: transparent !important;
-    }
-
-    select option {
-    background-color: #0a1530 !important;   /* dark dropdown */
-    color: #dbeafe !important;              /* readable text */
-}
-
-select option:hover {
-    background-color: #1e3a8a !important;   /* blue hover */
-    color: #ffffff !important;
-}
-
-select option:checked {
-    background-color: #2563eb !important;   /* selected highlight */
-    color: #ffffff !important;
-}
-
-
-  
   </style>
 </head>
 
