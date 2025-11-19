@@ -162,12 +162,6 @@
   cursor: pointer;
 }
 
-.tool-select option:hover {
-  background: #1e40af !important;  /* <— highlight/hover color */
-  color: #ffffff !important;        /* highlight text color */
-}
-
-
 .tool-select:hover {
   background: rgba(97, 160, 232, 0.15);
 }
@@ -184,6 +178,23 @@
   background-position: right 14px center;
   background-size: 14px;
 }
+
+.tool-select option {
+  background-color: #0a1530 !important; /* dark navy */
+  color: #dbeafe !important;            /* soft white/blue text */
+}
+
+.tool-select option:hover {
+  background-color: #1e3a8a !important; /* theme blue */
+  color: #ffffff !important;
+}
+
+.tool-select option:checked {
+  background-color: #2563eb !important; /* bright blue */
+  color: #ffffff !important;
+}
+
+
 
     .nav-button-row,
     .solution-button-row,
