@@ -138,7 +138,7 @@ function initializeApp() {
       bubble.classList.add('chat-bubble', role); 
       
       const roleStrong = document.createElement('strong');
-      roleStrong.innerText = (role === 'ai') ? 'Prepmate' : 'You';
+      roleStrong.innerText = (role === 'ai') ? 'PrepAura' : 'You';
       
       const textNode = document.createElement('span');
       textNode.innerText = text;
@@ -260,7 +260,7 @@ function initializeApp() {
   // --- 11. CORE LOGIC: SEND ANSWER TO BACKEND ---
   async function sendAnswerToBackend(audioBlob, expressionsJSON) {
       showTyping(true);
-      recordStatus.innerText = "Prepmate is analyzing...";
+      recordStatus.innerText = "PrepAura is analyzing...";
 
       const formData = new FormData();
       formData.append("resume_text", practiceResumeText); 

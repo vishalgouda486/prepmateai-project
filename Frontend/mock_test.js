@@ -1019,7 +1019,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const bubble = document.createElement('div');
         bubble.classList.add('chat-bubble', role); 
         const roleStrong = document.createElement('strong');
-        roleStrong.innerText = (role === 'ai') ? 'Prepmate' : 'You';
+        roleStrong.innerText = (role === 'ai') ? 'PrepAura' : 'You';
         const textNode = document.createElement('span');
         textNode.innerText = text;
         bubble.appendChild(roleStrong);
@@ -1141,7 +1141,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         showInterviewTyping(true);
         const { ui } = testState.interview;
-        ui.recordStatus.innerText = "Prepmate is analyzing...";
+        ui.recordStatus.innerText = "PrepAura is analyzing...";
 
         testState.interview.questionNumber++;
         const qNum = testState.interview.questionNumber;
