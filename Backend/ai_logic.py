@@ -402,46 +402,37 @@ def get_technical_question(topic, language):
         topic_instruction = "from a mix of DSA topics (Arrays, Strings, Linked Lists, Trees, Graphs, Sorting, or Searching)."
     
     prompt = f"""
-    You must return ONLY valid JSON. No markdown. No backticks. No explanations.
-
-    Return a JSON object with EXACTLY these keys:
-    "question_title", "problem_statement", "starter_code", "test_cases", "model_solution"
-
-    Rules:
-    - Do NOT include a code block like ```json
-    - Do NOT include any text before or after the JSON
-    - "test_cases" MUST be a list of objects with:
-        {{"stdin": "value", "expected_output": "value"}}
-    - Escape all newlines as \\n
-    - starter_code must NOT contain tabs, only spaces
-
-    Example:
+    Generate one medium-difficulty technical coding problem {topic_instruction} for {lang_name}.
+    Your response **MUST** be a JSON object inside a markdown code block.
+    
+    Your JSON object must contain these exact keys:
+    - "question_title": A short title.
+    - "problem_statement": A 2-3 sentence description of the task. Use \\n for newlines.
+    - "starter_code": An EMPTY boilerplate template for the user to fill in.
+    - "test_cases": A list of 3 simple test cases. **Each test case MUST be an object with two keys: "stdin" (the input string) and "expected_output" (the expected output string).**
+    - "model_solution": The complete, correct, and optimal code solution.
+    
+    Example of a valid, multi-line JSON response:
+    ```json
     {python_example}
-
-    Now generate a NEW coding question {topic_instruction} for {lang_name}.
-    Remember: Respond ONLY with a raw JSON object. Nothing else.
+    ```
     """
-
     response = model.generate_content(prompt)
-
-    # --- Safety: No text returned
     if not response.text:
         print("Error: Gemini returned an empty response for get_technical_question.")
         return {"error": "The AI failed to generate a question. This may be due to safety filters. Please try again."}
-
-    # --- Stable JSON extraction ---
-    clean = response.text.strip()
-
-    # Remove any accidental markdown fences
-    clean = clean.replace("```json", "").replace("```", "").strip()
-
     try:
-        data = json.loads(clean)
+        json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
+        if not json_match:
+            print(f"Error: No JSON object found in Gemini response. Response was: {response.text}")
+            raise json.JSONDecodeError("No JSON object found in response", response.text, 0)
+        json_text = json_match.group(0)
+        data = json.loads(json_text)
         return data
-    except json.JSONDecodeError:
-        print("❌ RAW AI OUTPUT (Technical Question):", response.text)
-        return {"error": "Invalid JSON from AI. Please try again."}
-
+    except json.JSONDecodeError as e:
+        print(f"Error: Failed to decode JSON from Gemini. Response was: {response.text}")
+        print(f"JSONDecodeError: {e}")
+        return {"error": "The AI returned an invalid response. Please try again."}
 
 def run_code_with_judge0(user_code, language, test_cases):
     print(f"Sending {language} code to Judge0 for batch processing...")
@@ -634,15 +625,15 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
         gemini_history.append({"role": role, "parts": [msg["content"]]})
 
     if custom_prompt:
-            prompt = f"You are PrepAura, an AI interview architect. {custom_prompt}"
+            prompt = f"You are Prepmate, an AI interview architect. {custom_prompt}"
     elif question_count == 0:
-        prompt = "You are PrepAura, an AI interview architect. Ask your first managerial question (e.g., 'Tell me about a time you had to lead a project.')."
+        prompt = "You are Prepmate, an AI interview architect. Ask your first managerial question (e.g., 'Tell me about a time you had to lead a project.')."
     elif question_count == 1:
-        prompt = "You are PrepAura, an AI interview architect. Ask one, smart, relevant follow-up question based *only* on the user's last answer."
+        prompt = "You are Prepmate, an AI interview architect. Ask one, smart, relevant follow-up question based *only* on the user's last answer."
     elif question_count == 2:
-        prompt = "You are PrepAura, an AI interview architect. Ask your *second* main managerial question (e.g., 'Describe a situation where you had a conflict with a coworker.')."
+        prompt = "You are Prepmate, an AI interview architect. Ask your *second* main managerial question (e.g., 'Describe a situation where you had a conflict with a coworker.')."
     elif question_count == 3:
-        prompt = "You are PrepAura, an AI interview architect. Ask one, smart, relevant follow-up question based *only* on the user's last answer."
+        prompt = "You are Prepmate, an AI interview architect. Ask one, smart, relevant follow-up question based *only* on the user's last answer."
     else:
         session_complete = True
         ai_response = "This concludes the managerial round. Generating your final debrief..."
@@ -714,15 +705,15 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
         gemini_history.append({"role": role, "parts": [msg["content"]]})
 
     if custom_prompt:
-            prompt = f"You are PrepAura, an AI interview architect. {custom_prompt}"
+            prompt = f"You are Prepmate, an AI interview architect. {custom_prompt}"
     elif question_count == 0:
-        prompt = "You are PrepAura, an AI interview architect. Ask your first HR personal interview question (e.g., 'Tell me about yourself' or 'What is your greatest strength?')."
+        prompt = "You are Prepmate, an AI interview architect. Ask your first HR personal interview question (e.g., 'Tell me about yourself' or 'What is your greatest strength?')."
     elif question_count == 1:
-        prompt = "You are PrepAura, an AI interview architect. Ask one, smart, relevant follow-up question based *only* on the user's last answer."
+        prompt = "You are Prepmate, an AI interview architect. Ask one, smart, relevant follow-up question based *only* on the user's last answer."
     elif question_count == 2:
-        prompt = "You are PrepAura, an AI interview architect. Ask your *second* main HR question (e.g., 'Why do you want to work for this company?' or 'Where do you see yourself in 5 years?')."
+        prompt = "You are Prepmate, an AI interview architect. Ask your *second* main HR question (e.g., 'Why do you want to work for this company?' or 'Where do you see yourself in 5 years?')."
     elif question_count == 3:
-        prompt = "You are PrepAura, an AI interview architect. Ask one, smart, relevant follow-up question based *only* on the user's. last answer."
+        prompt = "You are Prepmate, an AI interview architect. Ask one, smart, relevant follow-up question based *only* on the user's. last answer."
     else:
         session_complete = True
         ai_response = "This concludes the HR interview. Generating your final debrief..."
@@ -798,19 +789,19 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
         gemini_history.append({"role": role, "parts": [msg["content"]]})
 
     if custom_prompt:
-        prompt = f"You are PrepAura, an AI interview architect. The user's resume is below. {custom_prompt}\n\n{resume_context}"
+        prompt = f"You are Prepmate, an AI interview architect. The user's resume is below. {custom_prompt}\n\n{resume_context}"
     elif question_count == 0:
-        prompt = f"You are PrepAura, an AI hiring manager. Ask your first question based *only* on a specific project, skill, or experience from their resume.\n\n{resume_context}"
+        prompt = f"You are Prepmate, an AI hiring manager. Ask your first question based *only* on a specific project, skill, or experience from their resume.\n\n{resume_context}"
     elif question_count == 1:
-        prompt = f"You are PrepAura. Ask one, smart, relevant follow-up question based *only* on the user's last answer and their resume.\n\n{resume_context}"
+        prompt = f"You are Prepmate. Ask one, smart, relevant follow-up question based *only* on the user's last answer and their resume.\n\n{resume_context}"
     elif question_count == 2:
-        prompt = f"You are PrepAura. Ask your *second* main question, based on a *different* part of their resume.\n\n{resume_context}"
+        prompt = f"You are Prepmate. Ask your *second* main question, based on a *different* part of their resume.\n\n{resume_context}"
     elif question_count == 3:
-        prompt = f"You are PrepAura. Ask a smart follow-up question based *only* on the user's last answer.\n\n{resume_context}"
+        prompt = "You are Prepmate. Ask a smart follow-up question based *only* on the user's last answer.\n\n{resume_context}"
     elif question_count == 4:
-        prompt = f"You are PrepAura. Ask your *third* main question, based on yet another part of their resume (e.g., education or skills section).\n\n{resume_context}"
+        prompt = f"You are Prepmate. Ask your *third* main question, based on yet another part of their resume (e.g., education or skills section).\n\n{resume_context}"
     elif question_count == 5:
-        prompt = f"You are PrepAura. Ask one final, smart follow-up question based *only* on the user's last answer.\n\n{resume_context}"
+        prompt = f"You are Prepmate. Ask one final, smart follow-up question based *only* on the user's last answer.\n\n{resume_context}"
     else:
         session_complete = True
         ai_response = "This concludes the Resume-Based interview. Generating your final debrief..."
@@ -867,7 +858,7 @@ def get_final_report(all_round_results):
     
     results_json = json.dumps(all_round_results, indent=2)
     prompt = f"""
-    You are 'PrepAura', an AI career coach.
+    You are 'Prepmate', an AI career coach.
     A user has just completed a full mock test. Their results from all rounds are provided below in JSON format.
 
     Your task is to generate a comprehensive, professional, and encouraging final report in **Markdown format**.
