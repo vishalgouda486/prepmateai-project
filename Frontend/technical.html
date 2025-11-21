@@ -221,6 +221,37 @@
     }
 
     .hidden { display: none; }
+
+    /* --- Spinner Overlay (Required for technical.js) --- */
+    .spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      z-index: 5000;
+      backdrop-filter: blur(4px);
+    }
+
+    .spinner {
+      width: 55px;
+      height: 55px;
+      border: 6px solid rgba(255,255,255,0.2);
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
   </style>
 </head>
 
@@ -314,15 +345,20 @@
   <!-- Back Button Logic -->
   <script>
     const backBtn = document.getElementById("back-btn");
+    const setupScreen = document.getElementById("setup-screen");
+    const practiceScreen = document.getElementById("practice-screen");
 
-    // show only at setup
+    // Show only while selecting language/topic
     backBtn.classList.remove("hidden-btn");
 
-    // hide during test
+    // Hide after starting practice
     document.getElementById("start-btn").addEventListener("click", () => {
       backBtn.classList.add("hidden-btn");
     });
+
+    // Do NOT show after End Practice (coding redirects anyway)
   </script>
+
 
   <!-- Particles (home.html style) -->
   <script>
@@ -353,6 +389,12 @@
       }
     });
   </script>
+
+  <div id="loading-spinner" class="spinner-overlay" style="display: none;">
+    <div class="spinner"></div>
+    <p>Loading next question...</p>
+  </div>
+
 
 </body>
 </html>
