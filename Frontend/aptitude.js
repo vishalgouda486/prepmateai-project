@@ -220,18 +220,130 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    async function endPractice() {
+        async function endPractice() {
         clearInterval(timerInterval); 
         
         practiceScreen.classList.add("hidden");
         feedbackScreen.classList.remove("hidden");
-        feedbackReport.innerText = "Generating your feedback report... 🤔";
 
+        // If user ended without answering anything
         if (practiceResults.length === 0) {
-            feedbackReport.innerText = "You did not complete any questions. Practice again to get a report.";
+            feedbackReport.innerHTML = `
+              <div class="apt-report">
+                <p class="apt-empty-message">
+                  You didn’t answer any questions. Try a short 3–5 question run to unlock a full visual report. 🚀
+                </p>
+              </div>
+            `;
             return;
         }
 
+        // --- Basic stats from practiceResults ---
+        const totalQuestions = practiceResults.length;
+        const correctCount = practiceResults.filter(r => r.is_correct).length;
+        const accuracy = Math.round((correctCount / totalQuestions) * 100);
+
+        const totalTime = practiceResults.reduce((sum, r) => {
+            return sum + (r.time_taken_seconds || 0);
+        }, 0);
+        const avgTime = totalQuestions > 0 ? totalTime / totalQuestions : 0;
+
+        let headline;
+        if (accuracy >= 80) {
+            headline = "🔥 Great job! You’re interview-ready in this topic.";
+        } else if (accuracy >= 60) {
+            headline = "💡 Good attempt! A bit more practice will make this solid.";
+        } else {
+            headline = "🌱 This is a safe space to improve. Let’s focus on basics and speed.";
+        }
+
+        // --- Build visual report UI ---
+        feedbackReport.innerHTML = `
+          <div class="apt-report">
+            <div class="apt-report-header">
+              <div>
+                <h3 class="apt-report-title">Aptitude Practice Summary</h3>
+                <p class="apt-report-subtitle">${headline}</p>
+                <p class="apt-report-topic">
+                  Topic selected: <span>${selectedTopic}</span><br>
+                  Questions attempted: <span>${totalQuestions}</span>
+                </p>
+              </div>
+              <div class="apt-score-wrapper" data-score="${accuracy}">
+                <svg class="apt-score-ring" viewBox="0 0 140 140">
+                  <circle class="apt-score-bg" cx="70" cy="70" r="60"></circle>
+                  <circle class="apt-score-progress" cx="70" cy="70" r="60"></circle>
+                </svg>
+                <div class="apt-score-text">
+                  <span class="apt-score-number">0</span>
+                  <span class="apt-score-percent">%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="apt-metrics-grid">
+              <div class="apt-metric-card">
+                <div class="apt-metric-label">Questions Attempted</div>
+                <div class="apt-metric-value">${totalQuestions}</div>
+              </div>
+              <div class="apt-metric-card">
+                <div class="apt-metric-label">Correct Answers</div>
+                <div class="apt-metric-value apt-good">${correctCount}</div>
+              </div>
+              <div class="apt-metric-card">
+                <div class="apt-metric-label">Accuracy</div>
+                <div class="apt-metric-value">${accuracy}%</div>
+              </div>
+              <div class="apt-metric-card">
+                <div class="apt-metric-label">Avg Time / Question</div>
+                <div class="apt-metric-value">${avgTime.toFixed(1)}s</div>
+              </div>
+            </div>
+
+            <div class="apt-ai-notes">
+              <div class="apt-ai-heading">AI Coach Notes</div>
+              <div class="apt-ai-content" id="apt-ai-content">
+                Generating personalised feedback based on your answers...
+              </div>
+            </div>
+          </div>
+        `;
+
+        // --- Animate circular score (pie chart style) ---
+        const circle = feedbackReport.querySelector(".apt-score-progress");
+        if (circle) {
+            const radius = 60;
+            const circumference = 2 * Math.PI * radius;
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle.style.strokeDashoffset = `${circumference}`;
+
+            // Trigger transition in next frame
+            requestAnimationFrame(() => {
+                const offset = circumference * (1 - accuracy / 100);
+                circle.style.strokeDashoffset = `${offset}`;
+            });
+        }
+
+        // Animate number from 0 -> accuracy
+        const numberEl = feedbackReport.querySelector(".apt-score-number");
+        if (numberEl) {
+            let current = 0;
+            const target = accuracy;
+            const duration = 800; // ms
+            const stepTime = 40;
+            const step = Math.max(1, Math.round(target / (duration / stepTime)));
+
+            const interval = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                }
+                numberEl.textContent = current;
+            }, stepTime);
+        }
+
+        // --- Fetch AI text feedback and put into "AI Coach Notes" ---
         try {
             const response = await fetch("https://prepmate-backend-x77z.onrender.com/aptitude-feedback", {
                 method: "POST",
@@ -239,11 +351,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ results: practiceResults }),
             });
             const data = await response.json();
-            feedbackReport.innerText = data.error ? `Error: ${data.error}` : data.feedback;
+            const aiContentEl = document.getElementById("apt-ai-content");
+            
+            if (!aiContentEl) return;
+
+            if (data.error) {
+                aiContentEl.innerText = `Error generating AI feedback: ${data.error}`;
+            } else {
+                // Backend returns Markdown, but we’ll just show it as text for now
+                aiContentEl.innerText = data.feedback;
+            }
         } catch (error) {
-            feedbackReport.innerText = "⚠️ Server not responding. Make sure backend is running.";
+            const aiContentEl = document.getElementById("apt-ai-content");
+            if (aiContentEl) {
+                aiContentEl.innerText = "⚠️ Server not responding. Make sure backend is running.";
+            }
         }
     }
+
 
     function restartPractice() {
         feedbackScreen.classList.add("hidden");
