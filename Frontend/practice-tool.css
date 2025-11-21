@@ -314,3 +314,56 @@ pre#solution-box {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+/* PRO MODE STYLING */
+.apt-ai-pro-report {
+    margin-top: 30px;
+    padding: 25px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 25px rgba(80,120,255,0.25);
+}
+
+.ai-pro-header {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.ai-pro-section {
+    margin-bottom: 22px;
+    padding: 18px 20px;
+    background: rgba(255,255,255,0.05);
+    border-left: 4px solid #60a5fa;
+    border-radius: 12px;
+}
+
+.ai-pro-section h3 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+    color: #dbeafe;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-pro-content {
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: #e5ecff;
+}
+
+.ai-mini-heading {
+    font-size: 1rem;
+    margin: 10px 0;
+    color: #a5b4fc;
+    font-weight: 600;
+}
+
+.ai-bullet {
+    margin-left: 10px;
+    color: #cbd5ff;
+}

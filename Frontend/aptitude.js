@@ -1,4 +1,24 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+        // --- Markdown to Beautiful HTML (Pro Mode) ---
+    function convertMarkdownToProHTML(md) {
+        if (!md) return "";
+
+        // Convert ### headings
+        md = md.replace(/^### (.*$)/gim, '<div class="ai-mini-heading">$1</div>');
+
+        // Convert bullet points
+        md = md.replace(/^- (.*$)/gim, '<div class="ai-bullet">• $1</div>');
+
+        // Convert bold text
+        md = md.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+
+        // New lines
+        md = md.replace(/\n/g, '<br>');
+
+        return md;
+    }
+
     // --- Get Elements ---
     const setupScreen = document.getElementById("setup-screen");
     const practiceScreen = document.getElementById("practice-screen");
@@ -300,11 +320,30 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
             </div>
 
-            <div class="apt-ai-notes">
-                <div class="apt-ai-heading">✨ AI Coach Insights</div>
-                <div class="apt-ai-content" id="apt-ai-content">
-                    Generating personalised feedback...
+            <div class="apt-ai-pro-report">
+                <h2 class="ai-pro-header">✨ AI Coach Insights (Pro Mode)</h2>
+
+                <div class="ai-pro-section" id="ai-summary-section">
+                    <h3><span>📘</span> Overall Summary</h3>
+                    <div class="ai-pro-content" id="ai-summary"></div>
                 </div>
+
+                <div class="ai-pro-section" id="ai-strong-section">
+                    <h3><span>🟦</span> Strongest Topic</h3>
+                    <div class="ai-pro-content" id="ai-strong"></div>
+                </div>
+
+                <div class="ai-pro-section" id="ai-weak-section">
+                    <h3><span>🟥</span> Weakest Topic</h3>
+                    <div class="ai-pro-content" id="ai-weak"></div>
+                </div>
+
+                <div class="ai-pro-section" id="ai-keytakeaway-section">
+                    <h3><span>💡</span> Key Takeaway</h3>
+                    <div class="ai-pro-content" id="ai-keytakeaway"></div>
+                </div>
+            </div>
+
             </div>
 
             <button class="apt-report-button" onclick="location.href='practice.html'">
@@ -361,11 +400,24 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!aiContentEl) return;
 
             if (data.error) {
-                aiContentEl.innerText = `Error generating AI feedback: ${data.error}`;
+                document.getElementById("ai-summary").innerHTML = 
+                    `<div class='ai-bullet'>⚠️ ${data.error}</div>`;
             } else {
-                // Backend returns Markdown, but we’ll just show it as text for now
-                aiContentEl.innerText = data.feedback;
+                const fb = data.feedback;
+
+                document.getElementById("ai-summary").innerHTML =
+                    convertMarkdownToProHTML(fb.split("### Strongest")[0]);
+
+                document.getElementById("ai-strong").innerHTML =
+                    convertMarkdownToProHTML(fb.split("### Weakest")[0].split("### Strongest")[1] || "");
+
+                document.getElementById("ai-weak").innerHTML =
+                    convertMarkdownToProHTML(fb.split("### Key Takeaway")[0].split("### Weakest")[1] || "");
+
+                document.getElementById("ai-keytakeaway").innerHTML =
+                    convertMarkdownToProHTML(fb.split("### Key Takeaway")[1] || "");
             }
+
         } catch (error) {
             const aiContentEl = document.getElementById("apt-ai-content");
             if (aiContentEl) {
