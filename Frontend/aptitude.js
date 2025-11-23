@@ -244,193 +244,183 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function endPractice() {
-        clearInterval(timerInterval);
+    clearInterval(timerInterval);
 
-        practiceScreen.classList.add("hidden");
-        feedbackScreen.classList.remove("hidden");
+    practiceScreen.classList.add("hidden");
+    feedbackScreen.classList.remove("hidden");
 
-        // Basic Stats
-        const total = practiceResults.length;
+    // Basic Stats
+    const total = practiceResults.length;
 
-        if (total === 0) {
-            feedbackReport.innerText = "You did not complete any questions. Practice again to get a report.";
+    if (total === 0) {
+        feedbackReport.innerText = "You did not complete any questions. Practice again to get a report.";
+        return;
+    }
+
+    const correct = practiceResults.filter(r => r.is_correct).length;
+    const accuracy = Math.round((correct / total) * 100);
+
+    // ---------- PREMIUM REPORT MARKUP ----------
+    feedbackReport.innerHTML = `
+    <div class="premium-report-wrap">
+      <div class="premium-header">
+        <div>
+          <h2>Practice Summary — PrepAura AI</h2>
+          <div class="premium-sub">A compact, professional snapshot of your run.</div>
+        </div>
+        <div class="premium-spark" aria-hidden="true"></div>
+      </div>
+
+      <div class="premium-grid">
+        <div class="score-card">
+          <svg class="apt-score-ring" viewBox="0 0 140 140" role="img" aria-label="score ring">
+            <circle class="apt-score-bg" cx="70" cy="70" r="60" stroke="rgba(255,255,255,0.06)" stroke-width="14" fill="none"></circle>
+            <circle class="apt-score-progress" cx="70" cy="70" r="60" stroke="#38bdf8" stroke-width="14" stroke-linecap="round" fill="none" stroke-dasharray="0 999"></circle>
+          </svg>
+
+          <div class="apt-score-text-centered">
+            <div class="num">${accuracy}</div>
+            <div class="label">Overall Accuracy</div>
+          </div>
+
+          <div style="width:100%; display:flex; gap:10px; justify-content:center;">
+            <div class="metric-mini" style="width:40%; text-align:center;">
+              <div class="m-label">Questions</div>
+              <div class="m-value">${total}</div>
+            </div>
+            <div class="metric-mini" style="width:40%; text-align:center;">
+              <div class="m-label">Correct</div>
+              <div class="m-value">${correct}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="metrics-grid" style="margin-bottom:18px;">
+            <div class="metric-mini"><div class="m-label">Avg Time</div><div class="m-value">${(practiceResults.reduce((s,r)=>s+(r.time_taken_seconds||0),0)/total).toFixed(1)}s</div></div>
+            <div class="metric-mini"><div class="m-label">Accuracy</div><div class="m-value">${accuracy}%</div></div>
+            <div class="metric-mini"><div class="m-label">Topic</div><div class="m-value">${selectedTopic || "Mix"}</div></div>
+          </div>
+
+          <div class="pro-blocks">
+            <div class="pro-block">
+              <h4>📘 Overall Summary</h4>
+              <div id="ai-summary" class="ai-content"><div class="ai-loading"><div class="ai-dots"><span></span><span></span><span></span></div> Generating insights…</div></div>
+            </div>
+
+            <div class="pro-block">
+              <h4>🟦 Strongest Topic</h4>
+              <div id="ai-strong" class="ai-content"><div class="ai-loading"><div class="ai-dots"><span></span><span></span><span></span></div> Analyzing…</div></div>
+            </div>
+
+            <div class="pro-block">
+              <h4>🟥 Weakest Topic</h4>
+              <div id="ai-weak" class="ai-content"><div class="ai-loading"><div class="ai-dots"><span></span><span></span><span></span></div> Analyzing…</div></div>
+            </div>
+          </div>
+
+          <div class="report-actions">
+            <button id="download-report" class="btn-glass">Download Report (PNG)</button>
+            <button id="back-to-hub" class="btn-gradient" onclick="location.href='practice.html'">← Back to Practice Hub</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; display:flex; gap:12px; justify-content:center;">
+        <button id="practice-again-bottom" class="btn-gradient">Practice Again</button>
+      </div>
+    </div>
+    `;
+
+    // ---------- animate ring ----------
+    const circle = feedbackReport.querySelector(".apt-score-progress");
+    if (circle) {
+        const radius = 60;
+        const circumference = 2 * Math.PI * radius;
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = `${circumference}`;
+
+        // small delay for nicer effect
+        setTimeout(() => {
+            circle.style.transition = "stroke-dashoffset 900ms cubic-bezier(.22,.9,.26,1)";
+            circle.style.strokeDashoffset = `${circumference * (1 - accuracy / 100)}`;
+        }, 180);
+    }
+
+    // hook up Practice Again and Download
+    document.getElementById("practice-again-bottom").addEventListener("click", restartPractice);
+
+    // download as PNG (html2canvas light fallback)
+    document.getElementById("download-report").addEventListener("click", async () => {
+        // simple friendly loader
+        const btn = document.getElementById("download-report");
+        btn.innerText = "Preparing…";
+        try {
+            // try using html2canvas if available; if not, just open print dialog
+            if (window.html2canvas) {
+                const el = feedbackReport.querySelector(".premium-report-wrap");
+                const canvas = await html2canvas(el, { scale:2, useCORS:true });
+                const url = canvas.toDataURL("image/png");
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `prepaura-report-${Date.now()}.png`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } else {
+                // fallback to print (user can save as pdf/png via browser)
+                window.print();
+            }
+        } catch (e) {
+            console.warn(e);
+            alert("Download failed. Try using the browser print/save as PDF option.");
+        } finally {
+            btn.innerText = "Download Report (PNG)";
+        }
+    });
+
+    // ---------- fetch AI summary and render with markdown converter ----------
+    try {
+        const response = await fetch("https://prepmate-backend-x77z.onrender.com/aptitude-feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ results: practiceResults }),
+        });
+        const data = await response.json();
+
+        if (data.error) {
+            document.getElementById("ai-summary").innerText = data.error;
+            document.getElementById("ai-strong").innerText = "–";
+            document.getElementById("ai-weak").innerText = "–";
             return;
         }
 
-        const correct = practiceResults.filter(r => r.is_correct).length;
-        const accuracy = Math.round((correct / total) * 100);
+        const fb = data.feedback || "";
 
-        // --- PREMIUM REPORT UI ---
-        feedbackReport.innerHTML = `
-        <div class="apt-report premium-report">
-        <div class="premium-header">
-            <div class="premium-left">
-            <h3 class="premium-title">Aptitude Practice — Summary</h3>
-            <p class="premium-sub">Great effort! Here's a compact, professional snapshot of your run.</p>
-            </div>
-            <div class="premium-image-wrap">
-            <img class="premium-spark" src="/mnt/data/Aptitude_Practice_Summary_dashboard_displayed_in_t.png" alt="report-spark" />
-            </div>
-        </div>
+        // Extract sections robustly
+        const summary = (fb.split("### Strongest")[0] || "").replace("### Overall Summary", "").trim() || "No summary available.";
+        const strongest = (fb.split("### Weakest")[0].split("### Strongest")[1] || "").trim() || "–";
+        const weakest = (fb.split("### Key Takeaway")[0].split("### Weakest")[1] || "").trim() || "–";
+        const keyTakeaway = (fb.split("### Key Takeaway")[1] || "").trim() || "–";
 
-        <div class="premium-body">
-            <div class="score-card">
-            <div class="score-visual">
-                <svg class="apt-score-ring" viewBox="0 0 140 140">
-                <circle class="apt-score-bg" cx="70" cy="70" r="60"></circle>
-                <circle class="apt-score-progress" cx="70" cy="70" r="60"></circle>
-                </svg>
-                <div class="apt-score-text">
-                <div class="apt-score-number" data-target="${accuracy}">0</div>
-                <div class="apt-score-percent">%</div>
-                </div>
-            </div>
+        // Convert markdown to pro HTML (uses your convertMarkdownToProHTML)
+        document.getElementById("ai-summary").innerHTML = convertMarkdownToProHTML(summary);
+        document.getElementById("ai-strong").innerHTML = convertMarkdownToProHTML(strongest);
+        document.getElementById("ai-weak").innerHTML = convertMarkdownToProHTML(weakest);
 
-            <div class="score-metrics">
-                <div class="metric">
-                <div class="m-label">Questions</div>
-                <div class="m-value">${total}</div>
-                </div>
-                <div class="metric">
-                <div class="m-label">Correct</div>
-                <div class="m-value">${correct}</div>
-                </div>
-                <div class="metric">
-                <div class="m-label">Accuracy</div>
-                <div class="m-value">${accuracy}%</div>
-                </div>
-            </div>
-            </div>
+        // Insert key takeaway block as a small pro-block below the three
+        const keyBlock = document.createElement("div");
+        keyBlock.className = "pro-block";
+        keyBlock.innerHTML = `<h4>💡 Key Takeaway</h4><div class="ai-content">${convertMarkdownToProHTML(keyTakeaway)}</div>`;
+        feedbackReport.querySelector(".premium-grid > div:nth-child(2)").appendChild(keyBlock);
 
-            <div class="ai-columns">
-            <div class="ai-column">
-                <div class="ai-section pro">
-                <h3>📘 Overall Summary</h3>
-                <div id="ai-summary" class="ai-content">Loading...</div>
-                </div>
-
-                <div class="ai-section pro">
-                <h3>🟦 Strongest Topic</h3>
-                <div id="ai-strong" class="ai-content">Loading...</div>
-                </div>
-            </div>
-
-            <div class="ai-column">
-                <div class="ai-section pro">
-                <h3>🟥 Weakest Topic</h3>
-                <div id="ai-weak" class="ai-content">Loading...</div>
-                </div>
-
-                <div class="ai-section pro">
-                <h3>💡 Key Takeaway</h3>
-                <div id="ai-key" class="ai-content">Loading...</div>
-                </div>
-            </div>
-            </div>
-
-            <div class="report-actions">
-            <button id="download-report-btn" class="tool-button-secondary">Download Report (PNG)</button>
-            <button id="back-to-hub-btn" class="tool-button-primary">⬅ Back to Practice Hub</button>
-            </div>
-        </div>
-        </div>
-        `;
-
-        // --- Animate circular score ring ---
-        const circle = feedbackReport.querySelector(".apt-score-progress");
-        if (circle) {
-            const radius = 60;
-            const circumference = 2 * Math.PI * radius;
-            circle.style.strokeDasharray = `${circumference} ${circumference}`;
-            circle.style.strokeDashoffset = `${circumference}`;
-
-            // animate after small delay so DOM paint occurs
-            setTimeout(() => {
-                circle.style.transition = 'stroke-dashoffset 900ms cubic-bezier(.22,.98,.36,1)';
-                circle.style.strokeDashoffset = `${circumference * (1 - accuracy / 100)}`;
-            }, 120);
-        }
-
-        // --- Animate the score number (0 -> accuracy) ---
-        const numberEl = feedbackReport.querySelector(".apt-score-number");
-        if (numberEl) {
-            const target = Number(numberEl.dataset.target) || accuracy;
-            let cur = 0;
-            const duration = 900;
-            const stepTime = 30;
-            const step = Math.max(1, Math.round(target / (duration / stepTime)));
-
-            const numInterval = setInterval(() => {
-                cur += step;
-                if (cur >= target) {
-                    cur = target;
-                    clearInterval(numInterval);
-                }
-                numberEl.innerText = cur;
-            }, stepTime);
-        }
-
-        // --- Hook up action buttons (download + back) ---
-        const downloadBtn = document.getElementById("download-report-btn");
-        const backBtn = document.getElementById("back-to-hub-btn");
-
-        backBtn?.addEventListener("click", () => {
-            location.href = "practice.html";
-        });
-
-        // optional: simple screenshot-based download (uses HTMLCanvas via html2canvas if available).
-        downloadBtn?.addEventListener("click", async () => {
-            // If html2canvas available, use it. Otherwise, fallback to alert.
-            if (window.html2canvas) {
-                const el = feedbackReport.querySelector(".premium-report");
-                const canvas = await window.html2canvas(el, { scale: 2 });
-                const dataUrl = canvas.toDataURL("image/png");
-                const a = document.createElement("a");
-                a.href = dataUrl;
-                a.download = `PrepAura_report_${Date.now()}.png`;
-                a.click();
-            } else {
-                alert("Download requires html2canvas. Add html2canvas script to page to enable downloading.");
-            }
-        });
-
-        // -------- Fetch AI Feedback and render (markdown → pro html) --------
-        try {
-            const response = await fetch("https://prepmate-backend-x77z.onrender.com/aptitude-feedback", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ results: practiceResults }),
-            });
-
-            const data = await response.json();
-            if (data.error) {
-                document.getElementById("ai-summary").innerText = data.error;
-                document.getElementById("ai-strong").innerText = "–";
-                document.getElementById("ai-weak").innerText = "–";
-                document.getElementById("ai-key").innerText = "–";
-                return;
-            }
-
-            const fb = data.feedback || "";
-
-            const summary = (fb.split("### Strongest")[0] || "").replace("### Overall Summary", "").trim() || "No summary available.";
-            const strongest = (fb.split("### Weakest")[0].split("### Strongest")[1] || "").trim() || "–";
-            const weakest = (fb.split("### Key Takeaway")[0].split("### Weakest")[1] || "").trim() || "–";
-            const keyTakeaway = (fb.split("### Key Takeaway")[1] || "").trim() || "–";
-
-            // Use the PRO Markdown→HTML converter (keeps styles)
-            document.getElementById("ai-summary").innerHTML = convertMarkdownToProHTML(summary);
-            document.getElementById("ai-strong").innerHTML = convertMarkdownToProHTML(strongest);
-            document.getElementById("ai-weak").innerHTML = convertMarkdownToProHTML(weakest);
-            document.getElementById("ai-key").innerHTML = convertMarkdownToProHTML(keyTakeaway);
-
-        } catch (error) {
-            document.getElementById("ai-summary").innerText = "⚠️ Server not responding.";
-            document.getElementById("ai-strong").innerText = "–";
-            document.getElementById("ai-weak").innerText = "–";
-            document.getElementById("ai-key").innerText = "–";
-        }
+    } catch (error) {
+        document.getElementById("ai-summary").innerText = "⚠️ Server not responding.";
+        document.getElementById("ai-strong").innerText = "–";
+        document.getElementById("ai-weak").innerText = "–";
     }
+}
+
 
 
 
