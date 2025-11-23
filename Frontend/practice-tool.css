@@ -314,56 +314,74 @@ pre#solution-box {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-/* PRO MODE STYLING */
-.apt-ai-pro-report {
-    margin-top: 30px;
-    padding: 25px;
-    border-radius: 16px;
+/* --- AI PRO MODE STYLING --- */
+
+.ai-section {
     background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 0 25px rgba(80,120,255,0.25);
-}
-
-.ai-pro-header {
-    font-size: 1.6rem;
-    margin-bottom: 20px;
-    background: linear-gradient(90deg, #38bdf8, #818cf8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.ai-pro-section {
-    margin-bottom: 22px;
     padding: 18px 20px;
-    background: rgba(255,255,255,0.05);
-    border-left: 4px solid #60a5fa;
-    border-radius: 12px;
+    margin: 18px 0;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.5s ease;
 }
 
-.ai-pro-section h3 {
-    margin: 0 0 10px;
+.ai-section h3 {
+    color: #e0edff;
+    margin-bottom: 10px;
     font-size: 1.2rem;
-    color: #dbeafe;
+    letter-spacing: 0.3px;
     display: flex;
     align-items: center;
     gap: 8px;
+    font-weight: 700;
 }
 
-.ai-pro-content {
-    font-size: 0.95rem;
-    line-height: 1.45;
-    color: #e5ecff;
+.ai-content {
+    font-size: 0.97rem;
+    color: #c7d5ff;
+    line-height: 1.55;
+    padding-left: 4px;
 }
 
+/* Mini Heading */
 .ai-mini-heading {
-    font-size: 1rem;
-    margin: 10px 0;
-    color: #a5b4fc;
-    font-weight: 600;
+    font-weight: 700;
+    color: #8ab4ff;
+    margin: 10px 0 6px;
+    font-size: 1.05rem;
 }
 
+/* Bullet Style */
 .ai-bullet {
-    margin-left: 10px;
-    color: #cbd5ff;
+    padding: 6px 0;
+    color: #dce7ff;
+    font-size: 0.95rem;
+    position: relative;
+    padding-left: 14px;
+}
+
+.ai-bullet::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: #7dd3fc;
+    font-size: 1.2rem;
+}
+
+/* Inline code style */
+.ai-inline-code {
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #93c5fd;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
 }

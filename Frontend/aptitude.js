@@ -1,4 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+    // --- PRO MODE MARKDOWN → HTML CONVERTER ---
+    function convertMarkdownToProHTML(md) {
+        if (!md) return "";
+
+        // Headings
+        md = md.replace(/^### (.*$)/gim, '<div class="ai-mini-heading">$1</div>');
+
+        // Bullets
+        md = md.replace(/^- (.*$)/gim, '<div class="ai-bullet">• $1</div>');
+
+        // Bold
+        md = md.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+
+        // Inline code
+        md = md.replace(/`(.*?)`/gim, '<code class="ai-inline-code">$1</code>');
+
+        // New lines
+        md = md.replace(/\n/g, '<br>');
+
+        return md;
+    }
+
     // --- Get Elements ---
     const setupScreen = document.getElementById("setup-screen");
     const practiceScreen = document.getElementById("practice-screen");
@@ -346,10 +369,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const keyTakeaway = (fb.split("### Key Takeaway")[1] || "").trim() || "–";
 
                 // Apply to UI
-                document.getElementById("ai-summary").innerText = summary;
-                document.getElementById("ai-strong").innerText = strongest;
-                document.getElementById("ai-weak").innerText = weakest;
-                document.getElementById("ai-key").innerText = keyTakeaway;
+                document.getElementById("ai-summary").innerHTML = convertMarkdownToProHTML(summary);
+                document.getElementById("ai-strong").innerHTML = convertMarkdownToProHTML(strongest);
+                document.getElementById("ai-weak").innerHTML = convertMarkdownToProHTML(weakest);
+                document.getElementById("ai-key").innerHTML = convertMarkdownToProHTML(keyTakeaway);
             }
 
 
