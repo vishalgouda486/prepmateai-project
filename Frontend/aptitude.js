@@ -1,26 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
-    const initialBackBtn = document.getElementById("back-to-hub");
-
-        // --- Markdown to Beautiful HTML (Pro Mode) ---
-    function convertMarkdownToProHTML(md) {
-        if (!md) return "";
-
-        // Convert ### headings
-        md = md.replace(/^### (.*$)/gim, '<div class="ai-mini-heading">$1</div>');
-
-        // Convert bullet points
-        md = md.replace(/^- (.*$)/gim, '<div class="ai-bullet">• $1</div>');
-
-        // Convert bold text
-        md = md.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-
-        // New lines
-        md = md.replace(/\n/g, '<br>');
-
-        return md;
-    }
-
     // --- Get Elements ---
     const setupScreen = document.getElementById("setup-screen");
     const practiceScreen = document.getElementById("practice-screen");
@@ -76,8 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
         practiceResults = [];
         questionCount = 0;
         
-        initialBackBtn?.style.display = "none";
-
         setupScreen.classList.add("hidden");
         feedbackScreen.classList.add("hidden");
         practiceScreen.classList.remove("hidden");
@@ -244,166 +220,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-        async function endPractice() {
+    async function endPractice() {
         clearInterval(timerInterval); 
         
         practiceScreen.classList.add("hidden");
         feedbackScreen.classList.remove("hidden");
+        feedbackReport.innerText = "Generating your feedback report... 🤔";
 
-        // If user ended without answering anything
         if (practiceResults.length === 0) {
-            feedbackReport.innerHTML = `
-              <div class="apt-report">
-                <p class="apt-empty-message">
-                  You didn’t answer any questions. Try a short 3–5 question run to unlock a full visual report. 🚀
-                </p>
-              </div>
-            `;
+            feedbackReport.innerText = "You did not complete any questions. Practice again to get a report.";
             return;
         }
 
-        // --- Basic stats from practiceResults ---
-        const totalQuestions = practiceResults.length;
-        const correctCount = practiceResults.filter(r => r.is_correct).length;
-        const accuracy = Math.round((correctCount / totalQuestions) * 100);
-
-        const totalTime = practiceResults.reduce((sum, r) => {
-            return sum + (r.time_taken_seconds || 0);
-        }, 0);
-        const avgTime = totalQuestions > 0 ? totalTime / totalQuestions : 0;
-
-        let headline;
-        if (accuracy >= 80) {
-            headline = "🔥 Great job! You’re interview-ready in this topic.";
-        } else if (accuracy >= 60) {
-            headline = "💡 Good attempt! A bit more practice will make this solid.";
-        } else {
-            headline = "🌱 This is a safe space to improve. Let’s focus on basics and speed.";
-        }
-
-        // --- Build visual report UI ---
-        feedbackReport.innerHTML = `
-          <div class="apt-report">
-            <div class="apt-report-header">
-              <div>
-                <h3 class="apt-report-title">Aptitude Practice Summary</h3>
-                <p class="apt-report-subtitle">${headline}</p>
-                <p class="apt-report-topic">
-                  Topic selected: <span>${selectedTopic}</span><br>
-                  Questions attempted: <span>${totalQuestions}</span>
-                </p>
-              </div>
-              <div class="apt-score-wrapper" data-score="${accuracy}">
-                <svg class="apt-score-ring" viewBox="0 0 140 140">
-                  <circle class="apt-score-bg" cx="70" cy="70" r="60"></circle>
-                  <circle class="apt-score-progress" cx="70" cy="70" r="60"></circle>
-                </svg>
-                <div class="apt-score-text">
-                  <span class="apt-score-number">0</span>
-                  <span class="apt-score-percent">%</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="apt-metrics-grid">
-              <div class="apt-metric-card">
-                <div class="apt-metric-label">Questions Attempted</div>
-                <div class="apt-metric-value">${totalQuestions}</div>
-              </div>
-              <div class="apt-metric-card">
-                <div class="apt-metric-label">Correct Answers</div>
-                <div class="apt-metric-value apt-good">${correctCount}</div>
-              </div>
-              <div class="apt-metric-card">
-                <div class="apt-metric-label">Accuracy</div>
-                <div class="apt-metric-value">${accuracy}%</div>
-              </div>
-              <div class="apt-metric-card">
-                <div class="apt-metric-label">Avg Time / Question</div>
-                <div class="apt-metric-value">${avgTime.toFixed(1)}s</div>
-              </div>
-            </div>
-
-            <div class="apt-ai-pro-report">
-                <h2 class="ai-pro-header">✨ AI Coach Insights (Pro Mode)</h2>
-
-                <div class="ai-pro-section" id="ai-summary-section">
-                    <h3><span>📘</span> Overall Summary</h3>
-                    <div class="ai-pro-content" id="ai-summary"></div>
-                </div>
-
-                <div class="ai-pro-section" id="ai-strong-section">
-                    <h3><span>🟦</span> Strongest Topic</h3>
-                    <div class="ai-pro-content" id="ai-strong"></div>
-                </div>
-
-                <div class="ai-pro-section" id="ai-weak-section">
-                    <h3><span>🟥</span> Weakest Topic</h3>
-                    <div class="ai-pro-content" id="ai-weak"></div>
-                </div>
-
-                <div class="ai-pro-section" id="ai-keytakeaway-section">
-                    <h3><span>💡</span> Key Takeaway</h3>
-                    <div class="ai-pro-content" id="ai-keytakeaway"></div>
-                </div>
-            </div>
-
-            </div> <!-- closes apt-report -->
-
-            <div style="margin-top: 25px; text-align: center;">
-                <button class="apt-report-button" onclick="location.href='practice.html'">
-                    ⬅ Back to Practice Hub
-                </button>
-            </div>
-        `;
-
-
-        // --- Animate circular score (pie chart style) ---
-        const circle = feedbackReport.querySelector(".apt-score-progress");
-        if (circle) {
-            const radius = 60;
-            const circumference = 2 * Math.PI * radius;
-            circle.style.strokeDasharray = `${circumference} ${circumference}`;
-            circle.style.strokeDashoffset = `${circumference}`;
-
-            // Trigger transition in next frame
-            requestAnimationFrame(() => {
-                const offset = circumference * (1 - accuracy / 100);
-                circle.style.strokeDashoffset = `${offset}`;
-            });
-        }
-
-        // Animate number from 0 -> accuracy
-        const numberEl = feedbackReport.querySelector(".apt-score-number");
-        if (numberEl) {
-            let current = 0;
-            const target = accuracy;
-            const duration = 800; // ms
-            const stepTime = 40;
-            const step = Math.max(1, Math.round(target / (duration / stepTime)));
-
-            const interval = setInterval(() => {
-                current += step;
-                if (current >= target) {
-                    current = target;
-                    clearInterval(interval);
-                }
-                numberEl.textContent = current;
-            }, stepTime);
-        }
-
-        // --- Loading placeholders before AI report arrives ---
-            document.getElementById("ai-summary").innerHTML =
-                "<div class='ai-bullet'>⏳ Generating summary...</div>";
-            document.getElementById("ai-strong").innerHTML =
-                "<div class='ai-bullet'>⏳ Identifying your strongest topic...</div>";
-            document.getElementById("ai-weak").innerHTML =
-                "<div class='ai-bullet'>⏳ Analyzing weak areas...</div>";
-            document.getElementById("ai-keytakeaway").innerHTML =
-                "<div class='ai-bullet'>⏳ Preparing key takeaway...</div>";
-
-
-        // --- Fetch AI text feedback and put into Pro Mode sections ---
         try {
             const response = await fetch("https://prepmate-backend-x77z.onrender.com/aptitude-feedback", {
                 method: "POST",
@@ -411,42 +239,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ results: practiceResults }),
             });
             const data = await response.json();
-
-            if (data.error) {
-            document.getElementById("ai-summary").innerHTML =
-                `<div class='ai-bullet'>⚠️ ${data.error}</div>`;
-        } else {
-            const fb = data.feedback;
-
-            // Extract sections safely using regex
-            const summaryMatch = fb.match(/### Overall Summary([\s\S]*?)### Strongest/);
-            const strongMatch = fb.match(/### Strongest([\s\S]*?)### Weakest/);
-            const weakMatch = fb.match(/### Weakest([\s\S]*?)### Key Takeaway/);
-            const keyMatch = fb.match(/### Key Takeaway([\s\S]*)/);
-
-            document.getElementById("ai-summary").innerHTML =
-                convertMarkdownToProHTML(summaryMatch ? summaryMatch[1].trim() : "");
-
-            document.getElementById("ai-strong").innerHTML =
-                convertMarkdownToProHTML(strongMatch ? strongMatch[1].trim() : "");
-
-            document.getElementById("ai-weak").innerHTML =
-                convertMarkdownToProHTML(weakMatch ? weakMatch[1].trim() : "");
-
-            document.getElementById("ai-keytakeaway").innerHTML =
-                convertMarkdownToProHTML(keyMatch ? keyMatch[1].trim() : "");
-        }
-
-         } catch (error) {
-            document.getElementById("ai-summary").innerHTML =
-                "<div class='ai-bullet'>⚠️ Server not responding.</div>";
+            feedbackReport.innerText = data.error ? `Error: ${data.error}` : data.feedback;
+        } catch (error) {
+            feedbackReport.innerText = "⚠️ Server not responding. Make sure backend is running.";
         }
     }
 
     function restartPractice() {
         feedbackScreen.classList.add("hidden");
         setupScreen.classList.remove("hidden");
-
-        initialBackBtn?.style.display = "block";
     }
 });
