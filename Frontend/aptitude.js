@@ -340,7 +340,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Hook up "Practice Again" to restart
         // NOTE: These listeners target buttons *outside* the report box now
-        document.getElementById("practice-again-btn").addEventListener("click", () => {
+        document.getElementById("restart-btn").addEventListener("click", () => {
             restartPractice();
             // scroll to top of setup
             window.scrollTo({ top: 0, behavior: "smooth" });
