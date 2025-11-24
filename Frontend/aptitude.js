@@ -315,10 +315,8 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
             </div>
 
-            <div class="apt-report-footer">
-              <div>
-                <button id="download-report-btn" class="btn-ghost">Download Report (PNG)</button>
-              </div>
+            <div class="apt-report-footer-center">
+                <button id="download-report-btn" class="btn-download">Download Report (PNG)</button>
             </div>
           </div>
         `;

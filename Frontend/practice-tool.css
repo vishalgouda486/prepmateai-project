@@ -442,8 +442,8 @@ pre#solution-box {
   line-height:1.5;
   font-size:0.95rem;
   border: 1px solid rgba(255,255,255,0.02);
-  max-height:180px;
-  overflow:auto;
+  max-height: none;
+  overflow: visible;
 }
 
 /* cyberpunk bar chart row placeholder */
