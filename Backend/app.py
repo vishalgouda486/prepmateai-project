@@ -526,15 +526,21 @@ def chat_gemini():
 
         model = genai.GenerativeModel("gemini-1.5-flash")
 
-        response = model.generate_content(prompt)
-        reply = response.text if hasattr(response, "text") else str(response)
+        # Gemini now needs array format
+        response = model.generate_content([prompt])
+
+        # Extract text correctly
+        reply = ""
+        try:
+            reply = response.candidates[0].content.parts[0].text
+        except:
+            reply = response.text if hasattr(response, "text") else str(response)
 
         return jsonify({"reply": reply})
 
     except Exception as e:
         print("Gemini Error:", e)
         return jsonify({"error": "Server Error"}), 500
-
 
 
 # ✅ Always initialize DB when app starts (Gunicorn or localhost)
