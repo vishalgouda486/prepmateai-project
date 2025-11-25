@@ -508,9 +508,35 @@ def generate_final_report():
         
     return jsonify({"report": report_text})
 
+# ---------------- GEMINI CHATBOT ENDPOINT ------------------
+
+import google.generativeai as genai
+
+# Configure Gemini with your Render Key (already added in environment)
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+
+@app.route('/chat-gemini', methods=['POST'])
+def chat_gemini():
+    try:
+        data = request.get_json()
+        prompt = data.get("prompt", "")
+
+        if not prompt:
+            return jsonify({"error": "Missing prompt"}), 400
+
+        model = genai.GenerativeModel("gemini-1.5-flash")
+
+        response = model.generate_content(prompt)
+        reply = response.text if hasattr(response, "text") else str(response)
+
+        return jsonify({"reply": reply})
+
+    except Exception as e:
+        print("Gemini Error:", e)
+        return jsonify({"error": "Server Error"}), 500
+
+
 
 # ✅ Always initialize DB when app starts (Gunicorn or localhost)
 with app.app_context():
     db.create_all()
-
-# ❌ Do NOT run app here. Gunicorn will handle starting the server.
