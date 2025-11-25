@@ -515,7 +515,7 @@ import google.generativeai as genai
 # Configure Gemini with your Render Key (already added in environment)
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
-@app.route('/chat-gemini', methods=['POST'])
+@app.route('/api/gemini', methods=['POST'])
 def chat_gemini():
     try:
         data = request.get_json()
