@@ -102,6 +102,41 @@ class User(db.Model, UserMixin):
         return f'<User {self.username}>'
 # ⭐️ --- END UPDATED DATABASE MODELS --- ⭐️
 
+# ---------------- GEMINI CHATBOT ENDPOINT ------------------
+
+import google.generativeai as genai
+
+# Configure Gemini with your Render Key (already added in environment)
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+
+@app.route('/api/gemini', methods=['POST'])
+def chat_gemini():
+    try:
+        data = request.get_json()
+        prompt = data.get("prompt", "")
+
+        if not prompt:
+            return jsonify({"error": "Missing prompt"}), 400
+
+        model = genai.GenerativeModel("gemini-1.5-flash")
+
+        # Gemini now needs array format
+        response = model.generate_content([prompt])
+
+        # Extract text correctly
+        reply = ""
+        try:
+            reply = response.candidates[0].content.parts[0].text
+        except:
+            reply = response.text if hasattr(response, "text") else str(response)
+
+        return jsonify({"reply": reply})
+
+    except Exception as e:
+        print("Gemini Error:", e)
+        return jsonify({"error": "Server Error"}), 500
+
+
 # Serve frontend files from the parent 'frontend' folder
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -507,40 +542,6 @@ def generate_final_report():
         return jsonify({"error": report_text}), 500
         
     return jsonify({"report": report_text})
-
-# ---------------- GEMINI CHATBOT ENDPOINT ------------------
-
-import google.generativeai as genai
-
-# Configure Gemini with your Render Key (already added in environment)
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-
-@app.route('/api/gemini', methods=['POST'])
-def chat_gemini():
-    try:
-        data = request.get_json()
-        prompt = data.get("prompt", "")
-
-        if not prompt:
-            return jsonify({"error": "Missing prompt"}), 400
-
-        model = genai.GenerativeModel("gemini-1.5-flash")
-
-        # Gemini now needs array format
-        response = model.generate_content([prompt])
-
-        # Extract text correctly
-        reply = ""
-        try:
-            reply = response.candidates[0].content.parts[0].text
-        except:
-            reply = response.text if hasattr(response, "text") else str(response)
-
-        return jsonify({"reply": reply})
-
-    except Exception as e:
-        print("Gemini Error:", e)
-        return jsonify({"error": "Server Error"}), 500
 
 
 # ✅ Always initialize DB when app starts (Gunicorn or localhost)
