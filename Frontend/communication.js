@@ -44,6 +44,20 @@ function initializeApp() {
   let nextTopicPromise = null; 
   let isFetching = false;
 
+  // --- Markdown → HTML Converter ---
+  function convertMarkdownToProHTML(md) {
+      if (!md) return "";
+
+      md = md.replace(/^### (.*$)/gim, '<div class="ai-mini-heading">$1</div>');
+      md = md.replace(/^- (.*$)/gim, '<div class="ai-bullet">• $1</div>');
+      md = md.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+      md = md.replace(/`(.*?)`/gim, '<code class="ai-inline-code">$1</code>');
+      md = md.replace(/\n/g, '<br>');
+
+      return md;
+}
+
+
   // --- 1. LOAD AI MODELS ---
   async function loadFaceApiModels() {
     const MODEL_URL = '/models'; 
@@ -257,7 +271,7 @@ function initializeApp() {
     document.getElementById("comm-score").innerText = score;
 
     // ---------------- FILL UI CARDS ----------------
-    document.getElementById("ai-summary").innerHTML = fb;
+    document.getElementById("ai-summary").innerHTML = convertMarkdownToProHTML(fb);;
 
     document.getElementById("ai-delivery").innerHTML =
       fb.toLowerCase().includes("pace")
@@ -283,8 +297,7 @@ function initializeApp() {
     }, 300);
 
     // ---------------- DOWNLOAD BUTTON ----------------
-    document
-      .getElementById("download-comm-report")
+    document.getElementById("download-comm-report")
       .addEventListener("click", async () => {
         const node = document.querySelector(".apt-report");
         if (window.html2canvas) {
