@@ -250,6 +250,98 @@
       .container { padding: 25px; }
       video { width: 100%; height: auto; }
     }
+
+    /* --- Final Report UI (Pie Chart + Cards + AI Sections) --- */
+    .apt-report {
+      background: rgba(15,23,42,0.95);
+      border-radius: 16px;
+      padding: 20px;
+      color: #e5e7eb;
+      border: 1px solid rgba(148,163,184,0.4);
+      box-shadow: 0 18px 45px rgba(15,23,42,0.7);
+      margin-top: 10px;
+    }
+
+    .apt-score-wrapper {
+      width: 140px;
+      height: 140px;
+      position: relative;
+      margin: auto;
+    }
+
+    .apt-score-ring {
+      width: 100%;
+      height: 100%;
+    }
+
+    .apt-score-bg {
+      fill: none;
+      stroke: rgba(55,65,81,0.85);
+      stroke-width: 12;
+    }
+
+    .apt-score-progress {
+      fill: none;
+      stroke: #38bdf8;
+      stroke-width: 12;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 1s ease-out;
+    }
+
+    .apt-score-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ai-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap: 12px;
+    }
+
+    .ai-card {
+      background: rgba(255,255,255,0.05);
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .ai-card h4 {
+      background: linear-gradient(90deg,#38bdf8,#a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .ai-content {
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius:10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      line-height: 1.5;
+    }
+
+    .apt-report-footer-center {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .btn-download {
+      padding: 10px 22px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #3ab7ff, #7c4dff);
+      color: white;
+      font-weight: 700;
+      border: none;
+    }
+/* END UI */
+  
   </style>
 </head>
 
@@ -300,12 +392,54 @@
         <button id="feedback-btn" class="tool-button-primary" disabled>Submit for Feedback</button>
       </div>
 
-      <!-- Feedback Screen -->
-      <div id="feedback-screen" class="hidden">
-        <h2>Your Report</h2>
-        <div class="response-box" id="feedback-report">Generating your feedback...</div>
-        <button id="restart-btn" class="tool-button-primary">Try Another Topic</button>
+<!-- Feedback Screen -->
+<div id="feedback-screen" class="hidden">
+  <h2>Your Report</h2>
+
+  <div class="apt-report" id="comm-report">
+
+    <div class="report-top-row">
+      <div class="apt-score-wrapper">
+        <svg class="apt-score-ring" viewBox="0 0 140 140">
+          <circle class="apt-score-bg" cx="70" cy="70" r="60"></circle>
+          <circle class="apt-score-progress" cx="70" cy="70" r="60"></circle>
+        </svg>
+        <div class="apt-score-text">
+          <div class="apt-score-number" id="comm-score">--</div>
+          <div class="apt-score-percent">%</div>
+        </div>
       </div>
+    </div>
+
+    <div class="ai-cards-grid" style="margin-top:22px;">
+      <div class="ai-card">
+        <h4>🗣️ Overall Communication Summary</h4>
+        <div id="ai-summary" class="ai-content">Analyzing...</div>
+      </div>
+      <div class="ai-card">
+        <h4>🎤 Delivery & Pace</h4>
+        <div id="ai-delivery" class="ai-content">Analyzing...</div>
+      </div>
+      <div class="ai-card">
+        <h4>😊 Expression Analysis</h4>
+        <div id="ai-expression" class="ai-content">Analyzing...</div>
+      </div>
+      <div class="ai-card">
+        <h4>💡 Key Takeaway</h4>
+        <div id="ai-key" class="ai-content">Analyzing...</div>
+      </div>
+    </div>
+
+    <div class="apt-report-footer-center">
+      <button id="download-comm-report" class="btn-download">
+        Download Report (PNG)
+      </button>
+    </div>
+  </div>
+
+  <button id="restart-btn" class="tool-button-primary">Try Another Topic</button>
+</div>
+
 
       <!-- Loading Spinner -->
       <div id="loading-spinner" class="spinner-overlay" style="display: none;">

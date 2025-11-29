@@ -244,7 +244,59 @@ function initializeApp() {
       });
       
       const data = await response.json();
-      feedbackReport.innerText = data.error ? `⚠️ Error: ${data.error}` : data.feedback;
+      
+      // ---------------- NEW REPORT UI INSERT ----------------
+      const fb = data.feedback || "";
+
+      // --- Simple scoring (you can adjust later) ---
+      let score = 80;
+      if (fb.toLowerCase().includes("slow")) score -= 10;
+      if (fb.toLowerCase().includes("fast")) score -= 10;
+      if (fb.toLowerCase().includes("filler")) score -= 10;
+
+      document.getElementById("comm-score").innerText = score;
+
+      // --- Fill the 4 report boxes ---
+      document.getElementById("ai-summary").innerHTML = fb;
+
+      // If backend later includes sections like "Pace:", "Expression:" you can parse them
+      document.getElementById("ai-delivery").innerHTML =
+        fb.includes("pace") ? fb : "Your speaking pace analysis will appear here.";
+
+      document.getElementById("ai-expression").innerHTML =
+        fb.includes("expression") ? fb : "Your facial expression analysis will appear here.";
+
+      document.getElementById("ai-key").innerHTML =
+        "Improve clarity, maintain steady pace, and reduce fillers for better communication.";
+
+      // --- Animate progress ring ---
+      const circle = document.querySelector(".apt-score-progress");
+      const radius = 60;
+      const circ = 2 * Math.PI * radius;
+
+      circle.style.strokeDasharray = `${circ} ${circ}`;
+      setTimeout(() => {
+        circle.style.strokeDashoffset = circ * (1 - score/100);
+      }, 200);
+
+      // --- Download Report Button ---
+      document
+        .getElementById("download-comm-report")
+        .addEventListener("click", async () => {
+          if (window.html2canvas) {
+            const node = document.querySelector(".apt-report");
+            const canvas = await window.html2canvas(node, { backgroundColor: null });
+            const link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = "communication-report.png";
+            link.click();
+          } else {
+            window.print();
+          }
+        });
+      // -------------------------------------------------------
+
+            
     } catch (error) {
       feedbackReport.innerText = "⚠️ Server offline.";
     }
