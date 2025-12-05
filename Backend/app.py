@@ -133,7 +133,7 @@ def chat_gemini_stream():
         def stream_gemini_response():
             try:
                 # ⭐️ Use the streaming API ⭐️
-                response_stream = model.generate_content_stream([system_instruction, prompt])
+                response_stream = model.generate_content([system_instruction, prompt], stream=True)
                 
                 for chunk in response_stream:
                     # Escape newlines for transport, but primarily use the white-space: pre-wrap on the front end
