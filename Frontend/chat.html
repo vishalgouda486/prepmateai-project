@@ -136,13 +136,20 @@
     let currentAIBubble = null; // Variable to hold the reference to the current streaming bubble
 
     function appendMsg(text, who='ai', isNewMessage=true) {
+      let displayText = text.replace(/<\/?p>/gi, '');
+
       if (isNewMessage) {
           // Create a new bubble for the start of a message
           const wrap = document.createElement('div');
           wrap.className = 'msg ' + (who === 'user' ? 'user' : 'ai');
           const bubble = document.createElement('div');
           bubble.className = 'bubble ' + (who === 'user' ? 'user' : 'ai');
-          bubble.innerHTML = text;
+
+          if (who === 'ai' && !displayText) {
+             displayText = "<em>Nexus is thinking...</em>";
+          }
+
+          bubble.innerHTML = displayText;
           wrap.appendChild(bubble);
           chatBody.appendChild(wrap);
           
@@ -151,14 +158,14 @@
           }
       } else if (currentAIBubble && who === 'ai') {
           // Append text chunk to the existing AI bubble
-          currentAIBubble.innerHTML += text;
+            currentAIBubble.innerHTML += text.replace(/<\/?p>/gi, '');
       } else {
           // Fallback for non-streaming user messages
           const wrap = document.createElement('div');
           wrap.className = 'msg ' + (who === 'user' ? 'user' : 'ai');
           const bubble = document.createElement('div');
           bubble.className = 'bubble ' + (who === 'user' ? 'user' : 'ai');
-          bubble.innerHTML = text;
+          bubble.innerHTML = text.replace(/<\/?p>/gi, '');
           wrap.appendChild(bubble);
           chatBody.appendChild(wrap);
       }
