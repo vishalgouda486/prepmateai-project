@@ -156,10 +156,20 @@
           if (who === 'ai') {
               currentAIBubble = bubble; // Store the reference
           }
-      } else if (currentAIBubble && who === 'ai') {
-          // Append text chunk to the existing AI bubble
-          currentAIBubble.innerHTML += text.replace(/<\/?p>/gi, '');
-      } else {
+          // AFTER FIX
+          } else if (currentAIBubble && who === 'ai') {
+            // Get the cleaned text chunk
+            const cleanedChunk = text.replace(/<\/?p>/gi, '');
+
+            // ⭐️ FIX: Check if the bubble still contains the "thinking" text
+            if (currentAIBubble.innerHTML.includes("Nexus is thinking...")) {
+              // Overwrite the temporary message with the first real chunk
+              currentAIBubble.innerHTML = cleanedChunk;
+            } else {
+              // Append subsequent chunks as normal
+              currentAIBubble.innerHTML += cleanedChunk;
+            }
+        } else {
           // Fallback for non-streaming user messages
           const wrap = document.createElement('div');
           wrap.className = 'msg ' + (who === 'user' ? 'user' : 'ai');
