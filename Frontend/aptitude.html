@@ -253,6 +253,32 @@
       margin-top: 6px;
     }
 
+    .report-stats-horizontal-wrapper {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.05);
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      min-width: 100px;
+    }
+    .ai-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    .ai-card {
+      background: rgba(255,255,255,0.03);
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      text-align: left;
+    }
+
     /* Center the download button */
     .apt-report-footer-center {
       display: flex;
@@ -309,7 +335,7 @@
           <option value="Logical Reasoning">Logical Reasoning</option>
           <option value="Verbal Ability">Verbal Ability</option>
           <option value="Data Interpretation">Data Interpretation</option>
-          <option value="Mix">Mix (All Topics)</option>
+          <option value="mix">Mix (All Topics)</option>
         </select>
 
         <button id="start-btn" class="tool-button-primary">Start Practice</button>

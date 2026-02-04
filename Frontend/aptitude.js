@@ -199,8 +199,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function showSolution() {
-        solutionBox.innerText = currentQuestionData.solution;
-        solutionBox.classList.toggle("hidden");
+    // Use your converter so the solution looks professional
+    solutionBox.innerHTML = convertMarkdownToProHTML(currentQuestionData.solution);
+    solutionBox.classList.toggle("hidden");
     }
 
     async function nextQuestion() {
