@@ -1,6 +1,6 @@
 Flask
 Flask-Cors
-google-generativeai
+google-genai
 python-dotenv
 pdfplumber
 requests

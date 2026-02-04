@@ -1,5 +1,6 @@
 import os
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 import json
 import io
@@ -21,7 +22,7 @@ HF_API_KEY = os.getenv("HF_API_KEY")
 # ⭐️ --- REMOVED THE OLD/DEAD API URL --- ⭐️
 # The new InferenceClient handles routing automatically.
 
-genai.configure(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 # --- HUGGING FACE API CLIENT ---
 try:
@@ -186,7 +187,6 @@ def transcribe_audio_to_text(audio_file_path):
 
 @handle_gemini_errors
 def generate_ai_question(topic, resume_text=None):
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     if topic == "Resume-Based" and resume_text:
         prompt = f"""
         You are a senior hiring manager for a top tech company like Google or Microsoft. You are interviewing a candidate. Their resume is provided below.
@@ -214,15 +214,18 @@ def generate_ai_question(topic, resume_text=None):
         
         Question:
         """
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash", 
+        contents=prompt
+    )
     if not response.text:
-        print("Error: Gemini returned an empty response for generate_ai_question.")
-        return "Error: The AI failed to generate a question. This may be due to safety filters. Please try again."
-    return response.text.strip() 
+        print("Error: Gemini returned an empty response.")
+        return "Error: The AI failed to generate a question."
+    
+    return response.text.strip()
 
 @handle_gemini_errors
 def get_ai_response(interview_question, user_answer, expression_data_json, duration_seconds):
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     
     audio_analysis_summary = "No audio analysis was performed."
     try:
@@ -306,16 +309,20 @@ def get_ai_response(interview_question, user_answer, expression_data_json, durat
     **3. "Better Answer" Example:**
     [Provide a concise, strong example answer that follows the STAR method for the original question. Make it a general example, not a rewrite of their answer.]
     """
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash", 
+        contents=prompt
+    )
+
     if not response.text:
-        print("Error: Gemini returned an empty response for get_ai_response.")
-        return "Error: The AI failed to generate a response. This may be due to safety filters. Please try again."
+        print("Error: Gemini returned an empty response.")
+        return "Error: The AI failed to generate a question."
+    
     return response.text
 
 @handle_gemini_errors 
 def get_aptitude_question(topic):
     time.sleep(1) 
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     topic_instruction = f'for the topic: "{topic}"'
     if topic.lower() == 'mix':
         topic_instruction = "from a mix of Quantitative, Logical, and Verbal topics."
@@ -344,10 +351,13 @@ def get_aptitude_question(topic):
     }}
     ```
     """
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
     if not response.text:
-        print("Error: Gemini returned an empty response for get_aptitude_question.")
-        return {"error": "The AI failed to generate a question. This may be due to safety filters. Please try again."}
+        print("Error: Gemini returned an empty response.")
+        return {"error": "The AI failed to generate a question."}
     try:
         json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
         if not json_match:
@@ -364,7 +374,6 @@ def get_aptitude_question(topic):
 
 @handle_gemini_errors
 def get_aptitude_feedback(results):
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     results_json = json.dumps(results, indent=2)
     prompt = f"""
     You are an expert aptitude test coach. A user has just completed a practice session.
@@ -379,16 +388,23 @@ def get_aptitude_feedback(results):
     
     Keep the feedback encouraging and brief.
     """
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        config=types.GenerateContentConfig(
+            thinking_config=types.ThinkingConfig(include_thoughts=True)
+        ),
+        contents=prompt
+    )
+
     if not response.text:
-        print("Error: Gemini returned an empty response for get_aptitude_feedback.")
-        return "Error: The AI failed to generate feedback. This may be due to safety filters. Please try again."
+        print("Error: Gemini returned an empty response.")
+        return "Error: The AI failed to generate feedback."
+        
     return response.text
 
 @handle_gemini_errors
 def get_technical_question(topic, language):
     time.sleep(1) 
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     
     lang_name = "Python 3"
     python_example = '{\n  "question_title": "Sum Two Numbers",\n  "problem_statement": "Read two numbers from stdin and print their sum.",\n  "starter_code": "def solve():\\n    a = int(input())\\n    b = int(input())\\n    print(a + b)\\n\\nsolve()",\n  "test_cases": [{"stdin": "5\\n10", "expected_output": "15"}, {"stdin": "1\\n2", "expected_output": "3"}],\n  "model_solution": "def solve():\\n    a = int(input())\\n    b = int(input())\\n    print(a + b)\\n\\nsolve()"\n}'
@@ -416,11 +432,15 @@ def get_technical_question(topic, language):
     ```json
     {python_example}
     ```
-    """
-    response = model.generate_content(prompt)
+    """ 
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
     if not response.text:
-        print("Error: Gemini returned an empty response for get_technical_question.")
-        return {"error": "The AI failed to generate a question. This may be due to safety filters. Please try again."}
+        print("Error: Gemini returned an empty response.")
+        return {"error": "The AI failed to generate a question."}
     try:
         json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
         if not json_match:
@@ -485,7 +505,6 @@ def run_code_with_judge0(user_code, language, test_cases):
 
 @handle_gemini_errors
 def get_communication_feedback(topic, user_answer, expression_data_json, duration_seconds):
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     
     audio_analysis_summary = "No audio analysis was performed."
     try:
@@ -562,16 +581,23 @@ def get_communication_feedback(topic, user_answer, expression_data_json, duratio
     **2. Delivery & Engagement:**
     [Provide 1-2 sentences on their delivery, using audio/expression analysis. Example: "Your pace was excellent and you spoke confidently. Your facial expressions were neutral; try to use more varied expressions to show engagement with the topic."]
     """
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        config=types.GenerateContentConfig(
+            thinking_config=types.ThinkingConfig(include_thoughts=True)
+        ),
+        contents=prompt
+    )
+
     if not response.text:
-        print("Error: Gemini returned an empty response for get_communication_feedback.")
-        return "Error: The AI failed to generate feedback. This may be due to safety filters. Please try again."
+        print("Error: Gemini returned an empty response.")
+        return "Error: The AI failed to generate feedback."
+        
     return response.text
 
 @handle_gemini_errors
 def generate_communication_topic():
     time.sleep(1) 
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     prompt = """
     Generate one, single, simple, general-purpose topic for a 1-minute communication assessment.
     Your response **MUST** be a JSON object inside a markdown code block.
@@ -584,10 +610,14 @@ def generate_communication_topic():
     }
     ```
     """
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
     if not response.text:
-        print("Error: Gemini returned an empty response for generate_communication_topic.")
-        return {"error": "The AI failed to generate a topic. This may be due to safety filters. Please try again."}
+        print("Error: Gemini returned an empty response.")
+        return {"error": "The AI failed to generate a topic."}
     try:
         json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
         if not json_match:
@@ -603,7 +633,6 @@ def generate_communication_topic():
 
 @handle_gemini_errors 
 def get_managerial_response(conversation_history, user_answer, expression_data_json, audio_file_path):
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     history = json.loads(conversation_history)
     
     custom_prompt = None
@@ -619,10 +648,6 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
     if user_answer is not None:
         history.append({ "role": "user", "content": user_answer })
     
-    gemini_history = []
-    for msg in history:
-        role = "model" if msg["role"] == "ai" else "user"
-        gemini_history.append({"role": role, "parts": [msg["content"]]})
 
     if custom_prompt:
             prompt = f"You are Prepmate, an AI interview architect. {custom_prompt}"
@@ -660,8 +685,13 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
         **3. Areas for Improvement:**
         - [List 1-2 specific, actionable areas for improvement, e.g., "Try to provide more detail on the 'Result' of your stories," "Answers could be more concise."]
         """
-        report_model = genai.GenerativeModel("models/gemini-flash-latest")
-        final_report_response = report_model.generate_content(report_prompt)
+        final_report_response = client.models.generate_content(
+            model="gemini-3-flash-preview",
+            config=types.GenerateContentConfig(
+                thinking_config=types.ThinkingConfig(include_thoughts=True)
+            ),
+            contents=report_prompt
+        )
         final_report = final_report_response.text or "Error: The AI failed to generate your final report."
         
         return {
@@ -669,10 +699,12 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
             "updated_history": history, "session_complete": True, "final_report": final_report
         }
     
-    generation_config = genai.types.GenerationConfig(temperature=0.7)
-    chat_model = genai.GenerativeModel("models/gemini-flash-latest", generation_config=generation_config)
-    chat = chat_model.start_chat(history=gemini_history) 
-    response = chat.send_message(prompt)
+    chat_session = client.chats.create(
+        model="gemini-2.5-flash",
+        config=types.GenerateContentConfig(temperature=0.7),
+        history=history
+    )
+    response = chat_session.send_message(prompt)
     
     ai_response = response.text or "I'm sorry, I seem to have lost my train of thought. Could you please repeat your last answer?"
     
@@ -685,7 +717,6 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
 
 @handle_gemini_errors 
 def get_hr_response(conversation_history, user_answer, expression_data_json, audio_file_path):
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     history = json.loads(conversation_history)
     
     custom_prompt = None
@@ -699,10 +730,6 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
     if user_answer is not None:
         history.append({ "role": "user", "content": user_answer })
     
-    gemini_history = []
-    for msg in history:
-        role = "model" if msg["role"] == "ai" else "user"
-        gemini_history.append({"role": role, "parts": [msg["content"]]})
 
     if custom_prompt:
             prompt = f"You are Prepmate, an AI interview architect. {custom_prompt}"
@@ -740,8 +767,14 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
         **3. Areas for Improvement:**
         - [List 1-2 specific, actionable areas for improvement, e.g., "Try to provide more specific examples to back up your claims," "Connect your 5-year plan more directly to this role."]
         """
-        report_model = genai.GenerativeModel("models/gemini-flash-latest")
-        final_report_response = report_model.generate_content(report_prompt)
+        # Using the new client to generate the final report
+        final_report_response = client.models.generate_content(
+            model="gemini-3-flash-preview",
+            config=types.GenerateContentConfig(
+                thinking_config=types.ThinkingConfig(include_thoughts=True)
+            ),
+            contents=report_prompt
+        )
         final_report = final_report_response.text or "Error: The AI failed to generate your final report."
         
         return {
@@ -749,10 +782,14 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
             "updated_history": history, "session_complete": True, "final_report": final_report
         }
     
-    generation_config = genai.types.GenerationConfig(temperature=0.7)
-    chat_model = genai.GenerativeModel("models/gemini-flash-latest", generation_config=generation_config)
-    chat = chat_model.start_chat(history=gemini_history) 
-    response = chat.send_message(prompt)
+    # New way to start a chat session
+    chat_session = client.chats.create(
+        model="gemini-2.5-flash",
+        config=types.GenerateContentConfig(temperature=0.7),
+        history=history
+    )
+    # New way to send the message
+    response = chat_session.send_message(prompt)
     
     ai_response = response.text or "I'm sorry, I seem to have lost my train of thought. Could you please repeat your last answer?"
     
@@ -765,7 +802,6 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
 
 @handle_gemini_errors
 def get_resume_response(resume_text, conversation_history, user_answer, expression_data_json, audio_file_path):
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     history = json.loads(conversation_history)
     
     custom_prompt = None
@@ -783,10 +819,6 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
     if user_answer is not None:
         history.append({ "role": "user", "content": user_answer })
 
-    gemini_history = []
-    for msg in history:
-        role = "model" if msg["role"] == "ai" else "user"
-        gemini_history.append({"role": role, "parts": [msg["content"]]})
 
     if custom_prompt:
         prompt = f"You are Prepmate, an AI interview architect. The user's resume is below. {custom_prompt}\n\n{resume_context}"
@@ -828,8 +860,14 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
         **3. Areas for Improvement:**
         - [List 1-2 specific, actionable areas for improvement, e.g., "Try to quantify the results of your projects more (e.g., 'improved performance by 20%')."]
         """
-        report_model = genai.GenerativeModel("models/gemini-flash-latest")
-        final_report_response = report_model.generate_content(report_prompt)
+        # Using the new client to generate the final report
+        final_report_response = client.models.generate_content(
+            model="gemini-3-flash-preview",
+            config=types.GenerateContentConfig(
+                thinking_config=types.ThinkingConfig(include_thoughts=True)
+            ),
+            contents=report_prompt
+        )
         final_report = final_report_response.text or "Error: The AI failed to generate your final report."
         
         return {
@@ -837,11 +875,14 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
             "updated_history": history, "session_complete": True, "final_report": final_report
         }
 
-    generation_config = genai.types.GenerationConfig(temperature=0.7)
-    chat_model = genai.GenerativeModel("models/gemini-flash-latest", generation_config=generation_config)
-    chat = chat_model.start_chat(history=gemini_history) 
-    response = chat.send_message(prompt)
-    
+    chat_session = client.chats.create(
+        model="gemini-2.5-flash",
+        config=types.GenerateContentConfig(temperature=0.7),
+        history=history
+    )
+
+    response = chat_session.send_message(prompt)
+
     ai_response = response.text or "I'm sorry, I seem to have lost my train of thought. Could you please repeat your last answer?"
     
     history.append({"role": "ai", "content": ai_response})
@@ -854,7 +895,6 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
 # ⭐️ --- THIS IS THE FIXED FUNCTION --- ⭐️
 @handle_gemini_errors
 def get_final_report(all_round_results):
-    model = genai.GenerativeModel("models/gemini-flash-latest")
     
     results_json = json.dumps(all_round_results, indent=2)
     prompt = f"""
@@ -881,10 +921,18 @@ def get_final_report(all_round_results):
 
     Generate the report. Start with "Here is your comprehensive mock test report:"
     """
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        config=types.GenerateContentConfig(
+            # Higher thinking level allows for better cross-round analysis
+            thinking_config=types.ThinkingConfig(include_thoughts=True)
+        ),
+        contents=prompt
+    )
+
     if not response.text:
-        print("Error: Gemini returned an empty response for get_final_report.")
-        return "Error: The AI failed to generate your final report."
+        return "Error: The AI Career Architect could not generate the final report."
+        
     return response.text
 
 # ⭐️ --- FIX: REMOVED THE STRAY '}' SYNTAX ERROR --- ⭐️

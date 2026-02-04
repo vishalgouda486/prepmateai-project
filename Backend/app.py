@@ -104,10 +104,6 @@ class User(db.Model, UserMixin):
 
 # ---------------- GEMINI CHATBOT ENDPOINT ------------------
 
-import google.generativeai as genai
-
-# Configure Gemini with your Render Key (already added in environment)
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 @app.route('/api/gemini', methods=['POST'])
 def chat_gemini_stream():
@@ -119,7 +115,6 @@ def chat_gemini_stream():
             # We must return a normal JSON error here, not SSE
             return jsonify({"error": "Missing prompt"}), 400
 
-        model = genai.GenerativeModel("models/gemini-flash-latest")
 
         # System Instruction for Conciseness and HTML (Crucial for formatting and length)
         system_instruction = (
@@ -133,8 +128,10 @@ def chat_gemini_stream():
         def stream_gemini_response():
             try:
                 # ⭐️ Use the streaming API ⭐️
-                response_stream = model.generate_content([system_instruction, prompt], stream=True)
-                
+                response_stream = client.models.generate_content_stream(
+                    model="gemini-2.5-flash",
+                    contents=[system_instruction, prompt]
+                )
                 for chunk in response_stream:
                     # Escape newlines for transport, but primarily use the white-space: pre-wrap on the front end
                     # We only send the text part of the chunk
