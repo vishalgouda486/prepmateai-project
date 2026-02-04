@@ -19,6 +19,9 @@ from ai_logic import (
 import os
 import time 
 
+# In ai_logic.py
+client = genai.Client(api_key=GEMINI_API_KEY)
+
 # ⭐️ --- NEW AUTH & DB IMPORTS --- ⭐️
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
