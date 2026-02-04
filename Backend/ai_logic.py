@@ -352,7 +352,7 @@ def get_aptitude_question(topic):
     ```
     """
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.5-flash-lite",
         contents=prompt
     )
     if not response.text:
