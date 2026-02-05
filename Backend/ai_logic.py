@@ -311,7 +311,7 @@ def get_ai_response(interview_question, user_answer, expression_data_json, durat
     """
     response = client.models.generate_content(
         model="gemini-2.5-flash", 
-        contents=prompt
+        contents=[prompt]
     )
 
     if not response.text:
@@ -654,7 +654,10 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
     final_report = None
     
     if user_answer is not None:
-        history.append({ "role": "user", "content": user_answer })
+        history.append({
+        "role": "user",
+        "parts": [{"text": user_answer}]
+    })
     
 
     if custom_prompt:
@@ -694,7 +697,7 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
         - [List 1-2 specific, actionable areas for improvement, e.g., "Try to provide more detail on the 'Result' of your stories," "Answers could be more concise."]
         """
         final_report_response = client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model="gemini-2.5-flash",
             config=types.GenerateContentConfig(
                 thinking_config=types.ThinkingConfig(include_thoughts=True)
             ),
@@ -716,7 +719,10 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
     
     ai_response = response.text or "I'm sorry, I seem to have lost my train of thought. Could you please repeat your last answer?"
     
-    history.append({"role": "ai", "content": ai_response})
+    history.append({
+        "role": "model",  # Use 'model' instead of 'ai' for official SDK compliance
+        "parts": [{"text": ai_response}]
+    })
     return {
         "ai_response": ai_response, "user_transcript": transcribed_text,
         "updated_history": history, "session_complete": False, "final_report": None
@@ -736,7 +742,10 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
     session_complete = False
     final_report = None
     if user_answer is not None:
-        history.append({ "role": "user", "content": user_answer })
+        history.append({
+        "role": "user",
+        "parts": [{"text": user_answer}]
+    })
     
 
     if custom_prompt:
@@ -801,7 +810,10 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
     
     ai_response = response.text or "I'm sorry, I seem to have lost my train of thought. Could you please repeat your last answer?"
     
-    history.append({"role": "ai", "content": ai_response})
+    history.append({
+        "role": "model",  # Use 'model' instead of 'ai' for official SDK compliance
+    "parts": [{"text": ai_response}]
+    })
     return {
         "ai_response": ai_response, "user_transcript": transcribed_text,
         "updated_history": history, "session_complete": False, "final_report": None
@@ -825,7 +837,10 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
     resume_context = f"THE USER'S RESUME:\n---\n{resume_text}\n---"
 
     if user_answer is not None:
-        history.append({ "role": "user", "content": user_answer })
+        history.append({
+        "role": "user",
+        "parts": [{"text": user_answer}]
+    })
 
 
     if custom_prompt:
@@ -893,7 +908,10 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
 
     ai_response = response.text or "I'm sorry, I seem to have lost my train of thought. Could you please repeat your last answer?"
     
-    history.append({"role": "ai", "content": ai_response})
+    history.append({
+        "role": "model",  # Use 'model' instead of 'ai' for official SDK compliance
+    "parts": [{"text": ai_response}]
+    })
     return {
         "ai_response": ai_response, "user_transcript": transcribed_text,
         "updated_history": history, "session_complete": False, "final_report": None
@@ -935,7 +953,7 @@ def get_final_report(all_round_results):
             # Higher thinking level allows for better cross-round analysis
             thinking_config=types.ThinkingConfig(include_thoughts=True)
         ),
-        contents=prompt
+        contents=[prompt]
     )
 
     if not response.text:
