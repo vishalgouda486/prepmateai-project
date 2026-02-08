@@ -297,23 +297,19 @@ function initializeApp() {
   }
 
   // --- 11. SHOW FINAL REPORT ---
-  function showFinalReport(reportText) {
+function showFinalReport(reportText, wpm = 0, fillerCount = 0) {
     interviewScreen.classList.add("hidden");
     feedbackScreen.classList.remove("hidden");
 
-    // helper to format the AI's markdown response into the new UI elements
-    const formatHTML = (txt) => {
-        if (!txt) return "No data available.";
-        return txt.trim()
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-            .replace(/^- (.*$)/gim, '<div class="ai-bullet">• $1</div>') // Bullets
-            .replace(/\n/g, '<br>');
-    };
+    const scoreMatch = reportText.match(/SCORE:\s*(\d+)%/i);
+    const numericalScore = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+    const cleanedReport = reportText.replace(/SCORE:\s*\d+%/i, "").trim();
 
-    // Use robust matching to find the 3 main sections from your backend report
-    const overallMatch = reportText.match(/1\.\s*Overall Performance:?([\s\S]*?)(?=2\.)/i);
-    const strengthsMatch = reportText.match(/2\.\s*Strengths:?([\s\S]*?)(?=3\.)/i);
-    const areasMatch = reportText.match(/3\.\s*Areas for Improvement:?([\s\S]*?)$/i);
+    const overallMatch = cleanedReport.match(/1\.\s*Overall Performance:?([\s\S]*?)(?=2\.)/i);
+    const strengthsMatch = cleanedReport.match(/2\.\s*Strengths:?([\s\S]*?)(?=3\.)/i);
+    const areasMatch = cleanedReport.match(/3\.\s*Areas for Improvement:?([\s\S]*?)$/i);
+
+    const formatHTML = (txt) => txt ? txt.trim().replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>') : "Analyzing...";
 
     feedbackReport.innerHTML = `
       <div class="apt-report">
@@ -323,9 +319,9 @@ function initializeApp() {
               <circle class="apt-score-bg" cx="70" cy="70" r="60"></circle>
               <circle id="report-ring" class="apt-score-progress" cx="70" cy="70" r="60"></circle>
             </svg>
-            <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-              <span style="font-size:1.8rem; font-weight:800; color:#fff;">AI</span>
-              <span style="font-size:0.7rem; color:#38bdf8; text-transform:uppercase; letter-spacing:1px;">Ready</span>
+            <div class="apt-score-text" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+              <div style="font-size:1.8rem; font-weight:800; color:#fff;">${numericalScore}%</div>
+              <div style="font-size:0.7rem; color:#38bdf8; text-transform:uppercase;">Overall</div>
             </div>
           </div>
         </div>
@@ -333,51 +329,47 @@ function initializeApp() {
         <div class="ai-cards-grid">
           <div class="ai-card">
             <h4 style="color:#a78bfa;">🎯 Overall Performance</h4>
-            <div class="ai-content">${formatHTML(overallMatch ? overallMatch[1] : reportText.slice(0, 300))}</div>
+            <div class="ai-content">${formatHTML(overallMatch ? overallMatch[1] : "")}</div>
           </div>
           <div class="ai-card">
             <h4 style="color:#34d399;">🌟 Top Strengths</h4>
-            <div class="ai-content">${formatHTML(strengthsMatch ? strengthsMatch[1] : "Analyzing...")}</div>
+            <div class="ai-content">${formatHTML(strengthsMatch ? strengthsMatch[1] : "")}</div>
           </div>
           <div class="ai-card">
             <h4 style="color:#fb7185;">🚩 Areas for Growth</h4>
-            <div class="ai-content">${formatHTML(areasMatch ? areasMatch[1] : "Analyzing...")}</div>
+            <div class="ai-content">${formatHTML(areasMatch ? areasMatch[1] : "")}</div>
           </div>
           <div class="ai-card">
             <h4 style="color:#38bdf8;">🎙️ Delivery & Tone</h4>
-            <div class="ai-content" id="delivery-stats">Processing metrics...</div>
+            <div class="ai-content" id="delivery-stats">
+                ${renderDetailedDeliveryMetrics(wpm, fillerCount)}
+            </div>
           </div>
         </div>
       </div>
     `;
 
-    // Animate the ring to 100% since the session is finished
-    setTimeout(() => {
-        const ring = document.getElementById("report-ring");
-        const circumference = 2 * Math.PI * 60;
-        ring.style.strokeDasharray = `${circumference} ${circumference}`;
-        ring.style.strokeDashoffset = 0; // 0 offset = 100% full
-    }, 100);
-
-    // Call the emotion analyzer
-    renderInterviewMetrics();
+    animateRing(numericalScore / 100);
 }
 
-function renderInterviewMetrics() {
-    const statsDiv = document.getElementById("delivery-stats");
-    // expressionData is the array you populate in startRecording()
-    const emotionCounts = expressionData.reduce((acc, curr) => {
-        acc[curr] = (acc[curr] || 0) + 1;
-        return acc;
+function renderDetailedDeliveryMetrics(wpm, fillerCount) {
+    // 1. Process facial expression data
+    const emotionCounts = expressionData.reduce((acc, curr) => { 
+        acc[curr] = (acc[curr] || 0) + 1; 
+        return acc; 
     }, {});
     
-    const topEmotion = Object.keys(emotionCounts).reduce((a, b) => emotionCounts[a] > emotionCounts[b] ? a : b, "Neutral");
-    
-    statsDiv.innerHTML = `
-        <div class="ai-bullet">• <strong>Dominant Emotion:</strong> ${topEmotion}</div>
+    const topEmotion = Object.keys(emotionCounts).length > 0 
+        ? Object.keys(emotionCounts).reduce((a, b) => emotionCounts[a] > emotionCounts[b] ? a : b)
+        : "Neutral";
+
+    // 2. Format the delivery metrics card
+    return `
+        <div class="ai-bullet">• <strong>Dominant Emotion:</strong> ${topEmotion.charAt(0).toUpperCase() + topEmotion.slice(1)}</div>
+        <div class="ai-bullet">• <strong>Speech Pace:</strong> ${wpm || 0} WPM</div>
+        <div class="ai-bullet">• <strong>Filler Words:</strong> ${fillerCount || 0} detected</div>
         <div class="ai-bullet">• <strong>Analysis Status:</strong> Completed</div>
         <div class="ai-bullet">• <strong>Methodology:</strong> STAR Evaluation</div>
-        <div class="ai-bullet">• <strong>Audio:</strong> Transcribed via ASR</div>
     `;
 }
   

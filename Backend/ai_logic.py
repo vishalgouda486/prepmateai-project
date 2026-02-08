@@ -671,6 +671,7 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
         history_text = "\n".join([f"{msg['role']}: {msg['parts'][0]['text']}" for msg in history if 'parts' in msg])
         report_prompt = f"""
         ## Role: AI Interview Coach
+        ## IMPORTANT: Start your response with "SCORE: [X]%" where X is a number from 0-100 based on STAR structure, confidence, and clarity.
         ## Task: Provide a final debrief for a 4-question managerial interview.
         ## Output Format: Markdown
         
@@ -760,6 +761,7 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
         report_prompt = f"""
         ## Role: AI Interview Coach
         ## Task: Provide a final debrief for a 4-question HR interview.
+        ## IMPORTANT: Start your response with "SCORE: [X]%" where X is a number from 0-100 based on STAR structure, confidence, and clarity.
         ## Output Format: Markdown
         
         **Interview Transcript:**
@@ -859,6 +861,7 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
         report_prompt = f"""
         ## Role: AI Interview Coach
         ## Task: Provide a final debrief for a 6-question resume-based interview.
+        ## IMPORTANT: Start your response with "SCORE: [X]%" where X is a number from 0-100 based on STAR structure, confidence, and clarity.
         ## Output Format: Markdown
         
         **Interview Transcript:**
