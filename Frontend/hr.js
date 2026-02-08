@@ -106,26 +106,7 @@ function initializeApp() {
           }
       }
   });
-
-  const testEndBtn = document.getElementById("test-end-btn");
-  if (testEndBtn) {
-      testEndBtn.addEventListener("click", () => {
-          // Mock data to skip the Gemini API call and test the UI
-          const mockReport = `SCORE: 92%
-          ### Final Debrief:
-          1. Overall Performance: This is a dev-test report. Your initiative was strong.
-          2. Strengths:
-          - Confident delivery and clear articulation.
-          - Strategic use of technical terminology.
-          3. Areas for Improvement:
-          - Try to provide more measurable results for your projects.
-          - Maintain slightly better eye contact with the camera.`;
-
-          // Pass mock values (WPM: 140, Fillers: 1) directly to the report UI
-          showFinalReport(mockReport, 140, 1);
-          console.log("Dev Mode: Skipping Gemini RPD usage for UI test.");
-      });
-  }
+  
 
 
   // --- 5. CHAT UI FUNCTIONS ---
