@@ -352,7 +352,7 @@ def get_aptitude_question(topic):
     ```
     """
     response = client.models.generate_content(
-        model="gemini-2.5",
+        model="gemini-2.5-flash-lite",
         contents=prompt
     )
     if not response.text:
@@ -442,7 +442,7 @@ def get_technical_question(topic, language):
     ```
     """ 
     response = client.models.generate_content(
-        model="gemini-2.5",
+        model="gemini-3-flash-preview",
         contents=prompt
     )
 
