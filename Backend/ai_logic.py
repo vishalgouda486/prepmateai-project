@@ -352,7 +352,7 @@ def get_aptitude_question(topic):
     ```
     """
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.5-flash-lite",
         contents=prompt
     )
     if not response.text:
@@ -397,7 +397,10 @@ def get_aptitude_feedback(results):
     Keep the feedback encouraging and brief.
     """
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3-flash-preview",
+        config=types.GenerateContentConfig(
+            thinking_config=types.ThinkingConfig(include_thoughts=True)
+        ),
         contents=prompt
     )
 
@@ -439,7 +442,7 @@ def get_technical_question(topic, language):
     ```
     """ 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.5-flash-lite",
         contents=prompt
     )
 
@@ -580,7 +583,10 @@ def get_communication_feedback(topic, user_answer, expression_data_json, duratio
     [One actionable piece of advice]
     """
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3-flash-preview",
+        config=types.GenerateContentConfig(
+            thinking_config=types.ThinkingConfig(include_thoughts=True)
+        ),
         contents=[prompt]
     )
 
@@ -696,7 +702,10 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
         - [List 1-2 specific, actionable areas for improvement, e.g., "Try to provide more detail on the 'Result' of your stories," "Answers could be more concise."]
         """
         final_report_response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3-flash-preview",
+            config=types.GenerateContentConfig(
+                thinking_config=types.ThinkingConfig(include_thoughts=True)
+            ),
             contents=report_prompt
         )
         final_report = final_report_response.text or "Error: The AI failed to generate your final report."
@@ -713,6 +722,7 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
     
     chat_session = client.chats.create(
         model="gemini-2.5-flash",
+        config=types.GenerateContentConfig(temperature=0.7),
         history=history
     )
     response = chat_session.send_message(prompt)
@@ -798,7 +808,10 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
         """
         # Using the new client to generate the final report
         final_report_response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3-flash-preview",
+            config=types.GenerateContentConfig(
+                thinking_config=types.ThinkingConfig(include_thoughts=True)
+            ),
             contents=report_prompt
         )
         final_report = final_report_response.text or "Error: The AI failed to generate your final report."
@@ -816,6 +829,7 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
     # New way to start a chat session
     chat_session = client.chats.create(
         model="gemini-2.5-flash",
+        config=types.GenerateContentConfig(temperature=0.7),
         history=history
     )
     # New way to send the message
@@ -910,7 +924,10 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
         """
         # Using the new client to generate the final report
         final_report_response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3-flash-preview",
+            config=types.GenerateContentConfig(
+                thinking_config=types.ThinkingConfig(include_thoughts=True)
+            ),
             contents=report_prompt
         )
         final_report = final_report_response.text or "Error: The AI failed to generate your final report."
@@ -927,6 +944,7 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
 
     chat_session = client.chats.create(
         model="gemini-2.5-flash",
+        config=types.GenerateContentConfig(temperature=0.7),
         history=history
     )
 
@@ -974,7 +992,11 @@ def get_final_report(all_round_results):
     Generate the report. Start with "Here is your comprehensive mock test report:"
     """
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3-flash-preview",
+        config=types.GenerateContentConfig(
+            # Higher thinking level allows for better cross-round analysis
+            thinking_config=types.ThinkingConfig(include_thoughts=True)
+        ),
         contents=[prompt]
     )
 
