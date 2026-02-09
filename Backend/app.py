@@ -572,5 +572,7 @@ def generate_final_report():
 
 
 # ✅ Always initialize DB when app starts (Gunicorn or localhost)
-with app.app_context():
-    db.create_all()
+if os.environ.get("DATABASE_URL"):
+    with app.app_context():
+        db.create_all()
+
