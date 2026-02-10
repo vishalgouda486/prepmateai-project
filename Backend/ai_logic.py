@@ -244,8 +244,8 @@ def get_ai_response(interview_question, user_answer, expression_data_json, durat
 
         filler_words = ['um', 'uh', 'like', 'so', 'you know', 'basically', 'actually']
         filler_count = 0
-        for word in words:
-            if word.lower().strip(",.") in filler_words: filler_count += 1
+        filler_pattern = r'\b(um|uh|like|so|you know|basically|actually)\b'
+        filler_count = len(re.findall(filler_pattern, user_answer.lower()))
         
         audio_analysis_summary = (
             f"{pace_line}\n"
@@ -531,8 +531,8 @@ def get_communication_feedback(topic, user_answer, expression_data_json, duratio
             
         filler_words = ['um', 'uh', 'like', 'so', 'you know', 'basically', 'actually']
         filler_count = 0
-        for word in words:
-            if word.lower().strip(",.") in filler_words: filler_count += 1
+        filler_pattern = r'\b(um|uh|like|so|you know|basically|actually)\b'
+        filler_count = len(re.findall(filler_pattern, user_answer.lower()))
         audio_analysis_summary = (
             f"{pace_line}\n"
             f"- **Filler Words:** Found {filler_count} filler words (e.g., 'um', 'like', 'so')."
@@ -667,16 +667,24 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
         session_complete = True
         ai_response = "This concludes the managerial round. Generating your final debrief..."
         
-        words = user_answer.split() if user_answer else []
+        all_user_text = " ".join(
+            msg['parts'][0]['text']
+            for msg in history
+            if msg['role'] == 'user'
+        )
+
+        words = all_user_text.split()
         word_count = len(words)
+
 
         actual_wpm = 0
         if duration_seconds > 0:
             duration_minutes = duration_seconds / 60.0
             actual_wpm = int(word_count / duration_minutes)
 
-        filler_words = ['um', 'uh', 'like', 'so', 'you know', 'basically', 'actually']
-        final_fillers = sum(1 for word in words if word.lower().strip(",.") in filler_words)
+        filler_pattern = r'\b(um|uh|like|so|you know|basically|actually)\b'
+        final_fillers = len(re.findall(filler_pattern, user_answer.lower())) if user_answer else 0
+
 
         # Create the report prompt
         history_text = "\n".join([f"{msg['role']}: {msg['parts'][0]['text']}" for msg in history if 'parts' in msg])
@@ -772,7 +780,13 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
         session_complete = True
         ai_response = "This concludes the HR interview. Generating your final debrief..."
         
-        words = user_answer.split() if user_answer else []
+        all_user_text = " ".join(
+            msg['parts'][0]['text']
+            for msg in history
+            if msg['role'] == 'user'
+        )
+
+        words = all_user_text.split()
         word_count = len(words)
 
         actual_wpm = 0
@@ -780,8 +794,9 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
             duration_minutes = duration_seconds / 60.0
             actual_wpm = int(word_count / duration_minutes)
 
-        filler_words = ['um', 'uh', 'like', 'so', 'you know', 'basically', 'actually']
-        final_fillers = sum(1 for word in words if word.lower().strip(",.") in filler_words)
+        filler_pattern = r'\b(um|uh|like|so|you know|basically|actually)\b'
+        final_fillers = len(re.findall(filler_pattern, user_answer.lower())) if user_answer else 0
+
 
         # Create the report prompt
         history_text = "\n".join([f"{msg['role']}: {msg['parts'][0]['text']}" for msg in history if 'parts' in msg])
@@ -888,7 +903,13 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
         session_complete = True
         ai_response = "This concludes the Resume-Based interview. Generating your final debrief..."
         
-        words = user_answer.split() if user_answer else []
+        all_user_text = " ".join(
+            msg['parts'][0]['text']
+            for msg in history
+            if msg['role'] == 'user'
+        )
+
+        words = all_user_text.split()
         word_count = len(words)
 
         actual_wpm = 0
@@ -896,8 +917,9 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
             duration_minutes = duration_seconds / 60.0
             actual_wpm = int(word_count / duration_minutes)
 
-        filler_words = ['um', 'uh', 'like', 'so', 'you know', 'basically', 'actually']
-        final_fillers = sum(1 for word in words if word.lower().strip(",.") in filler_words)
+        filler_pattern = r'\b(um|uh|like|so|you know|basically|actually)\b'
+        final_fillers = len(re.findall(filler_pattern, user_answer.lower())) if user_answer else 0
+
 
         # Create the report prompt
         history_text = "\n".join([f"{msg['role']}: {msg['parts'][0]['text']}" for msg in history if 'parts' in msg])

@@ -461,7 +461,7 @@ def hr_conversation():
     user_answer_text = None
     audio_file_path = None
     duration_seconds = 0
-    
+
     if audio_file:
         try:
             filename = f"temp_hr_audio_{int(time.time())}.webm"
@@ -489,7 +489,16 @@ def hr_conversation():
     if "error" in response_data:
         return jsonify(response_data), 500
         
-    return jsonify(response_data)
+    return jsonify({
+        "ai_response": response_data.get("ai_response"),
+        "user_transcript": response_data.get("user_transcript"),
+        "updated_history": response_data.get("updated_history"),
+        "session_complete": response_data.get("session_complete"),
+        "final_report": response_data.get("final_report"),
+        "final_wpm": response_data.get("final_wpm", 0),
+        "final_fillers": response_data.get("final_fillers", 0)
+    })
+
 
 @app.route('/upload-practice-resume', methods=['POST'])
 def upload_practice_resume():

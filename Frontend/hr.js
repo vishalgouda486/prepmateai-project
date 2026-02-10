@@ -284,7 +284,11 @@ function initializeApp() {
         conversationHistory = data.updated_history;
 
         if (data.session_complete) {
-          showFinalReport(data.final_report);
+          showFinalReport(
+            data.final_report,
+            data.final_wpm,
+            data.final_fillers
+          );
         } else {
           recordButton.disabled = false; 
           recordStatus.innerText = "Press 'Record Answer'";
