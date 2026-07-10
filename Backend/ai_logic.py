@@ -397,7 +397,7 @@ def get_aptitude_feedback(results):
     Keep the feedback encouraging and brief.
     """
     response = client.models.generate_content(
-        model="gemini-3-flash-preview",
+        model="gemini-2.5-flash",
         config=types.GenerateContentConfig(
             thinking_config=types.ThinkingConfig(include_thoughts=True)
         ),
@@ -583,7 +583,7 @@ def get_communication_feedback(topic, user_answer, expression_data_json, duratio
     [One actionable piece of advice]
     """
     response = client.models.generate_content(
-        model="gemini-3-flash-preview",
+        model="gemini-2.5-flash",
         config=types.GenerateContentConfig(
             thinking_config=types.ThinkingConfig(include_thoughts=True)
         ),
@@ -710,7 +710,7 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
         - [List 1-2 specific, actionable areas for improvement, e.g., "Try to provide more detail on the 'Result' of your stories," "Answers could be more concise."]
         """
         final_report_response = client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model="gemini-2.5-flash",
             config=types.GenerateContentConfig(
                 thinking_config=types.ThinkingConfig(include_thoughts=True)
             ),
@@ -823,7 +823,7 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
         """
         # Using the new client to generate the final report
         final_report_response = client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model="gemini-2.5-flash",
             config=types.GenerateContentConfig(
                 thinking_config=types.ThinkingConfig(include_thoughts=True)
             ),
@@ -946,7 +946,7 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
         """
         # Using the new client to generate the final report
         final_report_response = client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model="gemini-2.5-flash",
             config=types.GenerateContentConfig(
                 thinking_config=types.ThinkingConfig(include_thoughts=True)
             ),
@@ -1014,7 +1014,7 @@ def get_final_report(all_round_results):
     Generate the report. Start with "Here is your comprehensive mock test report:"
     """
     response = client.models.generate_content(
-        model="gemini-3-flash-preview",
+        model="gemini-2.5-flash",
         config=types.GenerateContentConfig(
             # Higher thinking level allows for better cross-round analysis
             thinking_config=types.ThinkingConfig(include_thoughts=True)
