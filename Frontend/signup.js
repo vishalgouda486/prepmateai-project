@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             // Call the /api/signup route we created in app.py
-            const response = await fetch("https://prepmateai-project-production.up.railway.app/api/signup", {
+            const response = await fetch("https://prepmateai-project-production-ab92.up.railway.app/api/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

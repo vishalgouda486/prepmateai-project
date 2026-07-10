@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const handleLogout = async () => {
         try {
             // Use the full URL
-            const response = await fetch("https://prepmateai-project-production.up.railway.app/api/logout", {
+            const response = await fetch("https://prepmateai-project-production-ab92.up.railway.app/api/logout", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: 'include',
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkUserSession = async () => {
         try {
             // Use the full URL
-            const response = await fetch("https://prepmateai-project-production.up.railway.app/api/check_session", {
+            const response = await fetch("https://prepmateai-project-production-ab92.up.railway.app/api/check_session", {
                 method: "GET",
                 credentials: 'include',
             });

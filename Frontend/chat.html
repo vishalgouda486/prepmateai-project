@@ -198,7 +198,7 @@
         try {
             // We use fetch here to send the POST data first.
             // The endpoint is still the same, but it now returns an event stream.
-            const req = await fetch("https://prepmateai-project-production.up.railway.app/api/gemini", {
+            const req = await fetch("https://prepmateai-project-production-ab92.up.railway.app/api/gemini", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ prompt: q })

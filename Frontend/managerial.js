@@ -256,7 +256,7 @@ function initializeApp() {
       }
 
       try {
-        const response = await fetch("https://prepmateai-project-production.up.railway.app/managerial-conversation", {
+        const response = await fetch("https://prepmateai-project-production-ab92.up.railway.app/managerial-conversation", {
           method: "POST",
           body: formData, 
         });

@@ -151,7 +151,7 @@ function initializeApp() {
         }
         
         try {
-            const response = await fetch("https://prepmateai-project-production.up.railway.app/technical-question", {
+            const response = await fetch("https://prepmateai-project-production-ab92.up.railway.app/technical-question", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -245,7 +245,7 @@ function initializeApp() {
         const userCode = codeEditor.getValue();
         
         try {
-            const response = await fetch("https://prepmateai-project-production.up.railway.app/run-code", {
+            const response = await fetch("https://prepmateai-project-production-ab92.up.railway.app/run-code", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

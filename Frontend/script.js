@@ -78,7 +78,7 @@ function initializeApp() {
     speechPlayButton.style.display = "none";
 
     try {
-      const response = await fetch("https://prepmateai-project-production.up.railway.app/generate-question", {
+      const response = await fetch("https://prepmateai-project-production-ab92.up.railway.app/generate-question", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ "topic": topic }),
@@ -253,7 +253,7 @@ function initializeApp() {
     // --- ⭐️ END NEW CODE ---
 
     try {
-      const response = await fetch("https://prepmateai-project-production.up.railway.app/interview", {
+      const response = await fetch("https://prepmateai-project-production-ab92.up.railway.app/interview", {
         method: "POST",
         body: formData, 
       });

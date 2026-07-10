@@ -98,7 +98,7 @@ function initializeApp() {
       isFetching = true;
       
       try {
-          const response = await fetch("https://prepmateai-project-production.up.railway.app/communication-topic");
+          const response = await fetch("https://prepmateai-project-production-ab92.up.railway.app/communication-topic");
           const data = await response.json();
           isFetching = false;
           
@@ -258,7 +258,7 @@ function initializeApp() {
 
     try {
       const response = await fetch(
-        "https://prepmateai-project-production.up.railway.app/communication-feedback",
+        "https://prepmateai-project-production-ab92.up.railway.app/communication-feedback",
         {
           method: "POST",
           body: formData,
