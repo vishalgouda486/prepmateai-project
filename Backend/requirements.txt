@@ -10,3 +10,4 @@ Flask-Bcrypt
 Flask-Login
 psycopg2-binary
 huggingface_hub
+psycopg[binary]
