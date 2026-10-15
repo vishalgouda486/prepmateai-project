@@ -1,6 +1,8 @@
 import os
 from google import genai
 from google.genai import types
+from google.genai.errors import APIError
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 import json
 import io
@@ -19,50 +21,159 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY")
 HF_API_KEY = os.getenv("HF_API_KEY")
 
-# ⭐️ --- REMOVED THE OLD/DEAD API URL --- ⭐️
-# The new InferenceClient handles routing automatically.
+# --- Centralized Gemini Model Configuration ---
+# Models verified against Google official documentation (ai.google.dev/gemini-api/docs/models)
+MODEL_APTITUDE_QUESTION = os.getenv("GEMINI_MODEL_APTITUDE", "gemini-3.5-flash-lite")
+MODEL_TECHNICAL_QUESTION = os.getenv("GEMINI_MODEL_TECHNICAL", "gemini-3.8-flash")
+MODEL_APTITUDE_FEEDBACK = os.getenv("GEMINI_MODEL_APTITUDE_FEEDBACK", "gemini-3.8-flash")
+MODEL_CHATBOT = os.getenv("GEMINI_MODEL_CHATBOT", "gemini-3.8-flash")
+MODEL_INTERVIEW = os.getenv("GEMINI_MODEL_INTERVIEW", "gemini-3.8-flash")
+MODEL_COMMUNICATION = os.getenv("GEMINI_MODEL_COMMUNICATION", "gemini-3.8-flash")
+MODEL_COMMUNICATION_TOPIC = os.getenv("GEMINI_MODEL_COMMUNICATION_TOPIC", "gemini-3.5-flash-lite")
+MODEL_MANAGERIAL = os.getenv("GEMINI_MODEL_MANAGERIAL", "gemini-3.8-flash")
+MODEL_HR = os.getenv("GEMINI_MODEL_HR", "gemini-3.8-flash")
+MODEL_RESUME = os.getenv("GEMINI_MODEL_RESUME", "gemini-3.8-flash")
+MODEL_FINAL_REPORT = os.getenv("GEMINI_MODEL_FINAL_REPORT", "gemini-3.8-flash")
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+# Fallback models for transient 503/429 overload errors
+FALLBACK_FLASH = "gemini-3.8-flash"
+FALLBACK_LITE = "gemini-3.5-flash-lite"
+
+# Configure Google GenAI Client with bounded timeouts and retries
+# Timeout: 20000ms (20s) to guarantee completion well within Gunicorn worker timeout window.
+# Retries: 2 attempts (1 initial + 1 retry) with exponential backoff and jitter on transient codes.
+client_key = GEMINI_API_KEY if GEMINI_API_KEY else "AIzaSyDummyKeyForLocalDev"
+if not GEMINI_API_KEY:
+    print("[WARNING] GEMINI_API_KEY not set. Using placeholder key for initialization.")
+
+client = genai.Client(
+    api_key=client_key,
+    http_options=types.HttpOptions(
+        timeout=20000,
+        retry_options=types.HttpRetryOptions(
+            attempts=2,
+            initial_delay=1.0,
+            max_delay=3.0,
+            http_status_codes=[429, 500, 502, 503, 504],
+        ),
+    ),
+)
+
+# --- Pydantic Schemas for Reliable Structured Outputs ---
+class AptitudeQuestionSchema(BaseModel):
+    question: str = Field(description="The aptitude question statement.")
+    options: list[str] = Field(description="A list of exactly 4 options, e.g. ['A) ...', 'B) ...', 'C) ...', 'D) ...']")
+    correct_answer: str = Field(description="The correct option string matching one of the options.")
+    solution: str = Field(description="Step-by-step solution explanation.")
+
+class TestCaseSchema(BaseModel):
+    stdin: str = Field(description="Input data passed to stdin.")
+    expected_output: str = Field(description="Expected output string.")
+
+class TechnicalQuestionSchema(BaseModel):
+    question_title: str = Field(description="Short title of the problem.")
+    problem_statement: str = Field(description="Detailed problem description.")
+    starter_code: str = Field(description="Boilerplate starter code template.")
+    test_cases: list[TestCaseSchema] = Field(description="List of test cases.")
+    model_solution: str = Field(description="Complete optimal working solution code.")
+
+class CommunicationTopicSchema(BaseModel):
+    topic: str = Field(description="A single general-purpose topic for a 1-minute speech assessment.")
+
+# --- Helper Functions ---
+def clean_and_parse_json(raw_text: str) -> dict:
+    """
+    Safely parses JSON from model response text, stripping markdown code fences if present.
+    """
+    if not raw_text or not raw_text.strip():
+        raise ValueError("Model returned an empty text response.")
+    
+    text = raw_text.strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+    
+    return json.loads(text)
+
+def generate_content_with_retry(contents, model: str, fallback_model: str = None, config: types.GenerateContentConfig = None):
+    """
+    Executes generate_content using the primary model. If a transient 503/429
+    error occurs, attempts one fallback to fallback_model if provided.
+    """
+    try:
+        return client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=config,
+        )
+    except APIError as e:
+        if fallback_model and fallback_model != model and e.code in (429, 503):
+            print(f"[INFO] Primary model {model} returned {e.code}. Attempting fallback to {fallback_model}...")
+            return client.models.generate_content(
+                model=fallback_model,
+                contents=contents,
+                config=config,
+            )
+        raise
 
 # --- HUGGING FACE API CLIENT ---
 try:
     if not HF_API_KEY:
-        print("⚠️ WARNING: HF_API_KEY not set. Transcription will fail.")
+        print("[WARNING] HF_API_KEY not set. Transcription will fail.")
         hf_client = None
     else:
         hf_client = InferenceClient(token=HF_API_KEY)
-        print("✅ Hugging Face InferenceClient configured.")
+        print("[INFO] Hugging Face InferenceClient configured.")
 except Exception as e:
-    print(f"❌ ERROR: Failed to initialize Hugging Face client: {e}")
+    print(f"[ERROR] Failed to initialize Hugging Face client: {e}")
     hf_client = None
 
 
 # --- ERROR HANDLING WRAPPER ---
 def handle_gemini_errors(func):
     """
-    A decorator to catch all exceptions from AI functions, 
-    log them, and return a standard JSON error.
-    This prevents the Flask server from crashing.
+    A decorator to catch exceptions from AI functions,
+    log sanitized diagnostic info, and return user-friendly error responses.
+    Prevents Flask/Gunicorn worker crashes and masks raw exception details.
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
+        except APIError as e:
+            print(f"[AI Error] in {func.__name__}: APIError code={e.code}, status={getattr(e, 'status', 'N/A')}")
+            if e.code == 503:
+                msg = "The AI model is currently experiencing high demand. Please try again shortly."
+            elif e.code == 429:
+                msg = "API rate limit reached. Please wait a moment before trying again."
+            elif e.code in (401, 403):
+                msg = "AI authentication error. Please verify the Gemini API key."
+            elif e.code == 400:
+                msg = "Invalid AI request parameters. Please verify input data."
+            elif e.code in (500, 502, 504):
+                msg = "The AI service encountered a temporary server error. Please try again."
+            else:
+                msg = f"AI service error ({e.code}). Please try again."
+            return {"error": msg}
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"[JSON/Validation Error] in {func.__name__}: {type(e).__name__}")
+            return {"error": "The AI returned an invalid or incomplete response. Please try again."}
         except Exception as e:
-            # Log the full, detailed error to the Python terminal
-            print(f"!!!!!!!!!!!!!! ERROR IN {func.__name__} !!!!!!!!!!!!!!")
-            print(f"Exception type: {type(e)}")
-            print(f"Error details: {e}")
-            print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            
-            # Return a user-friendly JSON error to the frontend
-            if "500 An internal error" in str(e):
-                return {"error": "The AI service had a temporary internal error. Please try again."}
-            if "rate limit" in str(e).lower():
-                 return {"error": "API rate limit exceeded. Please wait a moment and try again."}
-            
-            # General fallback error
-            return {"error": f"An unexpected error occurred in the AI logic: {str(e)}"}
+            print(f"[Unexpected Error] in {func.__name__}: {type(e).__name__}")
+            err_str = str(e).lower()
+            if "timeout" in err_str:
+                msg = "The AI request timed out. Please try again."
+            elif "rate limit" in err_str:
+                msg = "API rate limit reached. Please wait a moment before trying again."
+            elif "503" in err_str or "high demand" in err_str:
+                msg = "The AI model is currently experiencing high demand. Please try again shortly."
+            else:
+                msg = "An unexpected error occurred while communicating with the AI service. Please try again."
+            return {"error": msg}
     return wrapper
 
 # --- (Other functions are unchanged) ---
@@ -214,11 +325,12 @@ def generate_ai_question(topic, resume_text=None):
         
         Question:
         """
-    response = client.models.generate_content(
-        model="gemini-2.5-flash", 
+    response = generate_content_with_retry(
+        model=MODEL_INTERVIEW,
+        fallback_model=FALLBACK_LITE,
         contents=prompt
     )
-    if not response.text:
+    if not response or not response.text:
         print("Error: Gemini returned an empty response.")
         return "Error: The AI failed to generate a question."
     
@@ -309,67 +421,47 @@ def get_ai_response(interview_question, user_answer, expression_data_json, durat
     **3. "Better Answer" Example:**
     [Provide a concise, strong example answer that follows the STAR method for the original question. Make it a general example, not a rewrite of their answer.]
     """
-    response = client.models.generate_content(
-        model="gemini-2.5-flash", 
+    response = generate_content_with_retry(
+        model=MODEL_INTERVIEW,
+        fallback_model=FALLBACK_LITE,
         contents=[prompt]
     )
 
-    if not response.text:
+    if not response or not response.text:
         print("Error: Gemini returned an empty response.")
-        return "Error: The AI failed to generate a question."
+        return "Error: The AI failed to generate feedback."
     
     return response.text
 
 @handle_gemini_errors 
 def get_aptitude_question(topic):
-    time.sleep(1) 
     topic_instruction = f'for the topic: "{topic}"'
     if topic.lower() == 'mix':
         topic_instruction = "from a mix of Quantitative, Logical, and Verbal topics."
     prompt = f"""
     Generate one medium-difficulty aptitude question {topic_instruction}.
     
-    Your response **MUST** be a JSON object inside a markdown code block.
-    **DO NOT** use LaTeX. Use plain text for math (e.g., 'x^2', '3/4').
-    
-    The JSON must contain these exact keys: "question", "options", "correct_answer", "solution".
-    - "options" must be a list of 4 strings.
-    - "solution" must be a string, using \\n for newlines.
-    
-    Example of a valid response:
-    ```json
-    {{
-      "question": "If a train travels 60 km in 1 hour and 15 minutes, what is its speed in km/hour?",
-      "options": [
-        "A) 45 km/hr",
-        "B) 48 km/hr",
-        "C) 50 km/hr",
-        "D) 52 km/hr"
-      ],
-      "correct_answer": "B) 48 km/hr",
-      "solution": "Step 1: Convert time to hours. 1 hour 15 minutes = 1.25 hours.\\nStep 2: Speed = Distance / Time = 60 / 1.25 = 48 km/hr."
-    }}
-    ```
+    The question must have exactly 4 multiple choice options.
+    Use plain text for math (e.g., 'x^2', '3/4'), do not use LaTeX.
+    Provide the correct answer matching one of the options and a step-by-step solution.
     """
-    response = client.models.generate_content(
-        model="gemini-2.5-flash-lite",
-        contents=prompt
+    response = generate_content_with_retry(
+        model=MODEL_APTITUDE_QUESTION,
+        fallback_model=FALLBACK_FLASH,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=AptitudeQuestionSchema,
+            temperature=0.7,
+        )
     )
-    if not response.text:
+    if not response or not response.text:
         print("Error: Gemini returned an empty response.")
         return {"error": "The AI failed to generate a question."}
-    try:
-        json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
-        if not json_match:
-            print(f"Error: No JSON object found in Gemini response. Response was: {response.text}")
-            raise json.JSONDecodeError("No JSON object found in response", response.text, 0)
-        json_text = json_match.group(0)
-        data = json.loads(json_text) 
-        return data
-    except json.JSONDecodeError as e:
-        print(f"Error: Failed to decode JSON from Gemini. Response was: {response.text}")
-        print(f"JSONDecodeError: {e}")
-        return {"error": "The AI returned an invalid response. Please try again."}
+    
+    raw_data = clean_and_parse_json(response.text)
+    validated = AptitudeQuestionSchema.model_validate(raw_data)
+    return validated.model_dump()
 
 
 @handle_gemini_errors
@@ -396,10 +488,11 @@ def get_aptitude_feedback(results):
     
     Keep the feedback encouraging and brief.
     """
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
+    response = generate_content_with_retry(
+        model=MODEL_APTITUDE_FEEDBACK,
+        fallback_model=FALLBACK_LITE,
         config=types.GenerateContentConfig(
-            thinking_config=types.ThinkingConfig(include_thoughts=True)
+            thinking_config=types.ThinkingConfig(thinking_level="low")
         ),
         contents=prompt
     )
@@ -412,14 +505,9 @@ def get_aptitude_feedback(results):
 
 @handle_gemini_errors
 def get_technical_question(topic, language):
-    time.sleep(1) 
-    
     lang_name = "Python 3"
-    python_example = '{\n  "question_title": "Sum Two Numbers",\n  "problem_statement": "Read two numbers from stdin and print their sum.",\n  "starter_code": "def solve():\\n    a = int(input())\\n    b = int(input())\\n    print(a + b)\\n\\nsolve()",\n  "test_cases": [{"stdin": "5\\n10", "expected_output": "15"}, {"stdin": "1\\n2", "expected_output": "3"}],\n  "model_solution": "def solve():\\n    a = int(input())\\n    b = int(input())\\n    print(a + b)\\n\\nsolve()"\n}'
-    
     if language == "java":
         lang_name = "Java"
-        python_example = '{\n  "question_title": "Sum Two Numbers",\n  "problem_statement": "Read two integers from stdin and print their sum.",\n  "starter_code": "import java.util.Scanner;\\n\\nclass Solution {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int a = sc.nextInt();\\n        int b = sc.nextInt();\\n        System.out.println(a + b);\\n    }\\n}",\n  "test_cases": [{"stdin": "5\\n10", "expected_output": "15"}, {"stdin": "1\\n2", "expected_output": "3"}],\n  "model_solution": "import java.util.Scanner;\\n\\nclass Solution {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int a = sc.nextInt();\\n        int b = sc.nextInt();\\n        System.out.println(a + b);\\n    }\\n}"\n}'
         
     topic_instruction = f'for the topic: "{topic}"'
     if topic == "Mix (DSA)":
@@ -427,40 +515,26 @@ def get_technical_question(topic, language):
     
     prompt = f"""
     Generate one medium-difficulty technical coding problem {topic_instruction} for {lang_name}.
-    Your response **MUST** be a JSON object inside a markdown code block.
-    
-    Your JSON object must contain these exact keys:
-    - "question_title": A short title.
-    - "problem_statement": A 2-3 sentence description of the task. Use \\n for newlines.
-    - "starter_code": An EMPTY boilerplate template for the user to fill in.
-    - "test_cases": A list of 3 simple test cases. **Each test case MUST be an object with two keys: "stdin" (the input string) and "expected_output" (the expected output string).**
-    - "model_solution": The complete, correct, and optimal code solution.
-    
-    Example of a valid, multi-line JSON response:
-    ```json
-    {python_example}
-    ```
+    Include a concise problem statement, empty starter boilerplate code, at least 3 input/output test cases (each with "stdin" and "expected_output" strings), and a complete optimal working solution.
     """ 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash-lite",
-        contents=prompt
+    response = generate_content_with_retry(
+        model=MODEL_TECHNICAL_QUESTION,
+        fallback_model=FALLBACK_LITE,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=TechnicalQuestionSchema,
+            temperature=0.6,
+        )
     )
 
-    if not response.text:
+    if not response or not response.text:
         print("Error: Gemini returned an empty response.")
         return {"error": "The AI failed to generate a question."}
-    try:
-        json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
-        if not json_match:
-            print(f"Error: No JSON object found in Gemini response. Response was: {response.text}")
-            raise json.JSONDecodeError("No JSON object found in response", response.text, 0)
-        json_text = json_match.group(0)
-        data = json.loads(json_text)
-        return data
-    except json.JSONDecodeError as e:
-        print(f"Error: Failed to decode JSON from Gemini. Response was: {response.text}")
-        print(f"JSONDecodeError: {e}")
-        return {"error": "The AI returned an invalid response. Please try again."}
+    
+    raw_data = clean_and_parse_json(response.text)
+    validated = TechnicalQuestionSchema.model_validate(raw_data)
+    return validated.model_dump()
 
 def run_code_with_judge0(user_code, language, test_cases):
     print(f"Sending {language} code to Judge0 for batch processing...")
@@ -582,10 +656,11 @@ def get_communication_feedback(topic, user_answer, expression_data_json, duratio
     ### KEY TAKEAWAY
     [One actionable piece of advice]
     """
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
+    response = generate_content_with_retry(
+        model=MODEL_COMMUNICATION,
+        fallback_model=FALLBACK_LITE,
         config=types.GenerateContentConfig(
-            thinking_config=types.ThinkingConfig(include_thoughts=True)
+            thinking_config=types.ThinkingConfig(thinking_level="low")
         ),
         contents=[prompt]
     )
@@ -598,39 +673,27 @@ def get_communication_feedback(topic, user_answer, expression_data_json, duratio
 
 @handle_gemini_errors
 def generate_communication_topic():
-    time.sleep(1) 
     prompt = """
     Generate one, single, simple, general-purpose topic for a 1-minute communication assessment.
-    Your response **MUST** be a JSON object inside a markdown code block.
-    Return the response as a JSON object with one key: "topic".
-    
-    Example of a valid response:
-    ```json
-    {
-      "topic":"What is a skill you would like to learn and why?"
-    }
-    ```
     """
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
+    response = generate_content_with_retry(
+        model=MODEL_COMMUNICATION_TOPIC,
+        fallback_model=FALLBACK_FLASH,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=CommunicationTopicSchema,
+            temperature=0.8,
+        )
     )
 
-    if not response.text:
+    if not response or not response.text:
         print("Error: Gemini returned an empty response.")
         return {"error": "The AI failed to generate a topic."}
-    try:
-        json_match = re.search(r'\{.*\}', response.text, re.DOTALL)
-        if not json_match:
-            print(f"Error: No JSON object found in Gemini response. Response was: {response.text}")
-            raise json.JSONDecodeError("No JSON object found in response", response.text, 0)
-        json_text = json_match.group(0)
-        data = json.loads(json_text)
-        return data
-    except json.JSONDecodeError as e:
-        print(f"Error: Failed to decode JSON from Gemini. Response was: {response.text}")
-        print(f"JSONDecodeError: {e}")
-        return {"error": "The AI returned an invalid response. Please try again."}
+    
+    raw_data = clean_and_parse_json(response.text)
+    validated = CommunicationTopicSchema.model_validate(raw_data)
+    return validated.model_dump()
 
 @handle_gemini_errors 
 def get_managerial_response(conversation_history, user_answer, expression_data_json, audio_file_path, duration_seconds=0):
@@ -709,10 +772,11 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
         **3. Areas for Improvement:**
         - [List 1-2 specific, actionable areas for improvement, e.g., "Try to provide more detail on the 'Result' of your stories," "Answers could be more concise."]
         """
-        final_report_response = client.models.generate_content(
-            model="gemini-2.5-flash",
+        final_report_response = generate_content_with_retry(
+            model=MODEL_MANAGERIAL,
+            fallback_model=FALLBACK_LITE,
             config=types.GenerateContentConfig(
-                thinking_config=types.ThinkingConfig(include_thoughts=True)
+                thinking_config=types.ThinkingConfig(thinking_level="low")
             ),
             contents=report_prompt
         )
@@ -729,7 +793,7 @@ def get_managerial_response(conversation_history, user_answer, expression_data_j
         }
     
     chat_session = client.chats.create(
-        model="gemini-2.5-flash",
+        model=MODEL_MANAGERIAL,
         config=types.GenerateContentConfig(temperature=0.7),
         history=history
     )
@@ -822,10 +886,11 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
         - [List 1-2 specific, actionable areas for improvement, e.g., "Try to provide more specific examples to back up your claims," "Connect your 5-year plan more directly to this role."]
         """
         # Using the new client to generate the final report
-        final_report_response = client.models.generate_content(
-            model="gemini-2.5-flash",
+        final_report_response = generate_content_with_retry(
+            model=MODEL_HR,
+            fallback_model=FALLBACK_LITE,
             config=types.GenerateContentConfig(
-                thinking_config=types.ThinkingConfig(include_thoughts=True)
+                thinking_config=types.ThinkingConfig(thinking_level="low")
             ),
             contents=report_prompt
         )
@@ -843,7 +908,7 @@ def get_hr_response(conversation_history, user_answer, expression_data_json, aud
     
     # New way to start a chat session
     chat_session = client.chats.create(
-        model="gemini-2.5-flash",
+        model=MODEL_HR,
         config=types.GenerateContentConfig(temperature=0.7),
         history=history
     )
@@ -945,10 +1010,11 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
         - [List 1-2 specific, actionable areas for improvement, e.g., "Try to quantify the results of your projects more (e.g., 'improved performance by 20%')."]
         """
         # Using the new client to generate the final report
-        final_report_response = client.models.generate_content(
-            model="gemini-2.5-flash",
+        final_report_response = generate_content_with_retry(
+            model=MODEL_RESUME,
+            fallback_model=FALLBACK_LITE,
             config=types.GenerateContentConfig(
-                thinking_config=types.ThinkingConfig(include_thoughts=True)
+                thinking_config=types.ThinkingConfig(thinking_level="low")
             ),
             contents=report_prompt
         )
@@ -965,7 +1031,7 @@ def get_resume_response(resume_text, conversation_history, user_answer, expressi
         }
 
     chat_session = client.chats.create(
-        model="gemini-2.5-flash",
+        model=MODEL_RESUME,
         config=types.GenerateContentConfig(temperature=0.7),
         history=history
     )
@@ -1013,11 +1079,11 @@ def get_final_report(all_round_results):
 
     Generate the report. Start with "Here is your comprehensive mock test report:"
     """
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
+    response = generate_content_with_retry(
+        model=MODEL_FINAL_REPORT,
+        fallback_model=FALLBACK_LITE,
         config=types.GenerateContentConfig(
-            # Higher thinking level allows for better cross-round analysis
-            thinking_config=types.ThinkingConfig(include_thoughts=True)
+            thinking_config=types.ThinkingConfig(thinking_level="low")
         ),
         contents=[prompt]
     )

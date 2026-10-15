@@ -15,6 +15,7 @@ from ai_logic import (
     get_hr_response,
     get_resume_response,
     get_final_report,
+    MODEL_CHATBOT,
     client
 )
 import os
@@ -129,9 +130,9 @@ def chat_gemini_stream():
 
         def stream_gemini_response():
             try:
-                # ⭐️ Use the streaming API ⭐️
+                # ⭐️ Use the streaming API with verified gemini-3.8-flash ⭐️
                 response_stream = client.models.generate_content_stream(
-                    model="gemini-2.5-flash",
+                    model=MODEL_CHATBOT,
                     contents=[system_instruction, prompt]
                 )
                 for chunk in response_stream:
@@ -146,9 +147,9 @@ def chat_gemini_stream():
                 yield "data: [DONE]\n\n"
 
             except Exception as e:
-                # Log error and send an error message to the client
-                print(f"Gemini Streaming Error: {e}")
-                yield f"data: [ERROR] An error occurred: {str(e)}\n\n"
+                # Log sanitized error and send safe error message to client
+                print(f"Gemini Streaming Error: {type(e).__name__}")
+                yield "data: [ERROR] The AI assistant is currently unavailable. Please try again shortly.\n\n"
 
         # ⭐️ Return the response as a stream with the text/event-stream MIME type ⭐️
         return Response(
@@ -291,8 +292,9 @@ def aptitude_question():
     if not topic:
         return jsonify({"error": "Missing 'topic' field"}), 400
     question_data = get_aptitude_question(topic)
-    if "error" in question_data:
-        return jsonify(question_data), 500
+    if isinstance(question_data, dict) and "error" in question_data:
+        status_code = 503 if "high demand" in question_data.get("error", "").lower() else 500
+        return jsonify(question_data), status_code
     return jsonify(question_data)
 
 @app.route('/aptitude-feedback', methods=['POST'])
@@ -302,6 +304,9 @@ def aptitude_feedback():
     if not results:
         return jsonify({"error": "Missing 'results' data"}), 400
     feedback_text = get_aptitude_feedback(results)
+    if isinstance(feedback_text, dict) and "error" in feedback_text:
+        status_code = 503 if "high demand" in feedback_text.get("error", "").lower() else 500
+        return jsonify(feedback_text), status_code
     if "Error:" in feedback_text:
         return jsonify({"error": feedback_text}), 500
     return jsonify({"feedback": feedback_text})

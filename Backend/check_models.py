@@ -1,6 +1,6 @@
 # In backend/check_models.py
 import os
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 
 try:
@@ -10,15 +10,16 @@ try:
     if not GEMINI_API_KEY:
         print("Error: GEMINI_API_KEY not found in .env file.")
     else:
-        genai.configure(api_key=GEMINI_API_KEY)
+        client = genai.Client(api_key=GEMINI_API_KEY)
 
         print("Finding available models for your API key...")
         print("---")
 
         count = 0
-        for model in genai.list_models():
-            # We only care about models that can 'generateContent'
-            if 'generateContent' in model.supported_generation_methods:
+        for model in client.models.list():
+            # In google-genai, list available models that support generateContent
+            supported = getattr(model, "supported_actions", None) or []
+            if not supported or "generateContent" in supported:
                 print(f"Model name: {model.name}")
                 count += 1
 
@@ -31,5 +32,5 @@ try:
             print("2. Make sure a billing account is attached to your project.")
 
 except Exception as e:
-    print(f"An error occurred: {e}")
+    print(f"An error occurred: {type(e).__name__}: {e}")
     print("This might be an authentication error. Is your API key correct?")
