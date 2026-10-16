@@ -15,6 +15,7 @@ from ai_logic import (
     get_hr_response,
     get_resume_response,
     get_final_report,
+    get_ffmpeg_cmd,
     MODEL_CHATBOT,
     client
 )
@@ -104,6 +105,19 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f'<User {self.username}>'
 # ⭐️ --- END UPDATED DATABASE MODELS --- ⭐️
+
+# ---------------- HEALTH & DIAGNOSTIC ENDPOINT ------------------
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    ffmpeg_cmd = get_ffmpeg_cmd()
+    return jsonify({
+        "status": "healthy",
+        "ffmpeg_available": bool(ffmpeg_cmd),
+        "ffmpeg_path": ffmpeg_cmd or "not_found",
+        "assemblyai_configured": bool(os.getenv("ASSEMBLYAI_API_KEY")),
+        "gemini_configured": bool(os.getenv("GEMINI_API_KEY")),
+        "database_configured": bool(os.getenv("DATABASE_URL"))
+    }), 200
 
 # ---------------- GEMINI CHATBOT ENDPOINT ------------------
 

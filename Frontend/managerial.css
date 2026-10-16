@@ -40,15 +40,29 @@
     text-align: left;
 }
 
-.chat-bubble strong {
-    font-size: 0.9rem;
+.chat-bubble .sender-label,
+.chat-bubble > strong.sender-label,
+.chat-bubble > strong:first-child:not(.inline-bold) {
+    font-size: 0.85rem;
     display: block;
-    margin-bottom: 4px;
-    color: #9CA3AF; /* Lighter grey for role */
+    margin-bottom: 6px;
+    color: #93c5fd;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
 }
 
-.chat-bubble.user strong {
-    color: #E5E7EB;
+.chat-bubble.user .sender-label,
+.chat-bubble.user > strong:first-child:not(.inline-bold) {
+    color: #e0e7ff;
+}
+
+.chat-bubble strong.inline-bold,
+.chat-bubble .message-content strong,
+.chat-bubble span strong {
+    display: inline !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
 }
 
 /* --- Typing Indicator --- */
@@ -178,6 +192,21 @@
     padding-left: 5px;
 }
 
+/* Markdown Typography Styles */
+.ai-main-heading {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #38bdf8;
+    margin: 14px 0 8px 0;
+}
+
+.ai-sub-heading {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #818cf8;
+    margin: 12px 0 6px 0;
+}
+
 .ai-mini-heading {
     font-weight: 700;
     color: #38bdf8;
@@ -185,4 +214,69 @@
     margin-bottom: 5px;
     text-transform: uppercase;
     font-size: 0.85rem;
+    letter-spacing: 0.5px;
 }
+
+.ai-paragraph {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+    color: #e2e8f0;
+}
+.ai-paragraph:last-child {
+    margin-bottom: 0;
+}
+
+.ai-list {
+    margin: 6px 0 12px 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.ai-ordered-list {
+    margin: 6px 0 12px 0;
+    padding-left: 22px;
+}
+
+.ai-bullet, .ai-ordered-item {
+    margin-bottom: 6px;
+    line-height: 1.55;
+    color: #e2e8f0;
+}
+
+.ai-inline-code {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.88em;
+}
+
+.ai-code-block {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    margin: 10px 0;
+    color: #f8fafc;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.ai-quote {
+    border-left: 3px solid #38bdf8;
+    padding-left: 12px;
+    margin: 10px 0;
+    color: #cbd5e1;
+    font-style: italic;
+}
+
+.ai-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.3), rgba(99, 102, 241, 0.3), transparent);
+    margin: 14px 0;
+}

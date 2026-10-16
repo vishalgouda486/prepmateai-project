@@ -283,8 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (data.error) {
                 finalReportBox.innerText = `Error generating report: ${data.error}`;
             } else {
-                // We will use innerHTML here to render the Markdown formatting
-                finalReportBox.innerHTML = data.report;
+                finalReportBox.innerHTML = window.PrepAuraMarkdown ? window.PrepAuraMarkdown.render(data.report) : data.report;
             }
         } catch (error) {
             finalReportBox.innerText = `Error generating report: Could not connect to the server. Please check the console.`;
@@ -1019,11 +1018,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const bubble = document.createElement('div');
         bubble.classList.add('chat-bubble', role); 
         const roleStrong = document.createElement('strong');
+        roleStrong.classList.add('sender-label');
         roleStrong.innerText = (role === 'ai') ? 'PrepAura' : 'You';
-        const textNode = document.createElement('span');
-        textNode.innerText = text;
+        const contentDiv = document.createElement('div');
+        contentDiv.classList.add('message-content');
+        if (role === 'ai') {
+            contentDiv.innerHTML = window.PrepAuraMarkdown ? window.PrepAuraMarkdown.render(text) : text;
+        } else {
+            contentDiv.innerText = text;
+        }
         bubble.appendChild(roleStrong);
-        bubble.appendChild(textNode);
+        bubble.appendChild(contentDiv);
         ui.chatContainer.appendChild(bubble);
         ui.chatContainer.scrollTop = ui.chatContainer.scrollHeight;
     }
@@ -1037,15 +1042,22 @@ document.addEventListener("DOMContentLoaded", () => {
     
     function speakInterviewAnswer(text) {
         if (testState.interview.isMuted) return;
+        if (window.PrepAuraSpeech) {
+            window.PrepAuraSpeech.speak(text);
+            return;
+        }
         window.speechSynthesis.cancel(); 
-        const utterance = new SpeechSynthesisUtterance(text);
+        const clean = text ? text.replace(/[*#_`~]/g, "").replace(/<[^>]*>/g, " ").trim() : "";
+        const utterance = new SpeechSynthesisUtterance(clean);
         let { speechVoices } = testState.interview;
         if (speechVoices.length === 0) loadVoices();
         let preferredVoice = speechVoices.find(voice => 
             (voice.lang === 'en-US' || voice.lang === 'en-GB') && 
-            (voice.name.includes('Google') || voice.name.includes('Natural'))
+            (voice.name.includes('Natural') || voice.name.includes('Online') || voice.name.includes('Google'))
         );
-        utterance.voice = preferredVoice || speechVoices.find(voice => voice.lang === 'en-US');
+        utterance.voice = preferredVoice || speechVoices.find(voice => voice.lang === 'en-US' || voice.lang.startsWith('en'));
+        utterance.rate = 0.98;
+        utterance.pitch = 1.0;
         utterance.onerror = () => console.error("Speech synthesis error.");
         window.speechSynthesis.speak(utterance);
     }

@@ -3,23 +3,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- PRO MODE MARKDOWN → HTML CONVERTER ---
     function convertMarkdownToProHTML(md) {
         if (!md) return "";
-
-        // Headings
-        md = md.replace(/^### (.*$)/gim, '<div class="ai-mini-heading">$1</div>');
-
-        // Bullets
-        md = md.replace(/^- (.*$)/gim, '<div class="ai-bullet">• $1</div>');
-
-        // Bold
-        md = md.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-
-        // Inline code
-        md = md.replace(/`(.*?)`/gim, '<code class="ai-inline-code">$1</code>');
-
-        // New lines
-        md = md.replace(/\n/g, '<br>');
-
-        return md;
+        if (typeof window !== "undefined" && window.PrepAuraMarkdown) {
+            return window.PrepAuraMarkdown.render(md);
+        }
+        let text = md.trim();
+        text = text.replace(/^\s*###\s+(.*$)/gm, '<div class="ai-mini-heading">$1</div>');
+        text = text.replace(/^\s*##\s+(.*$)/gm, '<div class="ai-sub-heading">$1</div>');
+        text = text.replace(/^\s*#\s+(.*$)/gm, '<div class="ai-main-heading">$1</div>');
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong class="inline-bold">$1</strong>');
+        text = text.replace(/__(.*?)__/g, '<strong class="inline-bold">$1</strong>');
+        text = text.replace(/^\s*[-*+]\s+(.*$)/gm, '<div class="ai-bullet">• $1</div>');
+        text = text.replace(/`([^`\n]+)`/g, '<code class="ai-inline-code">$1</code>');
+        text = text.replace(/\n/g, '<br>');
+        text = text.replace(/\*\*/g, '').replace(/###/g, '');
+        return text;
     }
 
     // --- Get Elements ---

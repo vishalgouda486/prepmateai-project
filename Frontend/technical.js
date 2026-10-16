@@ -204,7 +204,8 @@ function initializeApp() {
         // ✅ FIX: Stop buffer when question is displayed
         loadingSpinner.style.display = "none";
 
-        questionText.innerHTML = `<strong>${data.question_title}</strong><br>${data.problem_statement}`;
+        const parsedStatement = window.PrepAuraMarkdown ? window.PrepAuraMarkdown.render(data.problem_statement) : data.problem_statement;
+        questionText.innerHTML = `<strong>${data.question_title}</strong><br>${parsedStatement}`;
         questionCounter.innerText = `Question: ${questionCount}`;
         questionTopic.innerText = `Topic: ${selectedTopic}`;
         
@@ -332,7 +333,7 @@ function initializeApp() {
     function showSolution() {
         const modelSolution = currentQuestionData.model_solution;
         if (modelSolution) {
-            solutionBox.innerText = modelSolution;
+            solutionBox.innerHTML = window.PrepAuraMarkdown ? window.PrepAuraMarkdown.render(modelSolution) : modelSolution;
             solutionBox.classList.toggle("hidden");
         } else {
             solutionBox.innerText = "No model solution available for this problem.";

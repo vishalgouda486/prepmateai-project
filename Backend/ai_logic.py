@@ -190,70 +190,136 @@ def extract_text_from_pdf(pdf_file_path):
         print(f"Error extracting PDF text: {e}")
         return None
 
-# ⭐️ --- FINAL, CORRECT TRANSCRIBE FUNCTION --- ⭐️
+# ⭐️ --- ROBUST FFMPEG DETECTION & TRANSCRIBE FUNCTION --- ⭐️
+def get_ffmpeg_cmd():
+    """
+    Locates an available ffmpeg executable:
+    1. System PATH
+    2. imageio-ffmpeg static binary
+    3. Common system and Nix package paths on Linux / Unix / Windows
+    Returns path string if found, otherwise None.
+    """
+    import shutil
+    import os
+
+    # 1. System PATH
+    cmd = shutil.which("ffmpeg") or shutil.which("ffmpeg.exe")
+    if cmd:
+        return cmd
+
+    # 2. imageio-ffmpeg fallback
+    try:
+        import imageio_ffmpeg
+        cmd = imageio_ffmpeg.get_ffmpeg_exe()
+        if cmd and os.path.exists(cmd):
+            return cmd
+    except Exception:
+        pass
+
+    # 3. Known system & Nix paths on Linux / Unix / Windows
+    candidate_paths = [
+        "/usr/bin/ffmpeg",
+        "/usr/local/bin/ffmpeg",
+        "/nix/var/nix/profiles/default/bin/ffmpeg",
+        "/root/.nix-profile/bin/ffmpeg",
+        "/etc/profiles/per-user/root/bin/ffmpeg",
+        "C:\\ffmpeg\\bin\\ffmpeg.exe",
+    ]
+    for p in candidate_paths:
+        if os.path.exists(p) and (os.access(p, os.X_OK) or p.endswith(".exe")):
+            return p
+
+    return None
+
+
 def transcribe_audio_to_text(audio_file_path):
     """
-    Convert incoming webm -> wav (ffmpeg), upload to AssemblyAI, request transcription,
-    poll for completion, return (transcript, duration_seconds)
+    Transcribes audio by:
+    1. Converting incoming webm -> 16kHz mono WAV using FFmpeg if available
+    2. Gracefully falling back to uploading original audio directly to AssemblyAI
+       (AssemblyAI natively supports webm, mp3, wav, m4a, ogg, etc.)
+    3. Uploading audio, polling for completion, returning (transcript, duration_seconds)
     """
-    try:
-        import subprocess
-        import tempfile
-        import time
-        import requests
-        import os
+    import subprocess
+    import tempfile
+    import time
+    import requests
+    import os
 
+    wav_path = None
+    try:
         ASSEMBLY_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
         if not ASSEMBLY_API_KEY:
-            print("❌ Missing ASSEMBLYAI_API_KEY")
+            print("[ERROR] Missing ASSEMBLYAI_API_KEY")
             return "Error: AssemblyAI API key missing.", 0
 
-        print("⚙️ Converting WEBM → WAV using ffmpeg...")
-        wav_path = tempfile.mktemp(suffix=".wav")
-        subprocess.run([
-            "ffmpeg", "-i", audio_file_path,
-            "-ac", "1", "-ar", "16000",
-            wav_path
-        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        # Read WAV bytes for upload
-        with open(wav_path, "rb") as f:
-            wav_bytes = f.read()
-
-        if not wav_bytes:
-            print("❌ WAV conversion produced empty file")
+        if not os.path.exists(audio_file_path) or os.path.getsize(audio_file_path) == 0:
+            print("[ERROR] Input audio file does not exist or is empty")
             return "Error: The recorded audio file was empty.", 0
 
-        print("📤 Uploading audio to AssemblyAI...")
+        audio_bytes = None
+        ffmpeg_cmd = get_ffmpeg_cmd()
+
+        if ffmpeg_cmd:
+            print(f"[INFO] Using FFmpeg binary at: {ffmpeg_cmd}")
+            try:
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
+                    wav_path = tmp_wav.name
+
+                res = subprocess.run([
+                    ffmpeg_cmd, "-y", "-i", audio_file_path,
+                    "-ac", "1", "-ar", "16000",
+                    wav_path
+                ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                if res.returncode == 0 and os.path.exists(wav_path) and os.path.getsize(wav_path) > 0:
+                    with open(wav_path, "rb") as f:
+                        audio_bytes = f.read()
+                    print(f"[SUCCESS] Converted audio to WAV ({len(audio_bytes)} bytes)")
+                else:
+                    stderr_msg = res.stderr.decode("utf-8", errors="ignore")[:200]
+                    print(f"[WARNING] FFmpeg conversion issue (rc={res.returncode}): {stderr_msg}. Falling back to raw audio.")
+            except Exception as conv_err:
+                print(f"[WARNING] FFmpeg execution error: {conv_err}. Falling back to raw audio.")
+
+        # Fallback to direct upload of original audio if FFmpeg wasn't found or conversion produced no bytes
+        if not audio_bytes:
+            print("[INFO] Uploading raw audio directly to AssemblyAI (native format support)...")
+            with open(audio_file_path, "rb") as f:
+                audio_bytes = f.read()
+
+        if not audio_bytes:
+            print("[ERROR] Audio bytes empty")
+            return "Error: The recorded audio file was empty.", 0
+
+        print(f"[INFO] Uploading {len(audio_bytes)} bytes to AssemblyAI...")
         upload_url = "https://api.assemblyai.com/v2/upload"
         headers = {"authorization": ASSEMBLY_API_KEY}
 
-        # streaming upload (recommended)
-        upload_resp = requests.post(upload_url, headers=headers, data=wav_bytes)
+        # streaming upload
+        upload_resp = requests.post(upload_url, headers=headers, data=audio_bytes)
         if upload_resp.status_code != 200:
-            print("❌ AssemblyAI upload error:", upload_resp.status_code, upload_resp.text)
+            print("[ERROR] AssemblyAI upload error:", upload_resp.status_code, upload_resp.text)
             return f"Error: ASR failed -> upload error: {upload_resp.text}", 0
 
         audio_url = upload_resp.json().get("upload_url")
         if not audio_url:
-            print("❌ Upload response missing upload_url:", upload_resp.text)
+            print("[ERROR] Upload response missing upload_url:", upload_resp.text)
             return f"Error: ASR failed -> upload response invalid", 0
 
-        print("▶️ Requesting transcription...")
+        print("[INFO] Requesting transcription...")
         transcript_url = "https://api.assemblyai.com/v2/transcript"
         json_payload = {
             "audio_url": audio_url,
-            # optional: add "language_code": "en" or other params if needed
-            # "language_code": "en"
         }
         trans_resp = requests.post(transcript_url, json=json_payload, headers=headers)
-        if trans_resp.status_code != 200 and trans_resp.status_code != 201:
-            print("❌ AssemblyAI transcription request error:", trans_resp.status_code, trans_resp.text)
+        if trans_resp.status_code not in (200, 201):
+            print("[ERROR] AssemblyAI transcription request error:", trans_resp.status_code, trans_resp.text)
             return f"Error: ASR failed -> transcript request error: {trans_resp.text}", 0
 
         transcript_id = trans_resp.json().get("id")
         if not transcript_id:
-            print("❌ No transcript id returned:", trans_resp.text)
+            print("[ERROR] No transcript id returned:", trans_resp.text)
             return f"Error: ASR failed -> no transcript id", 0
 
         # Polling for completion (timeout after e.g. 60 seconds)
@@ -262,38 +328,43 @@ def transcribe_audio_to_text(audio_file_path):
         poll_interval = 1.5
         elapsed = 0.0
 
-        print("⏳ Waiting for transcription to complete...")
+        print("[INFO] Waiting for transcription to complete...")
         while elapsed < timeout_seconds:
             status_resp = requests.get(poll_url, headers=headers)
             if status_resp.status_code != 200:
-                print("❌ AssemblyAI status error:", status_resp.status_code, status_resp.text)
+                print("[ERROR] AssemblyAI status error:", status_resp.status_code, status_resp.text)
                 return f"Error: ASR failed -> status error: {status_resp.text}", 0
 
             status_json = status_resp.json()
             status = status_json.get("status")
             if status == "completed":
                 transcript_text = status_json.get("text", "").strip()
-                print("✅ Transcription completed.")
-                # optional: get audio duration from status_json.get("audio_duration")
                 duration_seconds = status_json.get("audio_duration", 0)
+                print(f"[SUCCESS] Transcription completed: '{transcript_text[:50]}...' ({duration_seconds}s)")
                 return transcript_text, duration_seconds or 0
             if status == "error":
                 err = status_json.get("error", "unknown error")
-                print("❌ AssemblyAI returned error:", err)
+                print("[ERROR] AssemblyAI returned error:", err)
                 return f"Error: ASR failed -> {err}", 0
 
             time.sleep(poll_interval)
             elapsed += poll_interval
 
         # timeout
-        print("❌ Transcription polling timed out.")
+        print("[ERROR] Transcription polling timed out.")
         return "Error: ASR failed -> transcription timed out", 0
 
     except Exception as e:
         import traceback
         traceback.print_exc()
         return f"Error: ASR failed -> {str(e)}", 0
-# ⭐️ --- END FINAL TRANSCRIBE FUNCTION --- ⭐️
+    finally:
+        if wav_path and os.path.exists(wav_path):
+            try:
+                os.remove(wav_path)
+            except Exception:
+                pass
+# ⭐️ --- END TRANSCRIBE FUNCTION --- ⭐️
 
 
 @handle_gemini_errors

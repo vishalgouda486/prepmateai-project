@@ -1,10 +1,18 @@
 function convertMarkdownToProHTML(md) {
     if (!md) return "";
-    md = md.replace(/^### (.*$)/gim, '<div class="ai-mini-heading">$1</div>');
-    md = md.replace(/^- (.*$)/gim, '<div class="ai-bullet">• $1</div>');
-    md = md.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-    md = md.replace(/\n/g, '<br>');
-    return md;
+    if (typeof window !== "undefined" && window.PrepAuraMarkdown) {
+        return window.PrepAuraMarkdown.render(md);
+    }
+    let text = md.trim();
+    text = text.replace(/^\s*###\s+(.*$)/gm, '<div class="ai-mini-heading">$1</div>');
+    text = text.replace(/^\s*##\s+(.*$)/gm, '<div class="ai-sub-heading">$1</div>');
+    text = text.replace(/^\s*#\s+(.*$)/gm, '<div class="ai-main-heading">$1</div>');
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong class="inline-bold">$1</strong>');
+    text = text.replace(/__(.*?)__/g, '<strong class="inline-bold">$1</strong>');
+    text = text.replace(/^\s*[-*+]\s+(.*$)/gm, '<div class="ai-bullet">• $1</div>');
+    text = text.replace(/\n/g, '<br>');
+    text = text.replace(/\*\*/g, '').replace(/###/g, '');
+    return text;
 }
 
 // This is a new function that will run all our code
@@ -114,13 +122,20 @@ function initializeApp() {
       bubble.classList.add('chat-bubble', role); 
       
       const roleStrong = document.createElement('strong');
+      roleStrong.classList.add('sender-label');
       roleStrong.innerText = (role === 'ai') ? 'PrepAura' : 'You';
       
-      const textNode = document.createElement('span');
-      textNode.innerText = text;
+      const contentDiv = document.createElement('div');
+      contentDiv.classList.add('message-content');
+      
+      if (role === 'ai') {
+          contentDiv.innerHTML = convertMarkdownToProHTML(text);
+      } else {
+          contentDiv.innerText = text;
+      }
       
       bubble.appendChild(roleStrong);
-      bubble.appendChild(textNode);
+      bubble.appendChild(contentDiv);
       chatContainer.appendChild(bubble);
       
       chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -133,31 +148,37 @@ function initializeApp() {
       }
   }
 
-  // --- 6. SPEECH FUNCTION (⭐️ UPDATED ⭐️) --- 
+  // --- 6. SPEECH FUNCTION (Natural Voice & Clean Text) --- 
   function speak(text) {
       if (isMuted) {
           return;
       }
 
+      if (window.PrepAuraSpeech) {
+          window.PrepAuraSpeech.speak(text);
+          return;
+      }
+
       window.speechSynthesis.cancel(); 
-      const utterance = new SpeechSynthesisUtterance(text);
+      const clean = text ? text.replace(/[*#_`~]/g, "").replace(/<[^>]*>/g, " ").trim() : "";
+      const utterance = new SpeechSynthesisUtterance(clean);
       
-      // Ensure voices are loaded
       if (speechVoices.length === 0) {
           loadVoices();
       }
 
       let preferredVoice = speechVoices.find(voice => 
         (voice.lang === 'en-US' || voice.lang === 'en-GB') && 
-        (voice.name.includes('Google') || voice.name.includes('Natural'))
+        (voice.name.includes('Natural') || voice.name.includes('Online') || voice.name.includes('Google'))
       );
 
-      // Fallback to the first available 'en-US' voice
       if (!preferredVoice) {
-        preferredVoice = speechVoices.find(voice => voice.lang === 'en-US');
+        preferredVoice = speechVoices.find(voice => voice.lang === 'en-US' || voice.lang.startsWith('en'));
       }
       
-      utterance.voice = preferredVoice;
+      if (preferredVoice) utterance.voice = preferredVoice;
+      utterance.rate = 0.98;
+      utterance.pitch = 1.0;
 
       utterance.onerror = () => {
         console.error("Speech synthesis error.");
@@ -309,7 +330,7 @@ function initializeApp() {
     const strengthsMatch = cleanedReport.match(/2\.\s*Strengths:?([\s\S]*?)(?=3\.)/i);
     const areasMatch = cleanedReport.match(/3\.\s*Areas for Improvement:?([\s\S]*?)$/i);
 
-    const formatHTML = (txt) => txt ? txt.trim().replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>') : "Analyzing...";
+    const formatHTML = (txt) => txt ? convertMarkdownToProHTML(txt.trim()) : "Analyzing...";
 
     feedbackReport.innerHTML = `
       <div class="apt-report">

@@ -103,18 +103,43 @@ function initializeApp() {
   // --- 5. PLAY AI SPEECH ---
   function playAiSpeech() {
     if (!currentQuestionText) return; 
+
+    if (window.PrepAuraSpeech) {
+      window.PrepAuraSpeech.speak(currentQuestionText, {
+        onStart: () => {
+          isAiSpeaking = true;
+          speechPlayButton.innerText = "⏹️ Stop";
+          speechPlayButton.style.display = "inline-block";
+        },
+        onEnd: () => {
+          isAiSpeaking = false;
+          speechPlayButton.innerText = "▶️ Replay Question";
+          speechPlayButton.style.display = "inline-block";
+        },
+        onError: () => {
+          isAiSpeaking = false;
+          speechPlayButton.innerText = "▶️ Replay Question";
+          speechPlayButton.style.display = "inline-block";
+        }
+      });
+      return;
+    }
+
     window.speechSynthesis.cancel(); 
-    const utterance = new SpeechSynthesisUtterance(currentQuestionText);
+    const cleanText = currentQuestionText.replace(/[*#_`~]/g, "").replace(/<[^>]*>/g, " ").trim();
+    const utterance = new SpeechSynthesisUtterance(cleanText);
 
     if (speechVoices.length === 0) loadVoices();
     let preferredVoice = speechVoices.find(voice => 
       (voice.lang === 'en-US' || voice.lang === 'en-GB') && 
-      (voice.name.includes('Google') || voice.name.includes('Natural') || voice.name.includes('David') || voice.name.includes('Zira'))
+      (voice.name.includes('Natural') || voice.name.includes('Online') || voice.name.includes('Google'))
     );
     if (!preferredVoice) {
-      preferredVoice = speechVoices.find(voice => voice.lang === 'en-US');
+      preferredVoice = speechVoices.find(voice => voice.lang === 'en-US' || voice.lang.startsWith('en'));
     }
     if (preferredVoice) utterance.voice = preferredVoice;
+    utterance.rate = 0.98;
+    utterance.pitch = 1.0;
     
     utterance.onstart = () => {
       isAiSpeaking = true;
@@ -258,7 +283,11 @@ function initializeApp() {
         body: formData, 
       });
       const data = await response.json();
-      responseBox.innerText = data.error ? `⚠️ Error: ${data.error}` : data.feedback;
+      if (data.error) {
+        responseBox.innerText = `⚠️ Error: ${data.error}`;
+      } else {
+        responseBox.innerHTML = window.PrepAuraMarkdown ? window.PrepAuraMarkdown.render(data.feedback) : data.feedback;
+      }
     } catch (error) {
       responseBox.innerText = "⚠️ Server not responding. Make sure backend is running.";
       console.error("Fetch error:", error);

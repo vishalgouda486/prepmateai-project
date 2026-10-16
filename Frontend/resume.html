@@ -305,10 +305,11 @@ main.content {
 </script>
 
 
+  <script src="speech_markdown_utils.js"></script>
   <script src="resume.js"></script>
   <script src="auth.js"></script>
 
-  <!-- File Label, Voice & Camera Visibility -->
+  <!-- File Label & Camera Visibility -->
   <script>
     const videoContainer=document.getElementById("video-container");
     const recordBtn=document.getElementById("record-button");
@@ -335,21 +336,6 @@ main.content {
       recordBtn.addEventListener("click",()=>{videoContainer.style.display="block";});
       stopBtn.addEventListener("click",()=>{videoContainer.style.display="none";});
     }
-
-    // Better voice output: pick best female voice
-    function setPreferredVoice(){
-      const synth=window.speechSynthesis;
-      const voices=synth.getVoices();
-      if(!voices.length){
-        setTimeout(setPreferredVoice,500);
-        return;
-      }
-      window.prepAuraVoice = voices.find(v=>v.name.toLowerCase().includes("female")) || 
-                             voices.find(v=>v.name.toLowerCase().includes("english")) || 
-                             voices[0];
-    }
-    window.speechSynthesis.onvoiceschanged=setPreferredVoice;
-    setPreferredVoice();
   </script>
 
   <!-- Interactive Particles -->

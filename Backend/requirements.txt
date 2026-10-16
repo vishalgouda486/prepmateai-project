@@ -11,3 +11,4 @@ Flask-Login
 psycopg2-binary
 huggingface_hub
 psycopg[binary]
+imageio-ffmpeg>=0.5.1

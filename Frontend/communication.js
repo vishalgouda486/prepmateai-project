@@ -47,21 +47,18 @@ function initializeApp() {
   // --- Markdown → HTML Converter ---
   function convertMarkdownToProHTML(md) {
       if (!md) return "";
-
-      // Handle headers (### or ##) with optional leading whitespace
-      md = md.replace(/^\s*#{2,3}\s*(.*$)/gim, '<div class="ai-mini-heading">$1</div>');
-
-      // Handle bullet points (starting with - or *)
-      md = md.replace(/^\s*[-*]\s*(.*$)/gim, '<div class="ai-bullet">• $1</div>');
-
-      // Handle Bold (**text**)
-      md = md.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-
-      // Handle New lines
-      md = md.replace(/\n/g, '<br>');
-
-      return md;
-}
+      if (typeof window !== "undefined" && window.PrepAuraMarkdown) {
+          return window.PrepAuraMarkdown.render(md);
+      }
+      let text = md.trim();
+      text = text.replace(/^\s*#{2,3}\s*(.*$)/gim, '<div class="ai-mini-heading">$1</div>');
+      text = text.replace(/^\s*[-*]\s*(.*$)/gim, '<div class="ai-bullet">• $1</div>');
+      text = text.replace(/\*\*(.*?)\*\*/gim, '<strong class="inline-bold">$1</strong>');
+      text = text.replace(/__(.*?)__/gim, '<strong class="inline-bold">$1</strong>');
+      text = text.replace(/\n/g, '<br>');
+      text = text.replace(/\*\*/g, '').replace(/###/g, '');
+      return text;
+  }
 
 
   // --- 1. LOAD AI MODELS ---

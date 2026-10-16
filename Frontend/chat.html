@@ -123,6 +123,7 @@
     </div>
   </main>
 
+  <script src="speech_markdown_utils.js"></script>
   <script>
     // chat-page script: minimal, uses /api/gemini backend
     (function(){
@@ -252,6 +253,10 @@
             }
             
             // Final cleanup after stream is complete
+            if (currentAIBubble && window.PrepAuraMarkdown) {
+                const rawContent = currentAIBubble.innerHTML;
+                currentAIBubble.innerHTML = window.PrepAuraMarkdown.render(rawContent);
+            }
             currentAIBubble = null;
 
         } catch (err) {
